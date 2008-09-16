@@ -34,7 +34,6 @@ import lsst.utils
 %}
 
 %include "lsst/p_lsstSwig.i"
-# %import  "lsst/daf/base/DataProperty.i"
 
 %typemap(out) std::vector<double,std::allocator<double > >& {
 
@@ -138,6 +137,8 @@ import lsst.utils
 
 %newobject lsst::pex::policy::Policy::createPolicy;
 
+SWIG_SHARED_PTR(Policy, lsst::pex::policy::Policy)
+
 %include "lsst/pex/policy/Policy.h"
 %include "lsst/pex/policy/PolicySource.h"
 %include "lsst/pex/policy/PolicyFile.h"
@@ -150,7 +151,6 @@ import lsst.utils
     }
 }
 
-%template(PolicySharedPtr) boost::shared_ptr<lsst::pex::policy::Policy>;
 %template(NameList) std::list<std::string >;
 
 %pythoncode %{
@@ -188,12 +188,6 @@ def _Policy_getArray(p, name, defarray=None):
 
 Policy.get = _Policy_get
 Policy.getArray = _Policy_getArray
-PolicySharedPtr.get = _Policy_get
-PolicySharedPtr.getArray = _Policy_getArray
-
-def PolicyPtr(*args):
-    """return a PolicySharedPtr that owns its own Policy"""
-    return PolicySharedPtr(Policy(*args))
 
 %}
 

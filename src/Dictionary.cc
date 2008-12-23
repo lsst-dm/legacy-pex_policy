@@ -14,13 +14,6 @@
 
 using namespace std;
 
-/*
-#define EXEC_TRACE  20
-static void execTrace( string s, int level = EXEC_TRACE ){
-    lsst::pex::utils::Trace( "pex.policy.Dictionary", level, s );
-}
-*/
-
 namespace lsst {
 namespace pex {
 namespace policy {
@@ -177,7 +170,7 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
 void Definition::validate(const Policy& policy, const string& name,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -229,7 +222,7 @@ void Definition::validate(const Policy& policy, const string& name,
 void Definition::validate(const string& name, bool value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -261,7 +254,7 @@ void Definition::validate(const string& name, bool value, int curcount,
 void Definition::validate(const string& name, int value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -305,7 +298,7 @@ void Definition::validate(const string& name, int value, int curcount,
 void Definition::validate(const string& name, double value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -349,7 +342,7 @@ void Definition::validate(const string& name, double value, int curcount,
 void Definition::validate(const string& name, string value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -384,7 +377,7 @@ void Definition::validate(const string& name, string value, int curcount,
 void Definition::validate(const string& name, const Policy& value, 
                           int curcount, ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -426,7 +419,7 @@ void Definition::validate(const string& name, const Policy& value,
 void Definition::validate(const string& name, const Policy::BoolArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -473,7 +466,7 @@ void Definition::validate(const string& name, const Policy::BoolArray& value,
 void Definition::validate(const string& name, const Policy::IntArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -527,7 +520,7 @@ void Definition::validate(const string& name, const Policy::IntArray& value,
 void Definition::validate(const string& name, const Policy::DoubleArray& value,
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -582,7 +575,7 @@ void Definition::validate(const string& name,
                           const Policy::StringPtrArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -631,7 +624,7 @@ void Definition::validate(const string& name,
                           const Policy::PolicyPtrArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -673,13 +666,11 @@ const regex Dictionary::FIELDSEP_RE("\\.");
  */
 Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw runtime_error(string(filePath) + 
-                            ": does not contain a dictionary");
+        throw LSST_EXCEPT(RuntimeErrorException, string(filePath) + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(PolicyFile filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw runtime_error(filePath.getPath() + 
-                            ": does not contain a dictionary");
+        throw LSST_EXCEPT(RuntimeErrorException, filePath.getPath() + ": does not contain a dictionary");
 }
 
 /**
@@ -697,15 +688,15 @@ Definition* Dictionary::makeDef(const string& name) const {
     sregex_token_iterator end;
     string find;
     while (it != end) {
-        if (! p->isPolicy("definitions")) throw NameNotFound(*it);
+        if (! p->isPolicy("definitions")) throw LSST_EXCEPT(NameNotFound, *it);
         sp = p->getPolicy("definitions");
         find = *it;
-        if (! sp->isPolicy(find)) throw NameNotFound(find);
+        if (! sp->isPolicy(find)) throw LSST_EXCEPT(NameNotFound, find);
         sp = sp->getPolicy(find);
         p = sp.get();
         if (++it != end) {
             if (! sp->isPolicy("dictionary")) 
-                throw NameNotFound(find+".dictionary");
+                throw LSST_EXCEPT(NameNotFound, find+".dictionary");
             sp = sp->getPolicy("dictionary");
             p = sp.get();
         }
@@ -717,7 +708,7 @@ Definition* Dictionary::makeDef(const string& name) const {
  * validate a Policy against this Dictionary
  */
 void Dictionary::validate(const Policy& pol, ValidationError *errs) const { 
-    ValidationError ve;
+    ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
@@ -732,12 +723,10 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
         }
     }
     catch (NameNotFound& e) {
-        throw logic_error(string("Programmer Error: Param went missing: ") + 
-                          e.what());
+        throw LSST_EXCEPT(LogicErrorException, string("Programmer Error: Param went missing: ") + e.what());
     }
     catch (TypeError& e) {
-        throw logic_error(string("Programmer Error: Param's type morphed: ") + 
-                          e.what());
+        throw LSST_EXCEPT(LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;

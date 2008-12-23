@@ -18,13 +18,7 @@
 
 using namespace std;
 namespace fs = boost::filesystem;
-
-/*
-#define EXEC_TRACE  20
-static void execTrace( string s, int level = EXEC_TRACE ){
-    lsst::pex::utils::Trace( "pex.policy.Policy", level, s );
-}
-*/
+namespace pexExcept = lsst::pex::exceptions;
 
 namespace lsst {
 namespace pex {
@@ -231,7 +225,7 @@ Policy& Policy::_getPolicyFor(Mode mode, string& relname,
 
     if (dot == 0 || dot >= relname.size()-1)
         // name begins or ends with a dot--not nice
-        throw BadNameError(relname);
+        throw LSST_EXCEPT(BadNameError, relname);
 
     dot = relname.find('.');
     string head = (dot == string::npos) ? relname : relname.substr(0,dot);
@@ -250,7 +244,7 @@ Policy& Policy::_getPolicyFor(Mode mode, string& relname,
             return child.back()->_getPolicyFor(mode, relname,parentname);
         }
         catch (BADANYCAST&) {
-            throw new TypeError(parentname, typeName[POLICY]);
+            throw LSST_EXCEPT(TypeError, parentname, typeName[POLICY]);
         }
     }
     else if (mode == ENSURE) {
@@ -271,7 +265,7 @@ Policy& Policy::_getPolicyFor(Mode mode, string& relname,
         }
         catch (BADANYCAST& e) {
             // shouldn't happen!
-            throw logic_error("Policy: unexpected type held by any");
+            throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
         }
     }
     else if (mode == STRICT) {
@@ -279,7 +273,7 @@ Policy& Policy::_getPolicyFor(Mode mode, string& relname,
         if (parentname.size() > 0) parentname.append(1, '.');
         parentname.append(head);
 
-        throw NameNotFound(parentname);
+        throw LSST_EXCEPT(NameNotFound, parentname);
     }
 
     // can't/shouldn't recurse further, so stop here.
@@ -299,7 +293,7 @@ ANYTYPE& Policy::_getValue(const string& name) {
     if (childptr == parent._data.end()) {
         if (policyname.size() > 0) policyname.append(1,'.');
         policyname.append(fullname);
-        throw NameNotFound(policyname);
+        throw LSST_EXCEPT(NameNotFound, policyname);
     }
     return childptr->second;
 }
@@ -337,7 +331,7 @@ size_t Policy::valueCount(const string& name) const {
             out = p->size();
         }
         else {
-            throw logic_error("Policy: unexpected type held by any");
+            throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
         }
     }
     catch (NameNotFound&) { }
@@ -380,7 +374,7 @@ const std::type_info& Policy::getTypeInfo(const string& name) const {
         return typeid(*(f->back()));
     }
     else {
-        throw logic_error("Policy: unexpected type held by any");
+        throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
     }
 }
 
@@ -419,7 +413,7 @@ Policy::ValueType Policy::getValueType(const string& name) const {
             return FILE;
         }
         else {
-            throw logic_error("Policy: unexpected type held by any");
+            throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
         }
     } catch (NameNotFound&) {
         return UNDEF;
@@ -474,7 +468,7 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             try {
                 pf.load(*policy);
             }
-            catch (IOError& e) {
+            catch (IOErrorException& e) {
                 if (strict) {
                     // TODO: use LSST exceptions
                     throw e;
@@ -581,7 +575,7 @@ string Policy::str(const string& name, const string& indent) const {
             }
         }
         else {
-            throw logic_error("Policy: unexpected type held by any");
+            throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
         }
     }
     catch (NameNotFound&) {

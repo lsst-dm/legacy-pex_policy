@@ -15,7 +15,8 @@
 
 #include "lsst/pex/policy/Policy.h"
 #include <boost/regex.hpp>
-#include <stdexcept>
+
+namespace pexExcept = lsst::pex::exceptions;
 
 namespace lsst {
 namespace pex {
@@ -29,7 +30,7 @@ namespace policy {
  * Policy Dictionary.  Each error is represented by an enumeration constant
  * which maps to an error message.  
  */
-class ValidationError : public logic_error {
+class ValidationError : public pexExcept::LogicErrorException {
 public:
 
     /**
@@ -104,9 +105,10 @@ public:
     /**
      * create an empty ValidationError message
      */
-    ValidationError() : 
-        logic_error("policy has unknown validation errors"), 
-        _errors() 
+    ValidationError(LSST_EARGS_TYPED) 
+       : pexExcept::LogicErrorException(LSST_EARGS_UNTYPED, 
+                                        "policy has unknown validation errors"), 
+       _errors() 
     { }
 
     /**

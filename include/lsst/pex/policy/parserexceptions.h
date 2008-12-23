@@ -11,7 +11,7 @@
 #ifndef LSST_PEX_POLICY_PARSER_EXCEPTIONS_H
 #define LSST_PEX_POLICY_PARSER_EXCEPTIONS_H
 
-#include <stdexcept>
+#include "lsst/pex/policy/exceptions.h"
 #include <sstream>
 
 namespace lsst {
@@ -28,8 +28,8 @@ public:
     /**
      * Create an exception the exception with a default message.
      */
-    ParserError(LSST_EARGS_TYPED) 
-        : pexExcept::RuntimeErrorException(LSST_EARGS_UNTYPED, 
+    ParserError(POL_EARGS_TYPED) 
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED, 
                                        "Unspecified parsing error encountered") 
     { }
 
@@ -37,8 +37,8 @@ public:
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    ParserError(LSST_EARGS_TYPED, const std::string& msg) 
-        : pexExcept::RuntimeErrorException(LSST_EARGS_UNTYPED, msg) 
+    ParserError(POL_EARGS_TYPED, const std::string& msg) 
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED, msg) 
     { }
 
     /**
@@ -48,8 +48,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    ParserError(LSST_EARGS_TYPED, const std::string& msg, int lineno) 
-        : pexExcept::RuntimeErrorException(LSST_EARGS_UNTYPED, 
+    ParserError(POL_EARGS_TYPED, const std::string& msg, int lineno) 
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED, 
                                            makeLocatedMessage(msg,lineno)) 
     { }
 
@@ -69,8 +69,8 @@ public:
     /**
      * Create an exception the exception with a default message.
      */
-    EOFError(LSST_EARGS_TYPED) 
-        : ParserError(LSST_EARGS_UNTYPED, 
+    EOFError(POL_EARGS_TYPED) 
+        : ParserError(POL_EARGS_UNTYPED, 
                       "Unexpected end of Policy data stream") 
     { }
 
@@ -78,8 +78,8 @@ public:
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    EOFError(LSST_EARGS_TYPED, const std::string& msg) 
-        : ParserError(LSST_EARGS_UNTYPED, msg) { }
+    EOFError(POL_EARGS_TYPED, const std::string& msg) 
+        : ParserError(POL_EARGS_UNTYPED, msg) { }
 
     /**
      * Create an exception the exception with a default message.
@@ -87,8 +87,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    EOFError(LSST_EARGS_TYPED, int lineno) 
-        : ParserError(LSST_EARGS_UNTYPED, 
+    EOFError(POL_EARGS_TYPED, int lineno) 
+        : ParserError(POL_EARGS_UNTYPED, 
                       "Unexpected end of Policy data stream", lineno) 
     { }
 
@@ -99,8 +99,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    EOFError(LSST_EARGS_TYPED, const std::string& msg, int lineno) 
-        : ParserError(LSST_EARGS_UNTYPED, msg, lineno) { }
+    EOFError(POL_EARGS_TYPED, const std::string& msg, int lineno) 
+        : ParserError(POL_EARGS_UNTYPED, msg, lineno) { }
 };
 
 /**
@@ -112,15 +112,15 @@ public:
     /**
      * Create an exception the exception with a default message.
      */
-    SyntaxError(LSST_EARGS_TYPED) 
-        : ParserError(LSST_EARGS_UNTYPED, "Unknonwn syntax error") { }
+    SyntaxError(POL_EARGS_TYPED) 
+        : ParserError(POL_EARGS_UNTYPED, "Unknonwn syntax error") { }
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    SyntaxError(LSST_EARGS_TYPED, const std::string& msg) 
-        : ParserError(LSST_EARGS_UNTYPED, msg) { }
+    SyntaxError(POL_EARGS_TYPED, const std::string& msg) 
+        : ParserError(POL_EARGS_UNTYPED, msg) { }
 
     /**
      * Create an exception the exception with a given message.
@@ -129,8 +129,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    SyntaxError(LSST_EARGS_TYPED, const std::string& msg, int lineno) 
-        : ParserError(LSST_EARGS_UNTYPED, msg, lineno) { }
+    SyntaxError(POL_EARGS_TYPED, const std::string& msg, int lineno) 
+        : ParserError(POL_EARGS_UNTYPED, msg, lineno) { }
 
 };
 
@@ -144,15 +144,15 @@ public:
     /**
      * Create an exception the exception with a default message.
      */
-    FormatSyntaxError(LSST_EARGS_TYPED) 
-        : SyntaxError(LSST_EARGS_UNTYPED, "Unknonwn syntax error") { }
+    FormatSyntaxError(POL_EARGS_TYPED) 
+        : SyntaxError(POL_EARGS_UNTYPED, "Unknonwn syntax error") { }
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    FormatSyntaxError(LSST_EARGS_TYPED, const std::string& msg) 
-        : SyntaxError(LSST_EARGS_UNTYPED, msg) { }
+    FormatSyntaxError(POL_EARGS_TYPED, const std::string& msg) 
+        : SyntaxError(POL_EARGS_UNTYPED, msg) { }
 
     /**
      * Create an exception the exception with a given message.
@@ -161,8 +161,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    FormatSyntaxError(LSST_EARGS_TYPED, const std::string& msg, int lineno) 
-        : SyntaxError(LSST_EARGS_UNTYPED, msg, lineno) { }
+    FormatSyntaxError(POL_EARGS_TYPED, const std::string& msg, int lineno) 
+        : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) { }
 };
 
 /**
@@ -175,15 +175,15 @@ public:
     /**
      * Create an exception the exception with a default message.
      */
-    UnsupportedSyntax(LSST_EARGS_TYPED) 
-        : SyntaxError(LSST_EARGS_UNTYPED, "Unsupported syntax error") { }
+    UnsupportedSyntax(POL_EARGS_TYPED) 
+        : SyntaxError(POL_EARGS_UNTYPED, "Unsupported syntax error") { }
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    UnsupportedSyntax(LSST_EARGS_TYPED, const std::string& msg) 
-        : SyntaxError(LSST_EARGS_UNTYPED, msg) { }
+    UnsupportedSyntax(POL_EARGS_TYPED, const std::string& msg) 
+        : SyntaxError(POL_EARGS_UNTYPED, msg) { }
 
     /**
      * Create an exception the exception with a given message.
@@ -192,8 +192,8 @@ public:
      *                  where the problem occurred.  The first line of the 
      *                  file is typically line 1.  
      */
-    UnsupportedSyntax(LSST_EARGS_TYPED, const std::string& msg, int lineno) 
-        : SyntaxError(LSST_EARGS_UNTYPED, msg, lineno) { }
+    UnsupportedSyntax(POL_EARGS_TYPED, const std::string& msg, int lineno) 
+        : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) { }
 };
 
 

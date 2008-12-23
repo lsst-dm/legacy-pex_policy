@@ -13,6 +13,9 @@
 
 #include "lsst/pex/exceptions.h"
 
+#define POL_EARGS_TYPED char const* ex_file, int ex_line, char const* ex_func
+#define POL_EARGS_UNTYPED ex_file, ex_line, ex_func
+
 namespace lsst {
 namespace pex {
 namespace policy {
@@ -25,39 +28,39 @@ namespace pexExcept = lsst::pex::exceptions;
  * either starts with a period, ends with a period, or contains two or more
  * consecutive periods.
  */
-class BadNameError : public pexExcept::RuntimeException {
+class BadNameError : public pexExcept::RuntimeErrorException {
 public:
-    BadNameError(LSST_EARGS_TYPED) 
-        : pexExcept::RuntimeErrorException(LSST_EARGS_UNTYPED, 
+    BadNameError(POL_EARGS_TYPED) 
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED, 
                                            "Illegal Policy parameter name") 
     { }
-    BadNameError(LSST_EARGS_TYPED, const std::string& badname) : 
-        : pexExcept::RuntimeErrorException(LSST_EARGS_UNTYPED, 
+    BadNameError(POL_EARGS_TYPED, const std::string& badname) 
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED, 
               std::string("Illegal Policy parameter name: ") + badname) 
     { }
 };
 
 class NameNotFound : public pexExcept::NotFoundException {
 public:
-    NameNotFound(LSST_EARGS_TYPED) 
-        : pexExcept::NotFoundException(LSST_EARGS_UNTYPED, 
+    NameNotFound(POL_EARGS_TYPED) 
+        : pexExcept::NotFoundException(POL_EARGS_UNTYPED, 
                                        "Policy parameter name not found") 
     { }
-    NameNotFound(LSST_EARGS_TYPED, const std::string& parameter) : 
-        : pexExcept::NotFoundException(LSST_EARGS_UNTYPED, 
+    NameNotFound(POL_EARGS_TYPED, const std::string& parameter) 
+        : pexExcept::NotFoundException(POL_EARGS_UNTYPED, 
                   std::string("Policy parameter name not found: ") + parameter) 
     { }
 };
 
 class TypeError : public pexExcept::DomainErrorException {
 public:
-    TypeError(LSST_EARGS_TYPED) 
-        : pexExcept::DomainErrorException(LSST_EARGS_UNTYPED, 
+    TypeError(POL_EARGS_TYPED) 
+        : pexExcept::DomainErrorException(POL_EARGS_UNTYPED, 
                                           "Parameter has wrong type") 
     { }
-    TypeError(LSST_EARGS_TYPED, 
+    TypeError(POL_EARGS_TYPED, 
               const std::string& parameter, const std::string& expected)  
-        : pexExcept::DomainErrorException(LSST_EARGS_UNTYPED, 
+        : pexExcept::DomainErrorException(POL_EARGS_UNTYPED, 
                                std::string("Parameter \"") + parameter + 
                                "\" has wrong type; expecting " + expected + ".") 
     { }

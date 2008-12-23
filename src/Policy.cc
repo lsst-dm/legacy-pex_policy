@@ -34,19 +34,19 @@ const char * const Policy::typeName[] = {
     "PolicyFile"
 };
 
-/**
+/*
  * Create an empty policy
  */
 Policy::Policy() : Citizen(typeid(this)), _data() { }
 
-/**
+/*
  * Create policy
  */
 Policy::Policy(PolicyFile& file) : Citizen(typeid(this)), _data() { 
     file.load(*this);
 }
 
-/**
+/*
  * Create a Policy from a named file
  */
 Policy::Policy(const string& filePath) : Citizen(typeid(this)), _data() {
@@ -54,7 +54,7 @@ Policy::Policy(const string& filePath) : Citizen(typeid(this)), _data() {
     file.load(*this);
 }
 
-/**
+/*
  * Create a default Policy from a Dictionary.  
  *
  * Note:  validation is not implemented yet.
@@ -77,7 +77,7 @@ Policy::Policy(bool validate, const Dictionary& dict)
     }
 }
 
-/**
+/*
  * copy a Policy.  Sub-policy objects will be shared.  
  */
 Policy::Policy(const Policy& pol, bool deep) 
@@ -128,12 +128,12 @@ Policy* Policy::_createPolicy(const string& input, bool doIncludes,
     return _createPolicy(file, doIncludes, repos, validate);
 }
 
-/**
+/*
  * Create an empty policy
  */
 Policy::~Policy() { }
 
-/**
+/*
  * load the names of parameters into a given list.  \c names() returns
  * all names, \c paramNames() only returns the names that resolve to
  * non-Policy type parameters, and \c policyNames() only returns the 
@@ -187,7 +187,7 @@ int Policy::_names(const string& prepend, list<string>& names,
 }
 
 
-/**
+/*
  * return the Policy object that holds the property given 
  * by relname, a hierarchical name.  
  * @param mode        the search behavior mode.  If set to STRICT, an 
@@ -280,7 +280,7 @@ Policy& Policy::_getPolicyFor(Mode mode, string& relname,
     return *this;
 }
 
-/**
+/*
  * return the value associated with a given name.  
  * @exception NameNotFound  if no value is associated with the given name.
  */
@@ -298,7 +298,7 @@ ANYTYPE& Policy::_getValue(const string& name) {
     return childptr->second;
 }
 
-/**
+/*
  * return the number of values currently associated with a given name.  Zero
  * is returned if the value has not been set.  
  */
@@ -339,7 +339,7 @@ size_t Policy::valueCount(const string& name) const {
     return out;
 }
 
-/**
+/*
  * return the type information for the underlying type associated with
  * a given name
  */
@@ -378,7 +378,7 @@ const std::type_info& Policy::getTypeInfo(const string& name) const {
     }
 }
 
-/**
+/*
  * return the type information for the underlying type associated with
  * a given name.  
  */
@@ -420,7 +420,7 @@ Policy::ValueType Policy::getValueType(const string& name) const {
     }
 }
 
-/**
+/*
  * recursively replace all PolicyFile values with the contents of the 
  * files they refer to.  The type of a parameter containing a PolicyFile
  * will consequently change to a Policy upon successful completion.  If
@@ -468,7 +468,7 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             try {
                 pf.load(*policy);
             }
-            catch (IOErrorException& e) {
+            catch (pexExcept::IoErrorException& e) {
                 if (strict) {
                     // TODO: use LSST exceptions
                     throw e;
@@ -510,7 +510,7 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
 }
 
 
-/**
+/*
  * return a string representation of the value given by a name.  The
  * string "<null>" is printed if the name does not exist.
  */
@@ -586,7 +586,7 @@ string Policy::str(const string& name, const string& indent) const {
     return out.str();
 }
 
-/**
+/*
  * print the contents of this policy to an output stream
  */
 void Policy::print(ostream& out, const string& label, 
@@ -601,7 +601,7 @@ void Policy::print(ostream& out, const string& label,
     }
 }
 
-/**
+/*
  * convert the entire contents of this policy to a string.  This 
  * is mainly intended for debugging purposes.  
  */

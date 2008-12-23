@@ -67,7 +67,7 @@ Policy::ValueType Definition::_determineType() const {
     return Policy::UNDEF;
 }
     
-/**
+/*
  * the default value into the given policy
  * @param policy   the policy object update
  * @param withName the name to look for the value under.  This must be 
@@ -159,7 +159,7 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
     }
 }
 
-/**
+/*
  * confirm that a Policy parameter conforms this definition
  * @param policy   the policy object to inspect
  * @param name     the name to look for the value under.  If not given
@@ -211,7 +211,7 @@ void Definition::validate(const Policy& policy, const string& name,
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
-/**
+/*
  * confirm that a Policy parameter name-value combination is consistent 
  * with this dictionary.  This does not check occurance compliance
  * @param name     the name of the parameter being checked
@@ -407,7 +407,7 @@ void Definition::validate(const string& name, const Policy& value,
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
-/**
+/*
  * confirm that a Policy parameter name-array value combination is 
  * consistent with this dictionary.  Unlike the scalar version, 
  * this does check occurance compliance.  
@@ -661,19 +661,19 @@ void Definition::validate(const string& name,
 
 const regex Dictionary::FIELDSEP_RE("\\.");
 
-/**
+/*
  * load a dictionary from a file
  */
 Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw LSST_EXCEPT(RuntimeErrorException, string(filePath) + ": does not contain a dictionary");
+        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(PolicyFile filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw LSST_EXCEPT(RuntimeErrorException, filePath.getPath() + ": does not contain a dictionary");
+        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, filePath.getPath() + ": does not contain a dictionary");
 }
 
-/**
+/*
  * return a definition for the named parameter.  The caller is responsible
  * for deleting the returned object.  This is slightly more efficient the 
  * getDef().
@@ -704,7 +704,7 @@ Definition* Dictionary::makeDef(const string& name) const {
     return new Definition(name, sp);
 }
 
-/**
+/*
  * validate a Policy against this Dictionary
  */
 void Dictionary::validate(const Policy& pol, ValidationError *errs) const { 
@@ -723,10 +723,10 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
         }
     }
     catch (NameNotFound& e) {
-        throw LSST_EXCEPT(LogicErrorException, string("Programmer Error: Param went missing: ") + e.what());
+        throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param went missing: ") + e.what());
     }
     catch (TypeError& e) {
-        throw LSST_EXCEPT(LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
+        throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;

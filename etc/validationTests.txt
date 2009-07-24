@@ -1,0 +1,31 @@
+Policy Validation Tests
+
+Rules that validation code must check:
+
+From the point of view of the dictionary:
+
+* type
+    * the values fit the type
+* description
+    * no test necessary
+* minOccurs, maxOccurs
+    * the number of values present is within the specified range
+* default
+    * no test necessary
+    * [when testing a Dictionary, ensure that the default is of the proper value]
+* dictionaryFile, dictionary
+    * when validating a relevant sub-policy, recurse to the specified dictionary
+* allowed.value, allowed.min, allowed.max
+    * if allowed values are specified, check that any specified values are listed
+* allowed.description
+    * no test necessary
+* childDefinition
+    * Let's procrastinate on this one for now
+
+In pseudocode, operating on a policy:
+
+* for each element
+    * find the corresponding type definition
+        * either named or not
+    * check the value
+        * if policy, recurse

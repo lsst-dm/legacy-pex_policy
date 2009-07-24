@@ -3,6 +3,7 @@ Policy Validation Tests
 Rules that validation code must check:
 
 From the point of view of the dictionary:
+(See Dictionary.h, the prologue to class Dictionary)
 
 * type
     * the values fit the type

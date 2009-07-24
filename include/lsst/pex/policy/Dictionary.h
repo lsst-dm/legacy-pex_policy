@@ -521,7 +521,10 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  *                                      int and double typed parameters.
  * allowed.max   optional     *       The maximum allowed value, used for 
  *                                      int and double typed parameters.
- * childDefinition optional   Policy  
+ * childDefinition optional   Policy    A general definition for policy elements
+ *                                      whose names may or may not be known
+ *                                      ahead of time; all such elements must be
+ *                                      of uniform type
  * -------------------------------------------------------------------------
  * *the type must be that specified by the type parameter. 
  * \endverbatim

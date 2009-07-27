@@ -2,31 +2,45 @@ Policy Validation Tests
 
 Rules that validation code must check:
 
-From the point of view of the dictionary:
+From the point of view of the dictionary spec:
 (See Dictionary.h, the prologue to class Dictionary)
 
-* type
-    * the values fit the type
-* description
-    * no test necessary
-* minOccurs, maxOccurs
-    * the number of values present is within the specified range
-* default
-    * no test necessary
-    * [when testing a Dictionary, ensure that the default is of the proper value]
-* dictionaryFile, dictionary
-    * when validating a relevant sub-policy, recurse to the specified dictionary
-* allowed.value, allowed.min, allowed.max
-    * if allowed values are specified, check that any specified values are listed
-* allowed.description
-    * no test necessary
-* childDefinition
-    * Let's procrastinate on this one for now
+Validating Policies:
+  * type
+     * the values fit the type
+        * int, bool, double, string, policy (or undefined)
+        * for policy type, recurse (see dictionary/dictionaryFile below)
+  * description
+     * no test necessary
+  * minOccurs, maxOccurs
+     * the number of values present is within the specified range
+        * minOccurs > maxOccurs -- error
+        * minOccurs <=0 -- optional
+        * minOccurs >0 -- required
+        * maxOccurs <0 -- no limit
+        * maxOccurs =0 -- not allowed
+        * maxOccurs >0 -- finite limit
+  * allowed.value, allowed.min, allowed.max
+     * ensure that the values are in the proper range
+  * default
+     * ensure that the default is legal
+        * proper type (if defined)
+        * allowed value (if specified)
+        * number of occurences
+  * dictionary, dictionaryFile
+     * when validating a relevant sub-policy, recurse to the specified dictionary
+  * allowed.description
+     * no test necessary
+  * childDefinition
+     * Let's procrastinate on this one for now
 
 In pseudocode, operating on a policy:
 
-* for each element
-    * find the corresponding type definition
+  * for each element
+     * find the corresponding type definition
         * either named or not
-    * check the value
-        * if policy, recurse
+     * check the value
+        * type, if defined
+           * if policy, recurse
+        * number of occurrences
+        * legal values

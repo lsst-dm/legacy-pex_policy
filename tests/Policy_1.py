@@ -28,8 +28,8 @@ class PolicyTestCase(unittest.TestCase):
                         "non-empty non-existence type test failed");
         self.assertRaises(LsstCppException, p.getTypeInfo, "foo")
 
-        # existance tests
-        self.assert_(p.exists("doall"), "non-empty existance test failed")
+        # existence tests
+        self.assert_(p.exists("doall"), "non-empty existence test failed")
         self.assertEquals(p.valueCount("doall"), 1,
                           "single valueCount test failed");
 

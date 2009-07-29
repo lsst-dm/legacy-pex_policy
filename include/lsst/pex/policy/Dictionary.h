@@ -181,8 +181,8 @@ protected:
 };
 
 /**
- * @brief a convenience convenience container for a single parameter 
- * definition from a dictionary.
+ * @brief a convenience container for a single parameter definition from a
+ * dictionary.
  */
 class Definition : public dafBase::Citizen {
 public:

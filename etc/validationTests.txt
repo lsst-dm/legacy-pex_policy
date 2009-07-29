@@ -28,7 +28,8 @@ Validating Policies:
         * allowed value (if specified)
         * number of occurences
   * dictionary, dictionaryFile
-     * when validating a relevant sub-policy, recurse to the specified dictionary
+     * when validating a relevant sub-policy, recurse to the specified
+       dictionary
   * allowed.description
      * no test necessary
   * childDefinition

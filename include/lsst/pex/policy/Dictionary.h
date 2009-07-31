@@ -81,15 +81,25 @@ public:
         VALUE_OUT_OF_RANGE = 64,
 
         /**
-         * the value false outside of the supported domain of values.
+         * the value falls outside of the supported domain of values.
          * This bit-wise ORs VALUE_DISALLOWED and VALUE_OUT_OF_RANGE.
          */
-        BAD_VALUE = 96, 
+        BAD_VALUE = 96,
+
+        /**
+         * The value's name is not recognized.
+         */
+        UNKNOWN_NAME = 128,
+
+        /**
+         * The value's dictionary definition is malformed.
+         */
+        BAD_DEFINITION = 256,
 
         /**
          * an unknown error.  This is the highest error number.
          */
-        UNKNOWN_ERROR = 128
+        UNKNOWN_ERROR = 512
     };
 
     static const std::string& getErrorMessageFor(ErrorType err) {
@@ -103,6 +113,7 @@ public:
 
     static const std::string EMPTY;
 
+    // TODO: create way to change message when an error actually occurs
     /**
      * create an empty ValidationError message
      */
@@ -138,6 +149,12 @@ public:
         for(it = _errors.begin(); it != _errors.end(); it++)
             names.push_back(it->first);
     }
+
+    /**
+     * The names of the parameters that had problems.
+     * Same functionality as paramNames(), but more SWIGable.
+     */
+    std::vector<std::string> getParamNames() const;
 
     /**
      * get the errors encountered for the given parameter name
@@ -274,6 +291,8 @@ public:
      * return the type identifier for the parameter
      */
     Policy::ValueType getType() const {
+	// TODO distinguish between unknown and undetermined type
+	// -- so that _determineType() isn't called repeatedly?
         if (_type == Policy::UNDEF) _type = _determineType();
         return _type;
     }
@@ -604,7 +623,7 @@ public:
 
     /**
      * return a definition for the named parameter.  The caller is responsible
-     * for deleting the returned object.  This is slightly more efficient the 
+     * for deleting the returned object.  This is slightly more efficient than
      * getDef().
      * @param name    the hierarchical name for the parameter
      */

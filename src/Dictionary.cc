@@ -6,6 +6,7 @@
 // #include "lsst/pex/utils/Trace.h"
 
 #include <stdexcept>
+#include <iostream> // remove after debugging
 #include <memory>
 #include <string>
 #include <set>
@@ -39,8 +40,19 @@ void ValidationError::_loadMessages() {
     _errmsgs[VALUE_DISALLOWED] = "value is not among defined set";
     _errmsgs[VALUE_OUT_OF_RANGE] = "value is out of range";
     _errmsgs[BAD_VALUE] = "illegal value";
+    _errmsgs[UNKNOWN_NAME] = "parameter name is unknown";
+    _errmsgs[BAD_DEFINITION] = "malformed definition";
     _errmsgs[UNKNOWN_ERROR] = "unknown error";
 }
+
+vector<string> ValidationError::getParamNames() const {
+    std::vector<std::string> result;
+    map<string, int>::const_iterator i;
+    for (i = _errors.begin(); i != _errors.end(); ++i)
+        result.push_back(i->first);
+    return result;
+}
+
 
 ValidationError::~ValidationError() throw() { }
 
@@ -80,7 +92,7 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
     if (type == Policy::UNDEF) 
         type = _policy->getValueType("default");
 
-    switch (getType()) {
+    switch (type) {
     case Policy::BOOL: 
     {
         const Policy::BoolArray& defs = _policy->getBoolArray("default");
@@ -156,12 +168,13 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
     }
 
     default:
-        break;
+	throw LSST_EXCEPT(pexExcept::LogicErrorException,
+			  string("Programmer Error: Unknown type: ") + Policy::typeName[getType()]);
     }
 }
 
 /*
- * confirm that a Policy parameter conforms this definition
+ * confirm that a Policy parameter conforms to this definition
  * @param policy   the policy object to inspect
  * @param name     the name to look for the value under.  If not given
  *                  the name set in this definition will be used.
@@ -184,29 +197,33 @@ void Definition::validate(const Policy& policy, const string& name,
         return;
     }
 
-    switch (policy.getValueType(name)) {
+    // TODO handle type unspecified in dictionary
+    Policy::ValueType type = policy.getValueType(name);
+    switch (type) {
     case Policy::BOOL: 
-        validate(name, _policy->getBoolArray("default"), use);
+        validate(name, policy.getBoolArray(name), use);
         break;
 
     case Policy::INT:
-        validate(name, _policy->getIntArray("default"), use);
+        validate(name, policy.getIntArray(name), use);
         break;
 
     case Policy::DOUBLE:
-        validate(name, _policy->getDoubleArray("default"), use);
+        validate(name, policy.getDoubleArray(name), use);
         break;
 
     case Policy::STRING:
-        validate(name, _policy->getStringArray("default"), use);
+        validate(name, policy.getStringArray(name), use);
         break;
 
     case Policy::POLICY:
-        validate(name, _policy->getPolicyArray("default"), use);
+        validate(name, policy.getPolicyArray(name), use);
         break;
 
     default:
-        break;
+	throw LSST_EXCEPT(pexExcept::LogicErrorException,
+			  string("Programmer Error: Unknown type: ") 
+			  + policy.getTypeName(name));
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -438,7 +455,7 @@ void Definition::validate(const string& name, const Policy::BoolArray& value,
             use->addError(name, ValidationError::ARRAY_TOO_SHORT);
     }
 
-    if (getType() != Policy::INT) {
+    if (getType() != Policy::BOOL) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -527,6 +544,7 @@ void Definition::validate(const string& name, const Policy::DoubleArray& value,
 
     // check that we have the number of values
     int lim = getMaxOccurs();
+    cout << "      = max values = " << lim << endl;
     if (lim >= 0 && int(value.size()) > lim) 
         use->addError(name, ValidationError::TOO_MANY_VALUES);
     lim = getMinOccurs();
@@ -572,8 +590,7 @@ void Definition::validate(const string& name, const Policy::DoubleArray& value,
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
-void Definition::validate(const string& name, 
-                          const Policy::StringArray& value, 
+void Definition::validate(const string& name, const Policy::StringArray& value, 
                           ValidationError *errs) const 
 { 
     ValidationError ve(LSST_EXCEPT_HERE);
@@ -582,6 +599,7 @@ void Definition::validate(const string& name,
 
     // check that we have the number of values
     int lim = getMaxOccurs();
+    cout << "      - max values = " << lim << endl;
     if (lim >= 0 && int(value.size()) > lim) 
         use->addError(name, ValidationError::TOO_MANY_VALUES);
     lim = getMinOccurs();
@@ -594,7 +612,7 @@ void Definition::validate(const string& name,
             use->addError(name, ValidationError::ARRAY_TOO_SHORT);
     }
 
-    if (getType() != Policy::INT) {
+    if (getType() != Policy::STRING) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -680,7 +698,7 @@ Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) {
 
 /*
  * return a definition for the named parameter.  The caller is responsible
- * for deleting the returned object.  This is slightly more efficient the 
+ * for deleting the returned object.  This is slightly more efficient than
  * getDef().
  * @param name    the hierarchical name for the parameter
  */
@@ -693,19 +711,21 @@ Definition* Dictionary::makeDef(const string& name) const {
     sregex_token_iterator end;
     string find;
     while (it != end) {
-        if (! p->isPolicy("definitions")) throw LSST_EXCEPT(NameNotFound, *it);
-        sp = p->getPolicy("definitions");
         find = *it;
+        if (! p->isPolicy("definitions"))
+            throw LSST_EXCEPT(DictionaryError, "Definition for " + find + " not found.");
+        sp = p->getPolicy("definitions");
         if (! sp->isPolicy(find)) throw LSST_EXCEPT(NameNotFound, find);
         sp = sp->getPolicy(find);
         p = sp.get();
         if (++it != end) {
-            if (! sp->isPolicy("dictionary")) 
-                throw LSST_EXCEPT(NameNotFound, find+".dictionary");
+            if (! sp->isPolicy("dictionary"))
+                throw LSST_EXCEPT(DictionaryError, find + ".dictionary not found.");
             sp = sp->getPolicy("dictionary");
             p = sp.get();
         }
     }
+    // TODO: if no definition found, look for childDefinition
     return new Definition(name, sp);
 }
 
@@ -741,22 +761,30 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
+    cout << "** errors at start: " << use->getParamCount() << endl;
 
     Policy::StringArray params = pol.names(true);
-    try {
-        Policy::StringArray::iterator ni;
-        for(ni = params.begin(); ni != params.end(); ++ni) {
+    Policy::StringArray::iterator ni;
+    for(ni = params.begin(); ni != params.end(); ++ni) {
+	cout << "  -- errors before " << *ni << ": " << use->getParamCount() << endl;
+        try {
             scoped_ptr<Definition> def(makeDef(*ni));
             def->validate(pol, *ni, use);
+	    cout << "    + " << *ni << " okay! (" << use->getParamCount() << ")" << endl;
         }
+        catch (NameNotFound& e) {
+	    cout << "    * name not found: " << *ni << endl;
+            use->addError(*ni,ValidationError::UNKNOWN_NAME);
+        }
+        catch (TypeError& e) {
+            throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
+        }
+	cout << "  -- errors after " << *ni << ": " << use->getParamCount()
+	     << " / " << use->getErrors(*ni) << endl;
     }
-    catch (NameNotFound& e) {
-        throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param went missing: ") + e.what());
-    }
-    catch (TypeError& e) {
-        throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
-    }
+    // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception
 
+    cout << "** errors at end: " << use->getParamCount() << endl;
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 

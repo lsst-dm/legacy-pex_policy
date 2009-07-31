@@ -46,6 +46,23 @@ public:
 };
 
 /**
+ * there is a problem with a dictionary, generally found while parsing a policy
+ */
+class DictionaryError : public pexExcept::RuntimeErrorException {
+public:
+    DictionaryError(POL_EARGS_TYPED)
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED,
+                                           "Malformed dictionary")
+    { }
+    DictionaryError(POL_EARGS_TYPED, const std::string& msg)
+        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED,
+            std::string("Malformed dictionary: ") + msg)
+    { }
+    virtual char const *getType(void) const throw();
+    virtual pexExcept::Exception *clone() const;
+};
+
+/**
  * an exception indicating that a policy parameter of a given name can
  * not be found in a Policy object.
  */

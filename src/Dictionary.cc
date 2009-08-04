@@ -36,7 +36,7 @@ void ValidationError::_loadMessages() {
     _errmsgs[ARRAY_TOO_SHORT] = "insufficient number of array values";
     _errmsgs[TOO_FEW_VALUES] = "not enough values for parameter";
     _errmsgs[TOO_MANY_VALUES] = "too many values provided for parameter";
-    _errmsgs[WRONG_OCCURANCE_COUNT]="incorrect number of values for parameter";
+    _errmsgs[WRONG_OCCURRENCE_COUNT]="incorrect number of values for parameter";
     _errmsgs[VALUE_DISALLOWED] = "value is not among defined set";
     _errmsgs[VALUE_OUT_OF_RANGE] = "value is out of range";
     _errmsgs[BAD_VALUE] = "illegal value";
@@ -197,6 +197,9 @@ void Definition::validate(const Policy& policy, const string& name,
         return;
     }
 
+    // check minOccurs & maxOccurs
+    
+
     // TODO handle type unspecified in dictionary
     Policy::ValueType type = policy.getValueType(name);
     switch (type) {
@@ -231,7 +234,7 @@ void Definition::validate(const Policy& policy, const string& name,
 
 /*
  * confirm that a Policy parameter name-value combination is consistent 
- * with this dictionary.  This does not check occurance compliance
+ * with this dictionary.  This does not check occurrence compliance
  * @param name     the name of the parameter being checked
  * @param value    the value of the parameter to check.
  * @exception ValidationError   if the value does not conform.  The message
@@ -428,7 +431,7 @@ void Definition::validate(const string& name, const Policy& value,
 /*
  * confirm that a Policy parameter name-array value combination is 
  * consistent with this dictionary.  Unlike the scalar version, 
- * this does check occurance compliance.  
+ * this does check occurrence compliance.  
  * @param name     the name of the parameter being checked
  * @param value    the value of the parameter to check.
  * @exception ValidationError   if the value does not conform.  The message

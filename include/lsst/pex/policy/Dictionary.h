@@ -57,9 +57,9 @@ public:
 
         /** 
          * parameter contains too few array values.  This bit-wise ORs 
-         * MISSING_REQUIRED, NOT_AN_ARRAY, and ARRAY_TOO_SHORT
+         * MISSING_REQUIRED and ARRAY_TOO_SHORT
          */
-        TOO_FEW_VALUES = 14, 
+        TOO_FEW_VALUES = 10, 
 
         /** parameter contains too many array values */
         TOO_MANY_VALUES = 16,
@@ -69,7 +69,7 @@ public:
          * MISSING_REQUIRED, NOT_AN_ARRAY, ARRAY_TOO_SHORT, and 
          * TOO_MANY_VALUES.
          */
-        WRONG_OCCURANCE_COUNT = 30,
+        WRONG_OCCURRENCE_COUNT = 30,
 
         /** the value is not one of the explicit values allowed. */
         VALUE_DISALLOWED = 32,
@@ -314,7 +314,7 @@ public:
     }
 
     /**
-     * return the maximum number of occurances allowed for this parameter, 
+     * return the maximum number of occurrences allowed for this parameter, 
      * or -1 if there is no limit.
      */
     const int getMaxOccurs() const {
@@ -323,7 +323,7 @@ public:
     }
 
     /**
-     * return the minimum number of occurances allowed for this parameter.
+     * return the minimum number of occurrences allowed for this parameter.
      * Zero is returned if a minimum is not specified.
      */
     const int getMinOccurs() const {
@@ -382,7 +382,7 @@ public:
     //@{
     /**
      * confirm that a Policy parameter name-value combination is consistent 
-     * with this dictionary.  This does not check the minimum occurance 
+     * with this dictionary.  This does not check the minimum occurrence 
      * requirement; however, it will check if adding this will exceed the 
      * maximum, assuming that there are currently curcount values.  This 
      * method is intended for use by the Policy object to do on-the-fly
@@ -419,7 +419,7 @@ public:
     /**
      * confirm that a Policy parameter name-array value combination is 
      * consistent with this dictionary.  Unlike the scalar version, 
-     * this does check occurance compliance.  
+     * this does check occurrence compliance.  
      *
      * If a ValidationError instance is provided, any errors detected 
      * and will be loaded into it.  If no ValidationError is provided,
@@ -449,6 +449,11 @@ public:
 
 protected:
     Policy::ValueType _determineType() const;
+
+    /** Validate the number of values for a field. Used internally by the
+     *  validate() functions. */
+    void validateCount(const Policy& policy, const std::string& name,
+		       ValidationError *errs) const;
 
     static const std::string EMPTY;
 

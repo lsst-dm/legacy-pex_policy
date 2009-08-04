@@ -30,7 +30,7 @@ definitions: {
        description:  "The definiton of a parameter defined by this dictionary.
                       This parameter can have any name."
        minOccurs:    0
-       maxOccurs:    1  # only one occurance with this name allowed
+       maxOccurs:    1  # only one occurrence with this name allowed
        dictionary: {
          type: {
            type:         string

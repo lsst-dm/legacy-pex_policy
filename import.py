@@ -1,3 +1,6 @@
+# to get this to load on interactive python startup,
+# export PYTHONSTARTUP="import.py"
+
 import pdb
 import unittest
 import math

@@ -10,6 +10,7 @@ Validating Policies:
      * the values fit the type
         * int, bool, double, string, policy (or undefined)
         * for policy type, recurse (see dictionary/dictionaryFile below)
+     * undefined type -- any homogenous type will work
   * description
      * no test necessary
   * minOccurs, maxOccurs

@@ -61,6 +61,10 @@ definitions: {
               value:       policy
               description: a sub-policy: a collection of sub-parameters
            } 
+           allowed:  {
+              value:       file
+              description: the name of a sub-policy file
+           } 
          }
 
          description: {
@@ -141,7 +145,6 @@ definitions: {
              }
            }
          }
-         
          
        }
     }

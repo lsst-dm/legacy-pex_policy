@@ -6,7 +6,7 @@
 // #include "lsst/pex/utils/Trace.h"
 
 #include <stdexcept>
-#include <iostream> // remove after debugging
+#include <iostream> // TODO: remove after debugging
 #include <memory>
 #include <string>
 #include <set>
@@ -42,6 +42,7 @@ void ValidationError::_loadMessages() {
     _errmsgs[BAD_VALUE] = "illegal value";
     _errmsgs[UNKNOWN_NAME] = "parameter name is unknown";
     _errmsgs[BAD_DEFINITION] = "malformed definition";
+    _errmsgs[NOT_LOADED] = "file not loaded; call loadPolicyFiles() before validating";
     _errmsgs[UNKNOWN_ERROR] = "unknown error";
 }
 
@@ -75,9 +76,16 @@ Policy::ValueType Definition::_determineType() const {
             return Policy::STRING;
         else if (type == Policy::typeName[Policy::POLICY]) 
             return Policy::POLICY;
+        else if (type == Policy::typeName[Policy::FILE]) {
+            throw LSST_EXCEPT(DictionaryError, string("Illegal type: \"") + type
+			      + "\"; use \"" + Policy::typeName[Policy::POLICY]
+			      + "\" instead.");
+	}
+	else throw LSST_EXCEPT
+	    (DictionaryError, string("Unknown type: \"") + type + "\".");
     }
 
-    return Policy::UNDEF;
+    else return Policy::UNDEF;
 }
     
 /*
@@ -197,11 +205,9 @@ void Definition::validate(const Policy& policy, const string& name,
         return;
     }
 
-    // check minOccurs & maxOccurs
-    
-
-    // TODO handle type unspecified in dictionary
+    // What type is actually present in the policy?
     Policy::ValueType type = policy.getValueType(name);
+
     switch (type) {
     case Policy::BOOL: 
         validate(name, policy.getBoolArray(name), use);
@@ -221,6 +227,10 @@ void Definition::validate(const Policy& policy, const string& name,
 
     case Policy::POLICY:
         validate(name, policy.getPolicyArray(name), use);
+        break;
+
+    case Policy::FILE:
+	use->addError(name, ValidationError::NOT_LOADED);
         break;
 
     default:
@@ -286,7 +296,7 @@ void Definition::validate(const string& name, int value, int curcount,
             use->addError(name, ValidationError::TOO_MANY_VALUES);
     }
 
-    if (getType() != Policy::INT) {
+    if (getType() != Policy::INT && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -330,7 +340,7 @@ void Definition::validate(const string& name, double value, int curcount,
             use->addError(name, ValidationError::TOO_MANY_VALUES);
     }
 
-    if (getType() != Policy::DOUBLE) {
+    if (getType() != Policy::DOUBLE && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -374,7 +384,7 @@ void Definition::validate(const string& name, string value, int curcount,
             use->addError(name, ValidationError::TOO_MANY_VALUES);
     }
 
-    if (getType() != Policy::STRING) {
+    if (getType() != Policy::STRING && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -409,10 +419,9 @@ void Definition::validate(const string& name, const Policy& value,
             use->addError(name, ValidationError::TOO_MANY_VALUES);
     }
 
-    if (getType() != Policy::POLICY) {
+    if (getType() != Policy::POLICY && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
-
     try {
         Policy::Ptr dp = _policy->getPolicy("dictionary");
         std::auto_ptr<Dictionary> nd;
@@ -426,6 +435,28 @@ void Definition::validate(const string& name, const Policy& value,
     catch (...) { }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
+}
+
+/**
+ * Validate the number of values for a field. Used internally by the
+ * validate() functions. 
+ * @param name   the name of the parameter being checked
+ * @param count  the number of values this name actually has
+ * @param errs   report validation errors here
+ */
+void Definition::validateCount(const std::string& name, int count,
+			       ValidationError *errs) const {
+    int max = getMaxOccurs(); // -1 means no limit / undefined
+    if (max >= 0 && count > max) 
+        errs->addError(name, ValidationError::TOO_MANY_VALUES);
+    if (count < getMinOccurs()) {
+        if (count == 0) 
+            errs->addError(name, ValidationError::MISSING_REQUIRED);
+        else if (count == 1) 
+            errs->addError(name, ValidationError::NOT_AN_ARRAY);
+        else 
+            errs->addError(name, ValidationError::ARRAY_TOO_SHORT);
+    }
 }
 
 /*
@@ -444,21 +475,9 @@ void Definition::validate(const string& name, const Policy::BoolArray& value,
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
-    // check that we have the number of values
-    int lim = getMaxOccurs();
-    if (lim >= 0 && int(value.size()) > lim) 
-        use->addError(name, ValidationError::TOO_MANY_VALUES);
-    lim = getMinOccurs();
-    if (int(value.size()) < lim) {
-        if (value.size() == 0) 
-            use->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (value.size() == 1) 
-            use->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            use->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    validateCount(name, value.size(), use);
 
-    if (getType() != Policy::BOOL) {
+    if (getType() != Policy::BOOL && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -491,21 +510,9 @@ void Definition::validate(const string& name, const Policy::IntArray& value,
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
-    // check that we have the number of values
-    int lim = getMaxOccurs();
-    if (lim >= 0 && int(value.size()) > lim) 
-        use->addError(name, ValidationError::TOO_MANY_VALUES);
-    lim = getMinOccurs();
-    if (int(value.size()) < lim) {
-        if (value.size() == 0) 
-            use->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (value.size() == 1) 
-            use->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            use->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    validateCount(name, value.size(), use);
 
-    if (getType() != Policy::INT) {
+    if (getType() != Policy::INT && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -538,6 +545,7 @@ void Definition::validate(const string& name, const Policy::IntArray& value,
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
+
 void Definition::validate(const string& name, const Policy::DoubleArray& value,
                           ValidationError *errs) const 
 { 
@@ -545,22 +553,9 @@ void Definition::validate(const string& name, const Policy::DoubleArray& value,
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
-    // check that we have the number of values
-    int lim = getMaxOccurs();
-    cout << "      = max values = " << lim << endl;
-    if (lim >= 0 && int(value.size()) > lim) 
-        use->addError(name, ValidationError::TOO_MANY_VALUES);
-    lim = getMinOccurs();
-    if (int(value.size()) < lim) {
-        if (value.size() == 0) 
-            use->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (value.size() == 1) 
-            use->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            use->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    validateCount(name, value.size(), use);
 
-    if (getType() != Policy::DOUBLE) {
+    if (getType() != Policy::DOUBLE && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -600,22 +595,9 @@ void Definition::validate(const string& name, const Policy::StringArray& value,
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
-    // check that we have the number of values
-    int lim = getMaxOccurs();
-    cout << "      - max values = " << lim << endl;
-    if (lim >= 0 && int(value.size()) > lim) 
-        use->addError(name, ValidationError::TOO_MANY_VALUES);
-    lim = getMinOccurs();
-    if (int(value.size()) < lim) {
-        if (value.size() == 0) 
-            use->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (value.size() == 1) 
-            use->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            use->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    validateCount(name, value.size(), use);
 
-    if (getType() != Policy::STRING) {
+    if (getType() != Policy::STRING && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
@@ -642,32 +624,21 @@ void Definition::validate(const string& name, const Policy::StringArray& value,
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
-void Definition::validate(const string& name, 
-                          const Policy::PolicyPtrArray& value, 
+void Definition::validate(const string& name, const Policy::PolicyPtrArray& value, 
                           ValidationError *errs) const 
 { 
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
 
-    // check that we have the number of values
-    int lim = getMaxOccurs();
-    if (lim >= 0 && int(value.size()) > lim) 
-        use->addError(name, ValidationError::TOO_MANY_VALUES);
-    lim = getMinOccurs();
-    if (int(value.size()) < lim) {
-        if (value.size() == 0) 
-            use->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (value.size() == 1) 
-            use->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            use->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    validateCount(name, value.size(), use);
 
-    if (getType() != Policy::POLICY) {
+    if (getType() != Policy::POLICY && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else {
+	cout << "== found " << Policy::typeName[Policy::POLICY]
+	     << " but expected " << Policy::typeName[getType()] << endl;
         Policy::PolicyPtrArray::const_iterator it;
         for (it = value.begin(); it != value.end(); ++it) {
             validate(name, **it, -1, errs);
@@ -764,25 +735,20 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
-    cout << "** errors at start: " << use->getParamCount() << endl;
-
     Policy::StringArray params = pol.names(true);
     Policy::StringArray::iterator ni;
     for(ni = params.begin(); ni != params.end(); ++ni) {
-	cout << "  -- errors before " << *ni << ": " << use->getParamCount() << endl;
         try {
             scoped_ptr<Definition> def(makeDef(*ni));
             def->validate(pol, *ni, use);
-	    cout << "    + " << *ni << " okay! (" << use->getParamCount() << ")" << endl;
         }
         catch (NameNotFound& e) {
-	    cout << "    * name not found: " << *ni << endl;
             use->addError(*ni,ValidationError::UNKNOWN_NAME);
         }
         catch (TypeError& e) {
             throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
         }
-	cout << "  -- errors after " << *ni << ": " << use->getParamCount()
+	cout << "-- errors after " << *ni << ": " << use->getParamCount()
 	     << " / " << use->getErrors(*ni) << endl;
     }
     // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception

@@ -97,9 +97,14 @@ public:
         BAD_DEFINITION = 256,
 
         /**
+         * Policy sub-files have not been loaded -- need to call loadPolicyFiles().
+         */
+        NOT_LOADED = 512,
+
+        /**
          * an unknown error.  This is the highest error number.
          */
-        UNKNOWN_ERROR = 512
+        UNKNOWN_ERROR = 1024
     };
 
     static const std::string& getErrorMessageFor(ErrorType err) {
@@ -450,9 +455,14 @@ public:
 protected:
     Policy::ValueType _determineType() const;
 
-    /** Validate the number of values for a field. Used internally by the
-     *  validate() functions. */
-    void validateCount(const Policy& policy, const std::string& name,
+    /**
+     * Validate the number of values for a field. Used internally by the
+     * validate() functions. 
+     * @param name   the name of the parameter being checked
+     * @param count  the number of values this name actually has
+     * @param errs   report validation errors here
+     */
+    void validateCount(const std::string& name, int count,
 		       ValidationError *errs) const;
 
     static const std::string EMPTY;
@@ -507,11 +517,15 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  * ------------- -----------  ------  --------------------------------------
  * type          recommended  string  the type of the value expected, one of
  *                                      "int", "bool", "double", "string", and
- *                                      "policy".  If not provided, any type
+ *                                      "Policy".  If not provided, any type
  *                                      ("undefined") should be assumed.  If 
  *                                      The type is Policy, a dictionary for 
  *                                      its terms can be provided via 
  *                                      "dictionary"/"dictionaryFile".
+ *                                      Note that "PolicyFile" is not allowed;
+ *                                      "Policy" should be used in its place,
+ *                                      and policy.loadPolicyFiles() should
+ *                                      be called before validating a policy.
  * description   recommended  string  The semantic meaning of the term or 
  *                                      explanation of how it will be used.
  * minOccurs     optional     int     The minimun number of values expected.

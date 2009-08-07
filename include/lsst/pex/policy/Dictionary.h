@@ -57,9 +57,9 @@ public:
 
         /** 
          * parameter contains too few array values.  This bit-wise ORs 
-         * MISSING_REQUIRED and ARRAY_TOO_SHORT
+         * MISSING_REQUIRED, ARRAY_TOO_SHORT, and NOT_AN_ARRAY
          */
-        TOO_FEW_VALUES = 10, 
+        TOO_FEW_VALUES = 14, 
 
         /** parameter contains too many array values */
         TOO_MANY_VALUES = 16,

@@ -72,22 +72,101 @@ class DictionaryTestCase(unittest.TestCase):
 
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
         d.validate(p, ve)
-        self.assert_(ve.getErrors("file_type") == 512,
+        self.assert_(ve.getErrors("file_type") == ValidationError.NOT_LOADED,
                      "require loadPolicyFiles before validating")
-        self.assert_(ve.getParamCount() == 1, "no other errors")
+        self.assert_(ve.getErrors("undef_file") == ValidationError.NOT_LOADED,
+                     "require loadPolicyFiles before validating")
+        self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "no other errors")
+        self.assert_(ve.getParamCount() == 2, "no other errors")
 
         p.loadPolicyFiles()
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
         d.validate(p, ve)
 
-        self.assert_(ve.getErrors("undef_type") == 0, "no errors with undef")
-        self.assert_(ve.getErrors("int_type") == 0, "no errors with int")
+        self.assert_(ve.getErrors("undef_type")  == 0, "no errors with undef")
+        self.assert_(ve.getErrors("int_type")    == 0, "no errors with int")
         self.assert_(ve.getErrors("double_type") == 0, "no errors with double")
-        self.assert_(ve.getErrors("bool_type") == 0, "no errors with bool")
+        self.assert_(ve.getErrors("bool_type")   == 0, "no errors with bool")
         self.assert_(ve.getErrors("string_type") == 0, "no errors with string")
         self.assert_(ve.getErrors("policy_type") == 0, "no errors with policy")
-        self.assert_(ve.getErrors("file_type") == 0, "no errors with file")
+        self.assert_(ve.getErrors("file_type")   == 0, "no errors with file")
         self.assert_(ve.getErrors() == 0, "no errors overall")
+
+    def testWrongType(self):
+        d = Dictionary()
+        PolicyFile("tests/dictionary/types_dictionary.paf").load(d)
+
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_bool.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getParamCount() == 5, "number of errors")
+        self.assert_(ve.getErrors("bool_type") == 0, "correct type")
+        
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_int.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getParamCount() == 5, "number of errors")
+        self.assert_(ve.getErrors("int_type") == 0, "correct type")
+        self.assert_(ve.getErrors("double_type") == ValidationError.WRONG_TYPE, "int can't pass as double")
+        
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_double.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getParamCount() == 5, "number of errors")
+        self.assert_(ve.getErrors("double_type") == 0, "correct type")
+
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_string.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getParamCount() == 5, "number of errors")
+        self.assert_(ve.getErrors("string_type") == 0, "correct type")
+
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_policy.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getParamCount() == 4, "number of errors")
+        self.assert_(ve.getErrors("policy_type") == 0, "correct type")
+        self.assert_(ve.getErrors("file_type") == 0, "correct type")
+
+        p = Policy()
+        PolicyFile("tests/dictionary/types_policy_bad_file.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "not loaded")
+        self.assert_(ve.getParamCount() == 6, "number of errors")
+        self.assert_(ve.getErrors("bool_type") == ValidationError.NOT_LOADED, "not loaded")
+        self.assert_(ve.getErrors("file_type") == ValidationError.NOT_LOADED, "not loaded")
+        self.assert_(ve.getErrors("policy_type") == ValidationError.NOT_LOADED, "not loaded")
+        p.loadPolicyFiles()
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
+        self.assert_(ve.getErrors("file_type") == 0, "correct type")
+        self.assert_(ve.getErrors("policy_type") == 0, "correct type")
+        self.assert_(ve.getParamCount() == 4, "wrong type")
+
+        # TODO: test missing elements (minOccurs >= 1)
+        # TODO: test bad dictionary (wrong types for allowed values, etc.)
+
+    def testValues(self):
+        print "******* Testing values *******"
+        d = Dictionary()
+        PolicyFile("tests/dictionary/values_dictionary.paf").load(d)
+        p = Policy()
+        PolicyFile("tests/dictionary/values_policy_good_1.paf").load(p)
+        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        d.validate(p, ve)
+        print "******* Done testing values *******"
 
 def suite():
     """a suite containing all the test cases in this module"""

@@ -11,3 +11,14 @@ policy_type: {
     baz: "Two" "Words"
 }
 file_type: @tests/dictionary/types_policy_appendix.paf
+
+undef_bool:   false
+undef_int:    1 2 3 3 4
+undef_double: 1. -1. 0.
+undef_string: "my" "hovercraft" "is" "full" "of" "eels"
+undef_policy: {
+    foo: 1
+    bar: 2.
+    baz: "they're wet"
+}
+undef_file:   @tests/dictionary/types_policy_appendix.paf

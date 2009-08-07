@@ -27,4 +27,11 @@ definitions: {
    file_type: {
      type:         "Policy"
    }
+
+   undef_bool:   {}
+   undef_int:    {}
+   undef_double: {}
+   undef_string: {}
+   undef_policy: {}
+   undef_file:   {}
 }

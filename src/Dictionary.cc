@@ -11,7 +11,8 @@
 #include <string>
 #include <set>
 #include <boost/scoped_ptr.hpp>
-#include <boost/regex.hpp>
+// #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace lsst {
 namespace pex {
@@ -23,6 +24,7 @@ using boost::regex;
 using boost::sregex_token_iterator;
 using boost::scoped_ptr;
 using namespace std;
+using namespace boost;
 
 const string ValidationError::EMPTY;
 
@@ -264,19 +266,21 @@ void Definition::validate(const string& name, bool value, int curcount,
             use->addError(name, ValidationError::TOO_MANY_VALUES);
     }
 
-    if (getType() != Policy::BOOL) {
+    if (getType() != Policy::BOOL && getType() != Policy::UNDEF) {
         use->addError(name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
         Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
         set<bool> allvals;
         Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { allvals.insert((*i)->getBool("value")); }
-            catch (...) { }
-        }
-        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) 
+	// TODO: deal with invalid values
+        for (i = allowed.begin(); i != allowed.end(); ++i)
+	    if ((*i)->exists("value"))
+		allvals.insert((*i)->getBool("value"));
+        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) {
+	    cout << "## value " << value << " not allowed for " << name << endl;
             use->addError(name, ValidationError::VALUE_DISALLOWED);
+	}
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -302,25 +306,43 @@ void Definition::validate(const string& name, int value, int curcount,
     else if (_policy->isPolicy("allowed")) {
         Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
 
-        try {
-            if (value < allowed.back()->getInt("min"))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        } catch (...) { }
-        try {
-            if (value > allowed.back()->getInt("max"))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        } catch (...) { }
-
+	// TODO: deal with invalid values
+	int min, max;
+	bool minFound = false, maxFound = false;
         set<int> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getInt("value")); 
-            }
-            catch (...) { }
-        }
-        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) 
+	for (Policy::PolicyPtrArray::const_iterator it = allowed.begin();
+	     it != allowed.end(); ++it)
+	{
+	    Policy::Ptr a = *it;
+	    // TODO complain about invalid values
+	    if (a->exists("min")) {
+		if (minFound)
+		    throw LSST_EXCEPT
+			(DictionaryError, string("min value already found: ")
+			 + lexical_cast<string>(min));
+		min = a->getInt("min");
+		minFound = true; // after min assign, in case of exceptions
+	    }
+	    if (a->exists("max")) {
+		if (maxFound)
+		    throw LSST_EXCEPT
+			(DictionaryError, string("max value already found: ") 
+			 + lexical_cast<string>(max));
+		max = a->getInt("max");
+		maxFound = true; // after max assign, in case of exceptions
+	    }
+	    if (a->exists("value")) allvals.insert(a->getInt("value"));
+	}
+	cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
+	     << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
+
+	if ((minFound && value < min) || (maxFound && value > max))
+	    use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
+
+        if (allvals.size() > 0 && allvals.count(value) == 0) {
+	    cout << "## value " << value << " not allowed for " << name << endl;
             use->addError(name, ValidationError::VALUE_DISALLOWED);
+	}
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -346,25 +368,42 @@ void Definition::validate(const string& name, double value, int curcount,
     else if (_policy->isPolicy("allowed")) {
         Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
 
-        try {
-            if (value < allowed.back()->getDouble("min"))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        } catch (...) { }
-        try {
-            if (value > allowed.back()->getDouble("max"))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        } catch (...) { }
-
+	// TODO: deal with invalid values
+	bool minFound = false, maxFound = false;
+	double min, max;
         set<double> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getDouble("value")); 
-            }
-            catch (...) { }
-        }
-        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) 
+	for (Policy::PolicyPtrArray::const_iterator it = allowed.begin();
+	     it != allowed.end(); ++it)
+	{
+	    Policy::Ptr a = *it;
+	    if (a->exists("min")) {
+		if (minFound)
+		    throw LSST_EXCEPT
+			(DictionaryError, string("min value already found: ")
+			 + lexical_cast<string>(min));
+		min = a->getDouble("min");
+		minFound = true; // after min assign, in case of exceptions
+	    }
+	    if (a->exists("max")) {
+		if (maxFound)
+		    throw LSST_EXCEPT
+			(DictionaryError, string("max value already found: ") 
+			 + lexical_cast<string>(max));
+		max = a->getDouble("max");
+		maxFound = true; // after max assign, in case of exceptions
+	    }
+	    if (a->exists("value")) allvals.insert(a->getDouble("value"));
+	}
+	cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
+	     << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
+
+	if ((minFound && value < min) || (maxFound && value > max))
+	    use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
+
+        if (allvals.size() > 0 && allvals.count(value) == 0) {
+	    cout << "## value " << value << " not allowed for " << name << endl;
             use->addError(name, ValidationError::VALUE_DISALLOWED);
+	}
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -398,8 +437,10 @@ void Definition::validate(const string& name, string value, int curcount,
             }
             catch (...) { }
         }
-        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) 
+        if (allvals.size() > 0 && allvals.count(value) == 0) {
+	    cout << "## value " << value << " not allowed for " << name << endl;
             use->addError(name, ValidationError::VALUE_DISALLOWED);
+	}
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -477,29 +518,8 @@ void Definition::validate(const string& name, const Policy::BoolArray& value,
 
     validateCount(name, value.size(), use);
 
-    if (getType() != Policy::BOOL && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-        set<bool> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getBool("value")); 
-            }
-            catch (...) { }
-        }
-
-        if (allvals.size() > 0) {
-            Policy::BoolArray::const_iterator it;
-            for (it = value.begin(); it != value.end(); ++it) {
-                if (allvals.find(*it) != allvals.end()) 
-                    use->addError(name, ValidationError::VALUE_DISALLOWED);
-            }
-        }
-    }
+    for (Policy::BoolArray::const_iterator i = value.begin(); i != value.end(); ++i)
+	validate(name, *i, -1, use);
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
@@ -512,36 +532,8 @@ void Definition::validate(const string& name, const Policy::IntArray& value,
 
     validateCount(name, value.size(), use);
 
-    if (getType() != Policy::INT && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-        int min=-1, max=-1;
-        try {  min = allowed.back()->getInt("min");  }
-        catch (...) { }
-        try {  max = allowed.back()->getInt("max");  }
-        catch (...) { }
-
-        set<int> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getInt("value")); 
-            }
-            catch (...) { }
-        }
-
-        Policy::IntArray::const_iterator it;
-        for (it = value.begin(); it != value.end(); ++it) {
-            if (allvals.size() > 0 && allvals.find(*it) != allvals.end()) 
-                use->addError(name, ValidationError::VALUE_DISALLOWED);
-            if ((min >= 0 && *it < min) ||
-                (max <= 0 && *it > max))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        }
-    }
+    for (Policy::IntArray::const_iterator i = value.begin(); i != value.end(); ++i)
+	validate(name, *i, -1, use);
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
@@ -555,36 +547,8 @@ void Definition::validate(const string& name, const Policy::DoubleArray& value,
 
     validateCount(name, value.size(), use);
 
-    if (getType() != Policy::DOUBLE && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-        double min=-1, max=-1;
-        try {  min = allowed.back()->getDouble("min");  }
-        catch (...) { }
-        try {  max = allowed.back()->getDouble("max");  }
-        catch (...) { }
-
-        set<double> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getDouble("value")); 
-            }
-            catch (...) { }
-        }
-
-        Policy::DoubleArray::const_iterator it;
-        for (it = value.begin(); it != value.end(); ++it) {
-            if (allvals.size() > 0 && allvals.find(*it) != allvals.end()) 
-                use->addError(name, ValidationError::VALUE_DISALLOWED);
-            if ((min >= 0 && *it < min) ||
-                (max <= 0 && *it > max))
-                use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-        }
-    }
+    for (Policy::DoubleArray::const_iterator i = value.begin(); i != value.end(); ++i)
+	validate(name, *i, -1, use);
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
@@ -751,6 +715,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
 	cout << "-- errors after " << *ni << ": " << use->getParamCount()
 	     << " / " << use->getErrors(*ni) << endl;
     }
+    // TODO: handle missing elements (minOccurs >= 1)
     // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception
 
     cout << "** errors at end: " << use->getParamCount() << endl;

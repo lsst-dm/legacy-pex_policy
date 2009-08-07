@@ -330,6 +330,55 @@ Policy::ValueType Policy::getValueType(const string& name) const {
     }
 }
 
+template <> bool Policy::getValue <bool> (const string& name) const {
+    return getBool(name);
+}
+template <> int Policy::getValue <int> (const string& name) const {
+    return getInt(name);
+}
+template <> double Policy::getValue <double> (const string& name) const {
+    return getDouble(name);
+}
+template <> string Policy::getValue <string> (const string& name) const {
+    return getString(name);
+}
+template <>
+Policy::FilePtr Policy::getValue <Policy::FilePtr> (const string& name) const {
+    return getFile(name);
+}
+template <>
+Policy::ConstPtr Policy::getValue <Policy::ConstPtr> (const string& name) const {
+    return getPolicy(name);
+}
+
+template <> vector<bool> Policy::getValueArray(const string& name) const {
+    return getBoolArray(name);
+}
+template <> vector<int> Policy::getValueArray(const string& name) const {
+    return getIntArray(name);
+}
+template <> vector<double> Policy::getValueArray(const string& name) const {
+    return getDoubleArray(name);
+}
+template <> vector<string> Policy::getValueArray(const string& name) const {
+    return getStringArray(name);
+}
+template <> Policy::FilePtrArray Policy::getValueArray(const string& name) const {
+    return getFileArray(name);
+}
+template <> Policy::PolicyPtrArray Policy::getValueArray(const string& name) const {
+    return getPolicyArray(name);
+}
+
+template <> Policy::ValueType Policy::getValueType<bool>() { return BOOL; }
+template <> Policy::ValueType Policy::getValueType<int>() { return INT; }
+template <> Policy::ValueType Policy::getValueType<double>() { return DOUBLE; }
+template <> Policy::ValueType Policy::getValueType<string>() { return STRING; }
+template <> Policy::ValueType Policy::getValueType<Policy>() { return POLICY; }
+template <> Policy::ValueType Policy::getValueType<Policy::FilePtr>() { return FILE; }
+template <> Policy::ValueType Policy::getValueType<Policy::Ptr>() { return POLICY; }
+template <> Policy::ValueType Policy::getValueType<Policy::ConstPtr>() { return POLICY; }
+
 Policy::PolicyPtrArray Policy::getPolicyArray(const std::string& name) const {
     PolicyPtrArray out;
     std::vector<PropertySet::Ptr> psa = _getPropSetList(name);

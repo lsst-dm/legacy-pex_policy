@@ -281,6 +281,11 @@ public:
     //@}
 
     /**
+     * A template-ized way to get the ValueType.
+     */
+    template <class T> static ValueType getValueType();
+
+    /**
      * destroy this policy
      */
     virtual ~Policy();
@@ -425,6 +430,18 @@ public:
         try {  return typeName[getValueType(name)]; }
         catch (NameNotFound&) { return typeName[UNDEF]; }
     }
+
+    /**
+     * Template-ized version of getInt, getPolicy, etc.  General case is
+     * disallowed, but known types are implemented.
+     */
+    template <class T> T getValue(const std::string& name) const;
+
+    /**
+     * Template-ized version of getIntArray, getPolicyPtrArray, etc.  General
+     * case is disallowed, but known types are implemented.
+     */
+    template <class T> std::vector<T> getValueArray(const std::string& name) const;
 
     /**
      * return a "sub-Policy" identified by a given name.  
@@ -979,6 +996,18 @@ inline Policy* Policy::createPolicy(const std::string& input,
 
 inline dafBase::PropertySet::Ptr Policy::asPropertySet() { return _data; }
 
+// general case is disallowed; known types are specialized
+template <class T> T Policy::getValue(const std::string& name) const {
+    throw LSST_EXCEPT(TypeError, name, std::string("not implemented for this type"));
+}
+
+template <class T> std::vector<T> Policy::getValueArray(const std::string& name) const {
+    throw LSST_EXCEPT(TypeError, name, std::string("not implemented for this type"));
+}
+
+template <class T> Policy::ValueType Policy::getValueType() {
+    throw LSST_EXCEPT(TypeError, std::string("unknown"), std::string("not implemented for this type"));
+}
 
 }}}  // end namespace lsst::pex::policy
 

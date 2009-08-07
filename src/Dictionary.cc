@@ -80,11 +80,11 @@ Policy::ValueType Definition::_determineType() const {
             return Policy::POLICY;
         else if (type == Policy::typeName[Policy::FILE]) {
             throw LSST_EXCEPT(DictionaryError, string("Illegal type: \"") + type
-			      + "\"; use \"" + Policy::typeName[Policy::POLICY]
-			      + "\" instead.");
-	}
-	else throw LSST_EXCEPT
-	    (DictionaryError, string("Unknown type: \"") + type + "\".");
+                              + "\"; use \"" + Policy::typeName[Policy::POLICY]
+                              + "\" instead.");
+        }
+        else throw LSST_EXCEPT
+            (DictionaryError, string("Unknown type: \"") + type + "\".");
     }
 
     else return Policy::UNDEF;
@@ -178,8 +178,8 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
     }
 
     default:
-	throw LSST_EXCEPT(pexExcept::LogicErrorException,
-			  string("Programmer Error: Unknown type: ") + Policy::typeName[getType()]);
+        throw LSST_EXCEPT(pexExcept::LogicErrorException,
+                          string("Programmer Error: Unknown type: ") + Policy::typeName[getType()]);
     }
 }
 
@@ -212,35 +212,150 @@ void Definition::validate(const Policy& policy, const string& name,
 
     switch (type) {
     case Policy::BOOL: 
-        validate(name, policy.getBoolArray(name), use);
+        validate<bool>(name, policy, use);
         break;
 
     case Policy::INT:
-        validate(name, policy.getIntArray(name), use);
+        validate<int>(name, policy, use);
         break;
 
     case Policy::DOUBLE:
-        validate(name, policy.getDoubleArray(name), use);
+        validate<double>(name, policy, use);
         break;
 
     case Policy::STRING:
-        validate(name, policy.getStringArray(name), use);
+        validate<string>(name, policy, use);
         break;
 
     case Policy::POLICY:
-        validate(name, policy.getPolicyArray(name), use);
+        validate<Policy::Ptr>(name, policy, use);
         break;
 
     case Policy::FILE:
-	use->addError(name, ValidationError::NOT_LOADED);
+        use->addError(name, ValidationError::NOT_LOADED);
         break;
 
     default:
-	throw LSST_EXCEPT(pexExcept::LogicErrorException,
-			  string("Programmer Error: Unknown type: ") 
-			  + policy.getTypeName(name));
+        throw LSST_EXCEPT(pexExcept::LogicErrorException,
+                          string("Unknown type: ") + policy.getTypeName(name));
     }
 
+    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+}
+
+/**
+ * Validate the number of values for a field. Used internally by the
+ * validate() functions. 
+ * @param name   the name of the parameter being checked
+ * @param count  the number of values this name actually has
+ * @param errs   report validation errors here
+ */
+void Definition::validateCount(const string& name, int count,
+                               ValidationError *errs) const {
+    int max = getMaxOccurs(); // -1 means no limit / undefined
+    if (max >= 0 && count > max) 
+        errs->addError(name, ValidationError::TOO_MANY_VALUES);
+    if (count < getMinOccurs()) {
+        if (count == 0) 
+            errs->addError(name, ValidationError::MISSING_REQUIRED);
+        else if (count == 1) 
+            errs->addError(name, ValidationError::NOT_AN_ARRAY);
+        else 
+            errs->addError(name, ValidationError::ARRAY_TOO_SHORT);
+    }
+}
+
+template <class T>
+void Definition::validate(const string& name, const Policy& policy,
+			  ValidationError *errs) const
+{
+    validate(name, policy.getValueArray<T>(name), errs);
+}
+
+template <class T>
+void Definition::validate(const string& name, const vector<T>& value,
+			  ValidationError *errs) const
+{
+    ValidationError ve(LSST_EXCEPT_HERE);
+    ValidationError *use = &ve;
+    if (errs != 0) use = errs;
+
+    validateCount(name, value.size(), use);
+
+    for (typename vector<T>::const_iterator i = value.begin(); i != value.end(); ++i)
+	validate<T>(name, *i, -1, use);
+
+    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+}
+
+/**
+ * Stubs for validation template functions.  Always return true, which always
+ * failes validation tests.  In other words, any values of min or max for these
+ * types will cause a failure.
+ */
+bool operator<(const Policy& a, const Policy& b) { return true; }
+bool operator<(const Policy::ConstPtr& a, const Policy::ConstPtr& b) { return true; }
+bool operator<(const Policy::FilePtr& a, const Policy::FilePtr& b) { return true; }
+
+template <class T>
+void Definition::validate(const string& name, const T& value,
+			  int curcount, ValidationError *errs) const
+{
+    ValidationError ve(LSST_EXCEPT_HERE);
+    ValidationError *use = &ve;
+    if (errs != 0) use = errs;
+    
+    // check if we're going to get too many
+    if (curcount >= 0) {
+        int maxOccurs = getMaxOccurs();
+        if (maxOccurs >= 0 && curcount + 1 > maxOccurs) 
+            use->addError(name, ValidationError::TOO_MANY_VALUES);
+    }
+
+    if (getType() != Policy::UNDEF && getType() != Policy::getValueType<T>()) {
+        use->addError(name, ValidationError::WRONG_TYPE);
+    }
+    else if (_policy->isPolicy("allowed")) {
+        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
+
+        // TODO: deal with invalid values
+        T min, max;
+        bool minFound = false, maxFound = false;
+        set<T> allvals;
+        for (Policy::PolicyPtrArray::const_iterator it = allowed.begin();
+             it != allowed.end(); ++it)
+        {
+            Policy::Ptr a = *it;
+            // TODO complain about invalid values
+            if (a->exists("min")) {
+                if (minFound)
+                    throw LSST_EXCEPT
+                        (DictionaryError, string("min value already found: ")
+                         + lexical_cast<string>(min));
+                min = a->getValue<T>("min");
+                minFound = true; // after min assign, in case of exceptions
+            }
+            if (a->exists("max")) {
+                if (maxFound)
+                    throw LSST_EXCEPT
+                        (DictionaryError, string("max value already found: ") 
+                         + lexical_cast<string>(max));
+                max = a->getValue<T>("max");
+                maxFound = true; // after max assign, in case of exceptions
+            }
+            if (a->exists("value")) allvals.insert(a->getValue<T>("value"));
+        }
+        cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
+             << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
+
+        if ((minFound && value < min) || (maxFound && max < value))
+            use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
+
+        if (allvals.size() > 0 && allvals.count(value) == 0) {
+            cout << "## value " << value << " not allowed for " << name << endl;
+            use->addError(name, ValidationError::VALUE_DISALLOWED);
+        }
+    }
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
@@ -255,249 +370,35 @@ void Definition::validate(const Policy& policy, const string& name,
 void Definition::validate(const string& name, bool value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    // check if we're going to get too many
-    if (curcount >= 0) {
-        int max = getMaxOccurs();
-        if (max >= 0 && curcount + 1 > max) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
-    }
-
-    if (getType() != Policy::BOOL && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-        set<bool> allvals;
-        Policy::PolicyPtrArray::iterator i;
-	// TODO: deal with invalid values
-        for (i = allowed.begin(); i != allowed.end(); ++i)
-	    if ((*i)->exists("value"))
-		allvals.insert((*i)->getBool("value"));
-        if (allvals.size() > 0 && allvals.find(value) != allvals.end()) {
-	    cout << "## value " << value << " not allowed for " << name << endl;
-            use->addError(name, ValidationError::VALUE_DISALLOWED);
-	}
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<bool>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, int value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    // check if we're going to get too many
-    if (curcount >= 0) {
-        int max = getMaxOccurs();
-        if (max >= 0 && curcount + 1 > max) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
-    }
-
-    if (getType() != Policy::INT && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-	// TODO: deal with invalid values
-	int min, max;
-	bool minFound = false, maxFound = false;
-        set<int> allvals;
-	for (Policy::PolicyPtrArray::const_iterator it = allowed.begin();
-	     it != allowed.end(); ++it)
-	{
-	    Policy::Ptr a = *it;
-	    // TODO complain about invalid values
-	    if (a->exists("min")) {
-		if (minFound)
-		    throw LSST_EXCEPT
-			(DictionaryError, string("min value already found: ")
-			 + lexical_cast<string>(min));
-		min = a->getInt("min");
-		minFound = true; // after min assign, in case of exceptions
-	    }
-	    if (a->exists("max")) {
-		if (maxFound)
-		    throw LSST_EXCEPT
-			(DictionaryError, string("max value already found: ") 
-			 + lexical_cast<string>(max));
-		max = a->getInt("max");
-		maxFound = true; // after max assign, in case of exceptions
-	    }
-	    if (a->exists("value")) allvals.insert(a->getInt("value"));
-	}
-	cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
-	     << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
-
-	if ((minFound && value < min) || (maxFound && value > max))
-	    use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-
-        if (allvals.size() > 0 && allvals.count(value) == 0) {
-	    cout << "## value " << value << " not allowed for " << name << endl;
-            use->addError(name, ValidationError::VALUE_DISALLOWED);
-	}
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<int>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, double value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    // check if we're going to get too many
-    if (curcount >= 0) {
-        int max = getMaxOccurs();
-        if (max >= 0 && curcount + 1 > max) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
-    }
-
-    if (getType() != Policy::DOUBLE && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-	// TODO: deal with invalid values
-	bool minFound = false, maxFound = false;
-	double min, max;
-        set<double> allvals;
-	for (Policy::PolicyPtrArray::const_iterator it = allowed.begin();
-	     it != allowed.end(); ++it)
-	{
-	    Policy::Ptr a = *it;
-	    if (a->exists("min")) {
-		if (minFound)
-		    throw LSST_EXCEPT
-			(DictionaryError, string("min value already found: ")
-			 + lexical_cast<string>(min));
-		min = a->getDouble("min");
-		minFound = true; // after min assign, in case of exceptions
-	    }
-	    if (a->exists("max")) {
-		if (maxFound)
-		    throw LSST_EXCEPT
-			(DictionaryError, string("max value already found: ") 
-			 + lexical_cast<string>(max));
-		max = a->getDouble("max");
-		maxFound = true; // after max assign, in case of exceptions
-	    }
-	    if (a->exists("value")) allvals.insert(a->getDouble("value"));
-	}
-	cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
-	     << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
-
-	if ((minFound && value < min) || (maxFound && value > max))
-	    use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
-
-        if (allvals.size() > 0 && allvals.count(value) == 0) {
-	    cout << "## value " << value << " not allowed for " << name << endl;
-            use->addError(name, ValidationError::VALUE_DISALLOWED);
-	}
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<double>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, string value, int curcount,
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    // check if we're going to get too many
-    if (curcount >= 0) {
-        int max = getMaxOccurs();
-        if (max >= 0 && curcount + 1 > max) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
-    }
-
-    if (getType() != Policy::STRING && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-        set<string> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getString("value")); 
-            }
-            catch (...) { }
-        }
-        if (allvals.size() > 0 && allvals.count(value) == 0) {
-	    cout << "## value " << value << " not allowed for " << name << endl;
-            use->addError(name, ValidationError::VALUE_DISALLOWED);
-	}
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<string>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, const Policy& value, 
                           int curcount, ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    // check if we're going to get too many
-    if (curcount >= 0) {
-        int max = getMaxOccurs();
-        if (max >= 0 && curcount + 1 > max) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
-    }
-
-    if (getType() != Policy::POLICY && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    try {
-        Policy::Ptr dp = _policy->getPolicy("dictionary");
-        std::auto_ptr<Dictionary> nd;
-        Dictionary *d = 0;
-        if ((d = dynamic_cast<Dictionary *>(dp.get())) != 0) {
-            nd.reset(new Dictionary(*dp));
-            d = nd.get();
-        }
-        d->validate(value, errs);
-    }
-    catch (...) { }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
-}
-
-/**
- * Validate the number of values for a field. Used internally by the
- * validate() functions. 
- * @param name   the name of the parameter being checked
- * @param count  the number of values this name actually has
- * @param errs   report validation errors here
- */
-void Definition::validateCount(const std::string& name, int count,
-			       ValidationError *errs) const {
-    int max = getMaxOccurs(); // -1 means no limit / undefined
-    if (max >= 0 && count > max) 
-        errs->addError(name, ValidationError::TOO_MANY_VALUES);
-    if (count < getMinOccurs()) {
-        if (count == 0) 
-            errs->addError(name, ValidationError::MISSING_REQUIRED);
-        else if (count == 1) 
-            errs->addError(name, ValidationError::NOT_AN_ARRAY);
-        else 
-            errs->addError(name, ValidationError::ARRAY_TOO_SHORT);
-    }
+    // TODO find a way to do this without creating a copy
+//    const Policy::ConstPtr cp(new Policy(value)); // oops, created a copy
+//    validate<Policy::ConstPtr>(name, cp, curcount, errs);
+    // TODO: find out whether this creates a copy
+    validate<Policy>(name, value, curcount, errs);
 }
 
 /*
@@ -512,104 +413,30 @@ void Definition::validateCount(const std::string& name, int count,
 void Definition::validate(const string& name, const Policy::BoolArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    for (Policy::BoolArray::const_iterator i = value.begin(); i != value.end(); ++i)
-	validate(name, *i, -1, use);
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<bool>(name, value, errs);
 }
+
 void Definition::validate(const string& name, const Policy::IntArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    for (Policy::IntArray::const_iterator i = value.begin(); i != value.end(); ++i)
-	validate(name, *i, -1, use);
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<int>(name, value, errs);
 }
 
 void Definition::validate(const string& name, const Policy::DoubleArray& value,
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    for (Policy::DoubleArray::const_iterator i = value.begin(); i != value.end(); ++i)
-	validate(name, *i, -1, use);
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<double>(name, value, errs);
 }
 void Definition::validate(const string& name, const Policy::StringArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    if (getType() != Policy::STRING && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else if (_policy->isPolicy("allowed")) {
-        Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
-
-        set<string> allvals;
-        Policy::PolicyPtrArray::iterator i;
-        for(i = allowed.begin(); i != allowed.end(); ++i) {
-            try { 
-                allvals.insert((*i)->getString("value")); 
-            }
-            catch (...) { }
-        }
-
-        if (allvals.size() > 0) {
-            Policy::StringArray::const_iterator it;
-            for (it = value.begin(); it != value.end(); ++it) {
-                if (allvals.find(*it) != allvals.end()) 
-                    use->addError(name, ValidationError::VALUE_DISALLOWED);
-            }
-        }
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<string>(name, value, errs);
 }
 
-void Definition::validate(const string& name, const Policy::PolicyPtrArray& value, 
+void Definition::validate(const string& name, const Policy::ConstPolicyPtrArray& value, 
                           ValidationError *errs) const 
 { 
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    if (getType() != Policy::POLICY && getType() != Policy::UNDEF) {
-        use->addError(name, ValidationError::WRONG_TYPE);
-    }
-    else {
-	cout << "== found " << Policy::typeName[Policy::POLICY]
-	     << " but expected " << Policy::typeName[getType()] << endl;
-        Policy::PolicyPtrArray::const_iterator it;
-        for (it = value.begin(); it != value.end(); ++it) {
-            validate(name, **it, -1, errs);
-        }
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+    validate<Policy::ConstPtr>(name, value, errs);
 }
 
 ///////////////////////////////////////////////////////////
@@ -712,8 +539,8 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
         catch (TypeError& e) {
             throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
         }
-	cout << "-- errors after " << *ni << ": " << use->getParamCount()
-	     << " / " << use->getErrors(*ni) << endl;
+        cout << "-- errors after " << *ni << ": " << use->getParamCount()
+             << " / " << use->getErrors(*ni) << endl;
     }
     // TODO: handle missing elements (minOccurs >= 1)
     // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception

@@ -353,17 +353,16 @@ public:
 
     /**
      * confirm that a Policy parameter conforms to this definition.  
-     *   If a ValidationError instance is provided, any errors detected 
-     *   and will be loaded into it.  If no ValidationError is provided,
-     *   then any errors detected will cause a ValidationError exception
-     *   to be thrown.  
+     *   If a ValidationError instance is provided, any errors detected will be
+     *   loaded into it.  If no ValidationError is provided, then any errors
+     *   detected will cause a ValidationError exception to be thrown.
      * @param policy   the policy object to inspect
      * @param name     the name to look for the value under.  If not given
-     *                  the name set in this definition will be used.
+     *                 the name set in this definition will be used.
      * @param errs     a pointer to a ValidationError instance to load errors 
-     *                  into. 
+     *                 into. 
      * @exception ValidationError   if errs is not provided and the value 
-     *                  does not conform.  
+     *                 does not conform.  
      */
     void validate(const Policy& policy, const std::string& name, 
                   ValidationError *errs=0) const;
@@ -371,7 +370,7 @@ public:
     /**
      * confirm that a Policy parameter conforms to this definition.  
      *   If a ValidationError instance is provided, any errors detected 
-     *   and will be loaded into it.  If no ValidationError is provided,
+     *   will be loaded into it.  If no ValidationError is provided,
      *   then any errors detected will cause a ValidationError exception
      *   to be thrown.  
      * @param policy   the policy object to inspect
@@ -380,7 +379,7 @@ public:
      * @exception ValidationError   if errs is not provided and the value 
      *                  does not conform.  
      */
-    void validate(Policy& policy, ValidationError *errs=0) const {
+    void validate(const Policy& policy, ValidationError *errs=0) const {
         validate(policy, _name, errs);
     }
 
@@ -394,20 +393,23 @@ public:
      * validation.
      *
      * If a ValidationError instance is provided, any errors detected 
-     * and will be loaded into it.  If no ValidationError is provided,
+     * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
      * to be thrown.  
      *
      * @param name      the name of the parameter being checked
      * @param value     the value of the parameter to check.
      * @param curcount  the number of values assumed to already stored under
-     *                     the given name.  If < 0, limit checking is not
-     *                     done.  
-     * @param errs     a pointer to a ValidationError instance to load errors 
+     *                  the given name.  If < 0, limit checking is not done.
+     * @param errs      a pointer to a ValidationError instance to load errors 
      *                  into. 
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
+    template <class T> void validate
+	(const std::string& name, const T& value, int curcount=-1,
+	 ValidationError *errs=0) const;
+
     void validate(const std::string& name, bool value, int curcount=-1, 
                   ValidationError *errs=0) const;
     void validate(const std::string& name, int value, int curcount=-1, 
@@ -420,6 +422,26 @@ public:
                   ValidationError *errs=0) const;
     //@}
 
+    /**
+     * confirm that a Policy parameter name-array value combination is 
+     * consistent with this dictionary.  Unlike the scalar version, 
+     * this does check occurrence compliance.  
+     *
+     * If a ValidationError instance is provided, any errors detected 
+     * will be loaded into it.  If no ValidationError is provided,
+     * then any errors detected will cause a ValidationError exception
+     * to be thrown.  
+     *
+     * @param name     the name of the parameter being checked
+     * @param policy   the policy whose named parameter is being checked
+     * @param errs     the ValidationError instance to load errors into
+     * @exception ValidationError   if the value does not conform.  The message
+     *                 should explain why.
+     */
+    template <class T> void validate
+	(const std::string& name, const Policy& policy,
+	 ValidationError *errs=0) const;
+
     //@{
     /**
      * confirm that a Policy parameter name-array value combination is 
@@ -427,7 +449,7 @@ public:
      * this does check occurrence compliance.  
      *
      * If a ValidationError instance is provided, any errors detected 
-     * and will be loaded into it.  If no ValidationError is provided,
+     * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
      * to be thrown.  
      *
@@ -438,6 +460,10 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
+    template <class T> void validate
+	(const std::string& name, const std::vector<T>& value,
+	 ValidationError *errs=0) const;
+
     void validate(const std::string& name, const Policy::BoolArray& value, 
                   ValidationError *errs=0) const;
     void validate(const std::string& name, const Policy::IntArray& value, 
@@ -448,7 +474,7 @@ public:
                   const Policy::StringArray& value, 
                   ValidationError *errs=0) const;
     void validate(const std::string& name, 
-                  const Policy::PolicyPtrArray& value, 
+                  const Policy::ConstPolicyPtrArray& value, 
                   ValidationError *errs=0) const;
     //@}
 
@@ -460,7 +486,7 @@ protected:
      * validate() functions. 
      * @param name   the name of the parameter being checked
      * @param count  the number of values this name actually has
-     * @param errs   report validation errors here
+     * @param errs   report validation errors here (must exist)
      */
     void validateCount(const std::string& name, int count,
 		       ValidationError *errs) const;
@@ -652,7 +678,7 @@ public:
      * validate a Policy against this Dictionary.
      *
      * If a ValidationError instance is provided, any errors detected 
-     * and will be loaded into it.  If no ValidationError is provided,
+     * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
      * to be thrown.  
      *

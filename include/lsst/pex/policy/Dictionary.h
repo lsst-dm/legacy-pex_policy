@@ -12,6 +12,7 @@
 #include "lsst/pex/policy/Policy.h"
 #include "lsst/pex/policy/exceptions.h"
 #include <boost/regex.hpp>
+#include <sstream>
 
 namespace pexExcept = lsst::pex::exceptions;
 namespace dafBase = lsst::daf::base;
@@ -112,8 +113,23 @@ public:
         MsgLookup::iterator it = _errmsgs.find(err);
         if (it != _errmsgs.end())
             return it->second;
-        else 
-            return EMPTY;
+        else {
+            // if it's a compound error that we don't have a pre-written
+            // description of, then compile a description
+	    static std::string result; // avoid memory issues
+	    // TODO: at cost of concurrence?
+            std::ostringstream os;
+	    bool first = true;
+            for (std::map<int,std::string>::const_iterator j = _errmsgs.begin();
+                 j != _errmsgs.end(); ++j) {
+                if (j->first != OK && (err & j->first) == j->first) {
+                    os << (first ? "" : "; ") << j->second;
+		    first = false;
+		}
+	    }
+	    result = os.str();
+            return result;
+	}
     }
 
     static const std::string EMPTY;
@@ -149,7 +165,7 @@ public:
      * load the names of the parameters that had problems into the given 
      * list
      */
-    void paramNames(std::list<std::string> names) const {
+    void paramNames(std::list<std::string>& names) const {
         ParamLookup::const_iterator it;
         for(it = _errors.begin(); it != _errors.end(); it++)
             names.push_back(it->first);
@@ -190,6 +206,18 @@ public:
             out |= it->second;
         return out;
     }
+
+    /**
+     * Describe this validation error in human-readable terms.  Each parameter
+     * that has an error is given one line, delimited by a newline character.
+     * @param prefix appended to beginning of each line of output
+     */
+    std::string describe(std::string prefix = "") const;
+
+    /**
+     * Override lsst::pex::exceptions::Exception::what()
+     */
+    virtual char const* what(void) const throw();
 
 protected:
     typedef std::map<int, std::string> MsgLookup;
@@ -300,6 +328,14 @@ public:
 	// -- so that _determineType() isn't called repeatedly?
         if (_type == Policy::UNDEF) _type = _determineType();
         return _type;
+    }
+
+    /**
+     * The human-readable name of this definition's type
+     * ("string", "double", etc.).
+     */
+    std::string getTypeName() const {
+	return Policy::typeName[getType()];
     }
 
     /**
@@ -639,6 +675,12 @@ public:
         return getPolicy("definitions");
     }
     //@}
+
+    /**
+     * Check this Dictionary's internal integrity.  Load up all definitions and
+     * sanity-check them.
+     */
+    void check() const;
 
     /**
      * load the top-level parameter names defined in this Dictionary into 

@@ -206,7 +206,7 @@ int Policy::_names(vector<string>& names,
                    bool topLevelOnly, bool append, int want) const
 {
     bool check = true;
-    std::vector<std::string> src;
+    vector<string> src;
     int have = 0, count = 0;
     if (want == 1) {
         src = _data->propertySetNames(topLevelOnly);
@@ -257,7 +257,7 @@ int Policy::_names(list<string>& names,
                    bool topLevelOnly, bool append, int want) const
 {
     bool check = true;
-    std::vector<std::string> src;
+    vector<string> src;
     int have = 0, count = 0;
     if (want == 1) {
         src = _data->propertySetNames(topLevelOnly);
@@ -379,24 +379,24 @@ template <> Policy::ValueType Policy::getValueType<Policy::FilePtr>() { return F
 template <> Policy::ValueType Policy::getValueType<Policy::Ptr>() { return POLICY; }
 template <> Policy::ValueType Policy::getValueType<Policy::ConstPtr>() { return POLICY; }
 
-Policy::PolicyPtrArray Policy::getPolicyArray(const std::string& name) const {
+Policy::PolicyPtrArray Policy::getPolicyArray(const string& name) const {
     PolicyPtrArray out;
-    std::vector<PropertySet::Ptr> psa = _getPropSetList(name);
-    std::vector<PropertySet::Ptr>::const_iterator i;
+    vector<PropertySet::Ptr> psa = _getPropSetList(name);
+    vector<PropertySet::Ptr>::const_iterator i;
     for(i=psa.begin(); i != psa.end(); ++i) 
         out.push_back(Ptr(new Policy(*i)));
     return out;
 }
 
-Policy::FilePtr Policy::getFile(const std::string& name) const {
+Policy::FilePtr Policy::getFile(const string& name) const {
     FilePtr out = 
         boost::dynamic_pointer_cast<PolicyFile>(_data->getAsPersistablePtr(name));
     if (! out.get()) 
-        throw LSST_EXCEPT(TypeError, name, std::string(typeName[FILE]));
+        throw LSST_EXCEPT(TypeError, name, string(typeName[FILE]));
     return out;
 }
 
-Policy::FilePtrArray Policy::getFileArray(const std::string& name) const
+Policy::FilePtrArray Policy::getFileArray(const string& name) const
 {
     FilePtrArray out;
     vector<Persistable::Ptr> pfa = _getPersistList(name);
@@ -412,11 +412,11 @@ Policy::FilePtrArray Policy::getFileArray(const std::string& name) const
     return out;
 }
 
-void Policy::set(const std::string& name, const FilePtr& value) {
+void Policy::set(const string& name, const FilePtr& value) {
     _data->set(name, boost::dynamic_pointer_cast<Persistable>(value));
 }
 
-void Policy::add(const std::string& name, const FilePtr& value) {
+void Policy::add(const string& name, const FilePtr& value) {
     _data->add(name, boost::dynamic_pointer_cast<Persistable>(value));
 }
 
@@ -532,9 +532,9 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
         def = pol.get();
     }
 
-    std::list<std::string> params;
+    list<string> params;
     def->paramNames(params);
-    std::list<std::string>::iterator nm;
+    list<string>::iterator nm;
     for(nm = params.begin(); nm != params.end(); ++nm) {
 
         if (! exists(*nm)) {
@@ -557,7 +557,7 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
                 for(vi=a.begin(); vi != a.end(); ++vi) 
                     add(*nm, *vi);
             }
-            else if (tp == typeid(std::string)) {
+            else if (tp == typeid(string)) {
                 StringArray a = def->getStringArray(*nm);
                 StringArray::iterator vi;
                 for(vi=a.begin(); vi != a.end(); ++vi) 
@@ -613,8 +613,8 @@ string Policy::str(const string& name, const string& indent) const {
                 if (vi+1 != d.end()) out << ", ";
             }
         }
-        else if (tp == typeid(std::string)) {
-            StringArray s = _data->getArray<std::string>(name);
+        else if (tp == typeid(string)) {
+            StringArray s = _data->getArray<string>(name);
             StringArray::iterator vi;
             for(vi= s.begin(); vi != s.end(); ++vi) {
                 out << '"' << *vi << '"';

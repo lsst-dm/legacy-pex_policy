@@ -34,7 +34,7 @@ definitions: {
    double_range_count_type: {
      type:         "double"
      minOccurs:    0
-     maxOccurs:    4
+     maxOccurs:    6
      allowed: {
        min:          2.01
        max:          5.99

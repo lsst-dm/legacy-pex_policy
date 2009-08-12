@@ -28,7 +28,7 @@ using namespace boost;
 
 const string ValidationError::EMPTY;
 
-map<int, string> ValidationError::_errmsgs;
+ValidationError::MsgLookup ValidationError::_errmsgs;
 
 void ValidationError::_loadMessages() {
     _errmsgs[OK] = EMPTY;
@@ -44,18 +44,49 @@ void ValidationError::_loadMessages() {
     _errmsgs[BAD_VALUE] = "illegal value";
     _errmsgs[UNKNOWN_NAME] = "parameter name is unknown";
     _errmsgs[BAD_DEFINITION] = "malformed definition";
-    _errmsgs[NOT_LOADED] = "file not loaded; call loadPolicyFiles() before validating";
+    _errmsgs[NOT_LOADED] = "file not loaded"
+	" -- call Policy.loadPolicyFiles() before validating";
     _errmsgs[UNKNOWN_ERROR] = "unknown error";
 }
 
 vector<string> ValidationError::getParamNames() const {
     std::vector<std::string> result;
-    map<string, int>::const_iterator i;
+    ParamLookup::const_iterator i;
     for (i = _errors.begin(); i != _errors.end(); ++i)
         result.push_back(i->first);
     return result;
 }
 
+string ValidationError::describe(string prefix) const {
+    ostringstream os;
+    std::list<std::string> names;
+    paramNames(names);
+    for (std::list<string>::const_iterator i = names.begin(); i != names.end(); ++i) {
+        int errs = getErrors(*i);
+        os << prefix << *i << ": " << getErrorMessageFor((ErrorType)errs) << endl;
+/*
+        for (map<int,string>::const_iterator j = _errmsgs.begin(); j != _errmsgs.end(); ++j)
+            if ((errs & j->first) == j->first)
+                os << "  * " << j->second << endl;
+*/
+    }
+    return os.str();
+}
+
+char const* ValidationError::what(void) const throw() {
+    // static to avoid memory issue -- but a concurrency problem?
+    // copied from pex/exceptions/src/Exception.cc
+    static std::string buffer;
+    ostringstream os;
+    os << "Validation error: ";
+    if (getParamCount() == 0)
+	os << "no errors" << "\n";
+    else {
+	os << "\n" << describe("  * ");
+    }
+    buffer = os.str();
+    return buffer.c_str();
+}
 
 ValidationError::~ValidationError() throw() { }
 
@@ -318,7 +349,6 @@ void Definition::validate(const string& name, const T& value,
     else if (_policy->isPolicy("allowed")) {
         Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
 
-        // TODO: deal with invalid values
         T min, max;
         bool minFound = false, maxFound = false;
         set<T> allvals;
@@ -326,21 +356,45 @@ void Definition::validate(const string& name, const T& value,
              it != allowed.end(); ++it)
         {
             Policy::Ptr a = *it;
-            // TODO complain about invalid values
             if (a->exists("min")) {
-                if (minFound)
+		cout << " ## " << name << ": found min ... ";
+                if (minFound) {
+		    cout << " -- dupe!" << endl;
                     throw LSST_EXCEPT
-                        (DictionaryError, string("min value already found: ")
-                         + lexical_cast<string>(min));
-                min = a->getValue<T>("min");
+                        (DictionaryError, string("min value ") 
+			 + lexical_cast<string>(min) 
+			 + " already specified; additional value not allowed.");
+		}
+		try {
+		    cout << "attempting to read ... ";
+		    min = a->getValue<T>("min");
+		} catch(TypeError& e) {
+		    cout << "wrong type." << endl;
+		    throw LSST_EXCEPT
+			(DictionaryError, string("Wrong type for ") + name 
+			 + " min value: expected " + getTypeName() + ", found \"" 
+			 + lexical_cast<string>(max) + "\".");
+		} catch(...) {
+		    cout << "caught something else." << endl;
+		    throw;
+		}
+		cout << "success!" << endl;
                 minFound = true; // after min assign, in case of exceptions
             }
             if (a->exists("max")) {
                 if (maxFound)
                     throw LSST_EXCEPT
-                        (DictionaryError, string("max value already found: ") 
-                         + lexical_cast<string>(max));
-                max = a->getValue<T>("max");
+                        (DictionaryError, string("max value ") 
+			 + lexical_cast<string>(max) 
+			 + " already specified; additional value not allowed.");
+		try {
+		    max = a->getValue<T>("max");
+		} catch(TypeError& e) {
+		    throw LSST_EXCEPT
+			(DictionaryError, string("Wrong type for ") + name 
+			 + " max value: expected " + getTypeName() + ", found \"" 
+			 + lexical_cast<string>(max) + "\".");
+		}
                 maxFound = true; // after max assign, in case of exceptions
             }
             if (a->exists("value")) allvals.insert(a->getValue<T>("value"));
@@ -394,10 +448,6 @@ void Definition::validate(const string& name, string value, int curcount,
 void Definition::validate(const string& name, const Policy& value, 
                           int curcount, ValidationError *errs) const 
 { 
-    // TODO find a way to do this without creating a copy
-//    const Policy::ConstPtr cp(new Policy(value)); // oops, created a copy
-//    validate<Policy::ConstPtr>(name, cp, curcount, errs);
-    // TODO: find out whether this creates a copy
     validate<Policy>(name, value, curcount, errs);
 }
 
@@ -517,6 +567,25 @@ void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
     }
 
     Policy::loadPolicyFiles(repository, strict);
+}
+
+/**
+ * Check this Dictionary's internal integrity.  Load up all definitions and
+ * sanity-check them.
+ */
+void Dictionary::check() const {
+    PolicyPtrArray defs = getValueArray<Policy::Ptr>("definitions");
+    if (defs.size() == 0)
+	throw LSST_EXCEPT(DictionaryError, "no \"definitions\" section found");
+    if (defs.size() > 1)
+	throw LSST_EXCEPT
+	    (DictionaryError, string("expected a single \"definitions\" section; "
+				     "found ") + lexical_cast<string>(defs.size()));
+    Policy::StringArray names = defs[0]->names(false);
+    for (Policy::StringArray::const_iterator i = names.begin(); i != names.end(); ++i) {
+	cout << " %%% checking \"" << *i << "\" %%%" << endl;
+	scoped_ptr<Definition> def(makeDef(*i));
+    }
 }
 
 /*

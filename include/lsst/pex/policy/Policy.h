@@ -281,7 +281,10 @@ public:
     //@}
 
     /**
-     * A template-ized way to get the ValueType.
+     * A template-ized way to get the ValueType. General case is disallowed, but
+     * specific types are implemented: bool, int, double, string, Policy,
+     * FilePtr (aka shared_ptr<PolicyFile>), Ptr (aka shared_ptr<Policy>),
+     * ConstPtr (aka shared_ptr<const Policy>).
      */
     template <class T> static ValueType getValueType();
 
@@ -433,13 +436,17 @@ public:
 
     /**
      * Template-ized version of getInt, getPolicy, etc.  General case is
-     * disallowed, but known types are implemented.
+     * disallowed, but specific types are implemented: bool, int, double,
+     * string, FilePtr (aka shared_ptr<PolicyFile>), ConstPtr (aka
+     * shared_ptr<const Policy>).
      */
     template <class T> T getValue(const std::string& name) const;
 
     /**
      * Template-ized version of getIntArray, getPolicyPtrArray, etc.  General
-     * case is disallowed, but known types are implemented.
+     * case is disallowed, but specific types are implemented: bool, int,
+     * double, string, FilePtr (aka shared_ptr<PolicyFile>, returns
+     * FilePtrArray), Ptr (aka shared_ptr<Policy>, returns PolicyPtrArray).
      */
     template <class T> std::vector<T> getValueArray(const std::string& name) const;
 

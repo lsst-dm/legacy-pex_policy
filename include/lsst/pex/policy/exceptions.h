@@ -48,14 +48,14 @@ public:
 /**
  * there is a problem with a dictionary, generally found while parsing a policy
  */
-class DictionaryError : public pexExcept::RuntimeErrorException {
+class DictionaryError : public pexExcept::DomainErrorException {
 public:
     DictionaryError(POL_EARGS_TYPED)
-        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED,
+        : pexExcept::DomainErrorException(POL_EARGS_UNTYPED,
                                            "Malformed dictionary")
     { }
     DictionaryError(POL_EARGS_TYPED, const std::string& msg)
-        : pexExcept::RuntimeErrorException(POL_EARGS_UNTYPED,
+        : pexExcept::DomainErrorException(POL_EARGS_UNTYPED,
             std::string("Malformed dictionary: ") + msg)
     { }
     virtual char const *getType(void) const throw();

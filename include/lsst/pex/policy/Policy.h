@@ -537,6 +537,7 @@ public:
         POL_GETSCALAR(name, std::string, STRING) 
     }
 
+    //@{
     /**
      * return an array of Policy pointers associated with the given name.  
      * 
@@ -550,6 +551,8 @@ public:
      *                             a Policy type.  
      */
     PolicyPtrArray getPolicyArray(const std::string& name) const;
+    ConstPolicyPtrArray getConstPolicyArray(const std::string& name) const;
+    //@}
 
     /**
      * return an array of PolicyFile pointers associated with the given name.  
@@ -1014,15 +1017,15 @@ inline dafBase::PropertySet::Ptr Policy::asPropertySet() { return _data; }
 
 // general case is disallowed; known types are specialized
 template <class T> T Policy::getValue(const std::string& name) const {
-    throw LSST_EXCEPT(TypeError, name, std::string("not implemented for this type"));
+    throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
 
 template <class T> std::vector<T> Policy::getValueArray(const std::string& name) const {
-    throw LSST_EXCEPT(TypeError, name, std::string("not implemented for this type"));
+    throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
 
 template <class T> Policy::ValueType Policy::getValueType() {
-    throw LSST_EXCEPT(TypeError, std::string("unknown"), std::string("not implemented for this type"));
+    throw LSST_EXCEPT(TypeError, std::string("unknown"), "not implemented for this type");
 }
 
 }}}  // end namespace lsst::pex::policy

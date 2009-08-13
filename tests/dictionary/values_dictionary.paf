@@ -57,8 +57,35 @@ definitions: {
    }
 
    policy_count_type: {
-     type:         "Policy"
-     minOccurs:    1
-     maxOccurs:    3
+     type: "Policy"
+     minOccurs: 1
+     maxOccurs: 3
+   }
+
+   policy_set_type: {
+     type: "Policy"
+     allowed: {
+       value : {
+         foo: 1
+         bar: baz
+       }
+     }
+     allowed: {
+       value : { qux: false }
+     }
+   }
+
+   policy_min_type: {
+     type: "Policy"
+     allowed: {
+       min: { qux: false }
+     }
+   }
+
+   policy_max_type: {
+     type: "Policy"
+     allowed: {
+       max: { qux: false }
+     }
    }
 }

@@ -152,7 +152,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("bool_type") == 0, "correct type")
         
         p = Policy("tests/dictionary/types_policy_bad_int.paf")
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 1, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
@@ -161,21 +161,21 @@ class DictionaryTestCase(unittest.TestCase):
                      "int can't pass as double")
         
         p = Policy("tests/dictionary/types_policy_bad_double.paf")
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 2, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("double_type") == 0, "correct type")
 
         p = Policy("tests/dictionary/types_policy_bad_string.paf")
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 3, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("string_type") == 0, "correct type")
 
         p = Policy("tests/dictionary/types_policy_bad_policy.paf")
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 4, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 4, "number of errors")
@@ -183,7 +183,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("file_type") == 0, "correct type")
 
         p = Policy("tests/dictionary/types_policy_bad_file.paf")
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 5, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "not loaded")
         self.assert_(ve.getParamCount() == 6, "number of errors")
@@ -194,7 +194,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("policy_type") == ValidationError.NOT_LOADED,
                      "not loaded")
         p.loadPolicyFiles()
-        ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
+        ve = ValidationError("Dictionary_1.py", 6, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getErrors("file_type") == 0, "correct type")
@@ -211,6 +211,23 @@ class DictionaryTestCase(unittest.TestCase):
         ve = ValidationError("Dictionary_1.py", 0, "testValues")
         d.validate(p, ve)
         self.assert_(ve.getParamCount() == 0)
+
+        p = Policy("tests/dictionary/values_policy_bad_policy_set.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("policy_set_type") 
+                     == ValidationError.VALUE_DISALLOWED)
+
+        p = Policy("tests/dictionary/values_policy_bad_policy_max.paf")
+        ve = ValidationError("Dictionary_1.py", 2, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("policy_max_type") 
+                     == ValidationError.VALUE_OUT_OF_RANGE)
+        p = Policy("tests/dictionary/values_policy_bad_policy_min.paf")
+        ve = ValidationError("Dictionary_1.py", 3, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("policy_min_type") 
+                     == ValidationError.VALUE_OUT_OF_RANGE)
 
 def suite():
     """a suite containing all the test cases in this module"""

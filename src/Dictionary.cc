@@ -259,7 +259,7 @@ void Definition::validate(const Policy& policy, const string& name,
         break;
 
     case Policy::POLICY:
-        validate<Policy::Ptr>(name, policy, use);
+        validate<Policy::ConstPtr>(name, policy, use);
         break;
 
     case Policy::FILE:
@@ -313,8 +313,9 @@ void Definition::validate(const string& name, const vector<T>& value,
 
     validateCount(name, value.size(), use);
 
-    for (typename vector<T>::const_iterator i = value.begin(); i != value.end(); ++i)
+    for (typename vector<T>::const_iterator i = value.begin(); i != value.end(); ++i) {
 	validate<T>(name, *i, -1, use);
+    }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
@@ -335,7 +336,7 @@ void Definition::validate(const string& name, const T& value,
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
-    
+
     // check if we're going to get too many
     if (curcount >= 0) {
         int maxOccurs = getMaxOccurs();

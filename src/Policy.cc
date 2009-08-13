@@ -407,6 +407,9 @@ template <> Policy::FilePtrArray Policy::getValueArray(const string& name) const
 template <> Policy::PolicyPtrArray Policy::getValueArray(const string& name) const {
     return getPolicyArray(name);
 }
+template <> Policy::ConstPolicyPtrArray Policy::getValueArray(const string& name) const {
+    return getConstPolicyArray(name);
+}
 
 template <> Policy::ValueType Policy::getValueType<bool>() { return BOOL; }
 template <> Policy::ValueType Policy::getValueType<int>() { return INT; }
@@ -416,6 +419,15 @@ template <> Policy::ValueType Policy::getValueType<Policy>() { return POLICY; }
 template <> Policy::ValueType Policy::getValueType<Policy::FilePtr>() { return FILE; }
 template <> Policy::ValueType Policy::getValueType<Policy::Ptr>() { return POLICY; }
 template <> Policy::ValueType Policy::getValueType<Policy::ConstPtr>() { return POLICY; }
+
+Policy::ConstPolicyPtrArray Policy::getConstPolicyArray(const string& name) const {
+    ConstPolicyPtrArray out;
+    vector<PropertySet::Ptr> psa = _getPropSetList(name);
+    vector<PropertySet::Ptr>::const_iterator i;
+    for(i=psa.begin(); i != psa.end(); ++i) 
+        out.push_back(ConstPtr(new Policy(*i)));
+    return out;
+}
 
 Policy::PolicyPtrArray Policy::getPolicyArray(const string& name) const {
     PolicyPtrArray out;

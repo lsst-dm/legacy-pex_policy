@@ -163,6 +163,7 @@ public:
      * an enumeration for the supported policy types
      */
     enum ValueType {
+	UNDETERMINED = -1,
         UNDEF,
         BOOL,
         INT,
@@ -287,6 +288,14 @@ public:
      * ConstPtr (aka shared_ptr<const Policy>).
      */
     template <class T> static ValueType getValueType();
+
+    /** 
+     * Given the human-readable name of a type ("bool", "int", "policy", etc),
+     * what is its ValueType (BOOL, STRING, etc.)?  Throws BadNameError if
+     * unknown.
+     */
+    static ValueType getTypeByName(const std::string& name);
+    // throw(BadNameError) // swig doesn't like this
 
     /**
      * destroy this policy
@@ -430,7 +439,7 @@ public:
      * returned string will be "undefined".  
      */
     const char *getTypeName(const std::string& name) const {
-        try {  return typeName[getValueType(name)]; }
+        try { return typeName[getValueType(name)]; }
         catch (NameNotFound&) { return typeName[UNDEF]; }
     }
 

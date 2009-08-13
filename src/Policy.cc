@@ -14,6 +14,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <cctype>
+#include <algorithm>
 #include <sstream>
 #include <iostream>
 
@@ -188,6 +190,40 @@ Policy* Policy::_createPolicy(const string& input, bool doIncludes,
  */
 Policy::~Policy() { }
 
+/** 
+ * Given the human-readable name of a type ("bool", "int", "policy", etc),
+ * what is its ValueType (BOOL, STRING, etc.)?  Throws BadNameError if
+ * unknown.
+ */
+Policy::ValueType Policy::getTypeByName(const string& name) {
+    static map<string, Policy::ValueType> nameTypeMap;
+
+    if (nameTypeMap.size() == 0) {
+	map<string, Policy::ValueType> tmp;
+	int n = sizeof(Policy::typeName) / sizeof(char *);
+	for (int i = 0; i < n; ++i) {
+	    // remember both capitalized and lowercase versions (eg Policy)
+	    tmp[Policy::typeName[i]] = (Policy::ValueType) i;
+	    string lowered(Policy::typeName[i]);
+	    transform(lowered.begin(), lowered.end(), lowered.begin(), ::tolower);
+	    tmp[lowered] = (Policy::ValueType) i;
+	}
+	// a few extras
+	tmp["file"] = Policy::FILE;
+	tmp["boolean"] = Policy::BOOL;
+	tmp["integer"] = Policy::INT;
+	tmp["undef"] = Policy::UNDEF;
+	// assign after initializationto avoid concurrency problems
+	nameTypeMap = tmp;
+
+	if (tmp.count(name) == 1) return tmp[name];
+    }
+    else
+	if (nameTypeMap.count(name) == 1) return nameTypeMap[name];
+    
+    throw LSST_EXCEPT(BadNameError, name);
+}
+
 /*
  * load the names of parameters into a given list.  
  * 
@@ -323,7 +359,9 @@ Policy::ValueType Policy::getValueType(const string& name) const {
             return POLICY;
         }
         else {
-            throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Policy: illegal type held by PropertySet: ") + tp.name());
+            throw LSST_EXCEPT
+		(pexExcept::LogicErrorException,
+		 string("Policy: illegal type held by PropertySet: ") + tp.name());
         }
     } catch (pexExcept::NotFoundException&) {
         return UNDEF;

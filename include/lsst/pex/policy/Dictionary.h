@@ -242,7 +242,7 @@ public:
      * @param paramName   the name of the parameter being defined.
      */
     Definition(const std::string& paramName = "")
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDEF), 
+        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
           _name(paramName), _policy()
     {
         _policy.reset(new Policy());
@@ -254,7 +254,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const std::string& paramName, const Policy::Ptr& defn) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDEF), 
+        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
           _name(paramName), _policy(defn)
     { }
 
@@ -263,7 +263,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const Policy::Ptr& defn) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDEF), 
+        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
           _name(), _policy(defn)
     { }
 
@@ -271,7 +271,7 @@ public:
      * create a copy of a definition
      */
     Definition(const Definition& that) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDEF), 
+        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
           _name(that._name), _policy(that._policy)
     { }
 
@@ -279,7 +279,7 @@ public:
      * reset this definition to another one
      */
     Definition& operator=(const Definition& that) {
-        _type = Policy::UNDEF;
+        _type = Policy::UNDETERMINED;
         _name = that._name;
         _policy = that._policy;
         return *this;
@@ -316,7 +316,7 @@ public:
      * return the definition data as a Policy pointer
      */
     void setData(const Policy::Ptr& defdata) { 
-        _type = Policy::UNDEF;
+        _type = Policy::UNDETERMINED;
         _policy = defdata; 
     }
 
@@ -326,7 +326,7 @@ public:
     Policy::ValueType getType() const {
 	// TODO distinguish between unknown and undetermined type
 	// -- so that _determineType() isn't called repeatedly?
-        if (_type == Policy::UNDEF) _type = _determineType();
+        if (_type == Policy::UNDETERMINED) _type = _determineType();
         return _type;
     }
 

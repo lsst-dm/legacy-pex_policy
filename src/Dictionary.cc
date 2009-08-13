@@ -99,23 +99,23 @@ Definition::~Definition() { }
 Policy::ValueType Definition::_determineType() const {
     if (_policy->isString("type")) {
         const string& type = _policy->getString("type");
-        if (type == Policy::typeName[Policy::BOOL]) 
-            return Policy::BOOL;
-        else if (type == Policy::typeName[Policy::INT]) 
-            return Policy::INT;
-        else if (type == Policy::typeName[Policy::DOUBLE]) 
-            return Policy::DOUBLE;
-        else if (type == Policy::typeName[Policy::STRING]) 
-            return Policy::STRING;
-        else if (type == Policy::typeName[Policy::POLICY]) 
-            return Policy::POLICY;
-        else if (type == Policy::typeName[Policy::FILE]) {
-            throw LSST_EXCEPT(DictionaryError, string("Illegal type: \"") + type
-                              + "\"; use \"" + Policy::typeName[Policy::POLICY]
-                              + "\" instead.");
-        }
-        else throw LSST_EXCEPT
-            (DictionaryError, string("Unknown type: \"") + type + "\".");
+	Policy::ValueType result;
+	try {
+	    result = Policy::getTypeByName(type);
+	} catch(BadNameError&) {
+	    throw LSST_EXCEPT
+		(DictionaryError, string("Unknown type: \"") + type + "\".");
+	}
+	if (result == Policy::FILE)
+	    throw LSST_EXCEPT(DictionaryError, string("Illegal type: \"") + type
+			      + "\"; use \"" + Policy::typeName[Policy::POLICY]
+			      + "\" instead.");
+	else return result;
+    }
+    else if (_policy->exists("type")) {
+	throw LSST_EXCEPT
+	    (DictionaryError, string("Expected string for \"type\"; found ") 
+	     + _policy->getTypeName("type") + " instead.");
     }
 
     else return Policy::UNDEF;
@@ -357,28 +357,22 @@ void Definition::validate(const string& name, const T& value,
         {
             Policy::Ptr a = *it;
             if (a->exists("min")) {
-		cout << " ## " << name << ": found min ... ";
                 if (minFound) {
-		    cout << " -- dupe!" << endl;
                     throw LSST_EXCEPT
                         (DictionaryError, string("min value ") 
 			 + lexical_cast<string>(min) 
 			 + " already specified; additional value not allowed.");
 		}
 		try {
-		    cout << "attempting to read ... ";
 		    min = a->getValue<T>("min");
 		} catch(TypeError& e) {
-		    cout << "wrong type." << endl;
 		    throw LSST_EXCEPT
 			(DictionaryError, string("Wrong type for ") + name 
 			 + " min value: expected " + getTypeName() + ", found \"" 
 			 + lexical_cast<string>(max) + "\".");
 		} catch(...) {
-		    cout << "caught something else." << endl;
 		    throw;
 		}
-		cout << "success!" << endl;
                 minFound = true; // after min assign, in case of exceptions
             }
             if (a->exists("max")) {

@@ -55,29 +55,45 @@ class DictionaryTestCase(unittest.TestCase):
             self.fail(failMsg + ": did not raise " + excClass)
 
     def testBadDictionary(self):
-        d = Dictionary()
         # TODO: have this fail on load, instead of on inspection
-        PolicyFile("tests/dictionary/dictionary_policyfile.paf").load(d)
+        d = Dictionary("tests/dictionary/dictionary_bad_policyfile.paf")
         self.assertRaiseLCE("DictionaryError", "Illegal type: \"PolicyFile\"",
                             d.makeDef("file_type").getType,
                             "Dictionary specified PolicyFile type")
 
-        d = Dictionary()
-        PolicyFile("tests/dictionary/dictionary_unknown_type.paf").load(d)
+        d = Dictionary("tests/dictionary/dictionary_bad_unknown_type.paf")
         self.assertRaiseLCE("DictionaryError", "Unknown type: \"NotAType\"",
                             d.makeDef("something").getType,
                             "Dictionary specifies unknown types")
 
-        d = Dictionary()
-        PolicyFile("tests/dictionary/dictionary_multiple_definitions.paf").load(d)
+        d = Dictionary("tests/dictionary/dictionary_bad_type_type.paf")
+        self.assertRaiseLCE("DictionaryError", "Expected string",
+                            d.makeDef("something").getType,
+                            "Expected string \"type\" type")
+
+        d = Dictionary("tests/dictionary/dictionary_bad_multiple_definitions.paf")
         self.assertRaiseLCE("DictionaryError", "expected a single", d.check, 
                             "Dictionary has two 'definitions' sections")
 
+        p = Policy("tests/dictionary/values_policy_good_1.paf")
+        d = Dictionary("tests/dictionary/dictionary_bad_multiple_min.paf")
+        self.assertRaiseLCE("DictionaryError", "Min value for int_ra", d.validate,
+                            "Two mins specified.", p)
+        d = Dictionary("tests/dictionary/dictionary_bad_multiple_max.paf")
+        self.assertRaiseLCE("DictionaryError", "Max value for int_ra", d.validate,
+                            "Two maxes specified.", p)
+        d = Dictionary("tests/dictionary/dictionary_bad_min_wrong_type.paf")
+        self.assertRaiseLCE("DictionaryError",
+                            "Wrong type for int_range_count_type min",
+                            d.validate, "Wrong min type.", p)
+        d = Dictionary("tests/dictionary/dictionary_bad_max_wrong_type.paf")
+        self.assertRaiseLCE("DictionaryError",
+                            "Wrong type for int_range_count_type max",
+                            d.validate, "Wrong max type.", p)
+
     def testSimpleValidate(self):
-        d = Dictionary()
-        PolicyFile("tests/dictionary/simple_dictionary.paf").load(d)
-        p = Policy()
-        PolicyFile("tests/dictionary/simple_policy.paf").load(p)
+        d = Dictionary("tests/dictionary/simple_dictionary.paf")
+        p = Policy("tests/dictionary/simple_policy.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testSimpleValidate")
         d.validate(p, ve)
         self.assert_(ve.getErrors("name") == 0, "no errors in name")
@@ -85,8 +101,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors() == 0, "no errors overall")
 
     def testTypeValidation(self):
-        d = Dictionary()
-        PolicyFile("tests/dictionary/types_dictionary.paf").load(d)
+        d = Dictionary("tests/dictionary/types_dictionary.paf")
         self.assert_(d.makeDef("undef_type") .getType() == Policy.UNDEF,
                      "UNDEF definition type")
         self.assert_(d.makeDef("bool_type")  .getType() == Policy.BOOL,
@@ -102,8 +117,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(d.makeDef("file_type").getType() == Policy.POLICY,
                      "POLICY definition type (substituted for PolicyFile)")
 
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_good.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_good.paf")
 
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
         d.validate(p, ve)
@@ -128,19 +142,16 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors() == 0, "no errors overall")
 
     def testWrongType(self):
-        d = Dictionary()
-        PolicyFile("tests/dictionary/types_dictionary.paf").load(d)
+        d = Dictionary("tests/dictionary/types_dictionary.paf")
 
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_bool.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_bool.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("bool_type") == 0, "correct type")
         
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_int.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_int.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
@@ -149,24 +160,21 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("double_type") == ValidationError.WRONG_TYPE,
                      "int can't pass as double")
         
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_double.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_double.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("double_type") == 0, "correct type")
 
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_string.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_string.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("string_type") == 0, "correct type")
 
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_policy.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_policy.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
@@ -174,8 +182,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("policy_type") == 0, "correct type")
         self.assert_(ve.getErrors("file_type") == 0, "correct type")
 
-        p = Policy()
-        PolicyFile("tests/dictionary/types_policy_bad_file.paf").load(p)
+        p = Policy("tests/dictionary/types_policy_bad_file.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "not loaded")
@@ -198,11 +205,9 @@ class DictionaryTestCase(unittest.TestCase):
         # TODO: test bad dictionary (wrong types for allowed values, etc.)
 
     def testValues(self):
-        d = Dictionary()
-        PolicyFile("tests/dictionary/values_dictionary.paf").load(d)
+        d = Dictionary("tests/dictionary/values_dictionary.paf")
         d.check()
-        p = Policy()
-        PolicyFile("tests/dictionary/values_policy_good_1.paf").load(p)
+        p = Policy("tests/dictionary/values_policy_good_1.paf")
         ve = ValidationError("Dictionary_1.py", 0, "testValues")
         d.validate(p, ve)
         self.assert_(ve.getParamCount() == 0)

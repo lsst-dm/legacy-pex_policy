@@ -358,10 +358,11 @@ void Definition::validate(const string& name, const T& value,
             Policy::Ptr a = *it;
             if (a->exists("min")) {
                 if (minFound) {
+		    // TODO: catch this in Dictionary::check()
                     throw LSST_EXCEPT
-                        (DictionaryError, string("min value ") 
-			 + lexical_cast<string>(min) 
-			 + " already specified; additional value not allowed.");
+                        (DictionaryError, string("Min value for ") + name
+			 + " (" + lexical_cast<string>(min) 
+			 + ") already specified; additional value not allowed.");
 		}
 		try {
 		    min = a->getValue<T>("min");
@@ -378,9 +379,9 @@ void Definition::validate(const string& name, const T& value,
             if (a->exists("max")) {
                 if (maxFound)
                     throw LSST_EXCEPT
-                        (DictionaryError, string("max value ") 
-			 + lexical_cast<string>(max) 
-			 + " already specified; additional value not allowed.");
+                        (DictionaryError, string("Max value for ") + name
+			 + " (" + lexical_cast<string>(max) 
+			 + ") already specified; additional value not allowed.");
 		try {
 		    max = a->getValue<T>("max");
 		} catch(TypeError& e) {

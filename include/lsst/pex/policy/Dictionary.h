@@ -324,8 +324,6 @@ public:
      * return the type identifier for the parameter
      */
     Policy::ValueType getType() const {
-	// TODO distinguish between unknown and undetermined type
-	// -- so that _determineType() isn't called repeatedly?
         if (_type == Policy::UNDETERMINED) _type = _determineType();
         return _type;
     }

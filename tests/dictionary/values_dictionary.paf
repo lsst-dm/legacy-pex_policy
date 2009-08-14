@@ -56,6 +56,20 @@ definitions: {
      allowed: { value: "baz" }
    }
 
+   string_range_type: {
+     type:    "string"
+     allowed: {
+       min: "deedle"
+       max: "try"
+     }
+   }
+
+   string_count_type: {
+     type:    "string"
+     minOccurs:  3
+     maxOccurs:  5
+   }
+
    policy_count_type: {
      type: "Policy"
      minOccurs: 1

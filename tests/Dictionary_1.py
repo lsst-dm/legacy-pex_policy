@@ -212,12 +212,12 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve)
         self.assert_(ve.getParamCount() == 0)
 
+        # policy: disallow allowed, min, max
         p = Policy("tests/dictionary/values_policy_bad_policy_set.paf")
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve)
         self.assert_(ve.getErrors("policy_set_type") 
                      == ValidationError.VALUE_DISALLOWED)
-
         p = Policy("tests/dictionary/values_policy_bad_policy_max.paf")
         ve = ValidationError("Dictionary_1.py", 2, "testValues")
         d.validate(p, ve)
@@ -228,6 +228,60 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve)
         self.assert_(ve.getErrors("policy_min_type") 
                      == ValidationError.VALUE_OUT_OF_RANGE)
+
+        # minOccurs/maxOccurs
+        p = Policy("tests/dictionary/values_policy_bad_occurs.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getParamCount() == 4)
+        self.assert_(ve.getErrors("bool_set_count_type")
+                    == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getErrors("double_range_count_type")
+                    == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getErrors("string_count_type")
+                    == ValidationError.ARRAY_TOO_SHORT)
+        self.assert_(ve.getErrors("policy_count_type")
+                    == ValidationError.TOO_MANY_VALUES)
+
+        # min
+        p = Policy("tests/dictionary/values_policy_bad_min.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getParamCount() == 4)
+        self.assert_(ve.getErrors() == ValidationError.VALUE_OUT_OF_RANGE)
+        self.assert_(ve.getErrors("string_count_type") == ValidationError.OK)
+        self.assert_(ve.getErrors("policy_count_type") == ValidationError.OK)
+        # max
+        p = Policy("tests/dictionary/values_policy_bad_max.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getParamCount() == 4)
+        self.assert_(ve.getErrors() == ValidationError.VALUE_OUT_OF_RANGE)
+        self.assert_(ve.getErrors("string_count_type") == ValidationError.OK)
+        self.assert_(ve.getErrors("policy_count_type") == ValidationError.OK)
+
+        # allowed
+        p = Policy("tests/dictionary/values_policy_bad_allowed.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getParamCount() == 4)
+        self.assert_(ve.getErrors() == ValidationError.VALUE_DISALLOWED)
+        self.assert_(ve.getErrors("string_count_type") == ValidationError.OK)
+        self.assert_(ve.getErrors("policy_count_type") == ValidationError.OK)
+
+        # allowed & min/max
+        p = Policy("tests/dictionary/values_policy_bad_allowedminmax.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
+        self.assert_(ve.getParamCount() == 2)
+        self.assert_(ve.getErrors("int_range_set_type") 
+                     == ValidationError.VALUE_DISALLOWED 
+                     + ValidationError.VALUE_OUT_OF_RANGE)
+        self.assert_(ve.getErrors("double_range_count_type") 
+                     == ValidationError.TOO_MANY_VALUES 
+                     + ValidationError.VALUE_OUT_OF_RANGE)
+        ve = ValidationError("Dictionary_1.py", 1, "testValues")
+        d.validate(p, ve)
 
 def suite():
     """a suite containing all the test cases in this module"""

@@ -592,23 +592,37 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
     Policy::StringArray params = pol.names(true);
-    Policy::StringArray::iterator ni;
-    for(ni = params.begin(); ni != params.end(); ++ni) {
+
+    // validate each item in policy
+    for (Policy::StringArray::iterator i = params.begin(); i != params.end(); ++i) {
         try {
-            scoped_ptr<Definition> def(makeDef(*ni));
-            def->validate(pol, *ni, use);
+            scoped_ptr<Definition> def(makeDef(*i));
+            def->validate(pol, *i, use);
         }
         catch (NameNotFound& e) {
-            use->addError(*ni,ValidationError::UNKNOWN_NAME);
+            use->addError(*i, ValidationError::UNKNOWN_NAME);
         }
         catch (TypeError& e) {
             throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
         }
-        cout << "-- errors after " << *ni << ": " << use->getParamCount()
-             << " / " << use->getErrors(*ni) << endl;
+        cout << "-- errors after " << *i << ": " << use->getParamCount()
+             << " / " << use->getErrors(*i) << endl;
     }
-    // TODO: handle missing elements (minOccurs >= 1)
     // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception
+
+    // TODO: handle nested definitions
+
+    // check definitions of missing elements for required elements
+    Policy::ConstPtr defs = getDefinitions();
+    Policy::StringArray dn = defs->names(false);
+    for (Policy::StringArray::iterator i = dn.begin(); i != dn.end(); ++i) {
+	const string& name = *i;
+	if (!pol.exists(name)) { // item in dictionary, but not in policy
+	    scoped_ptr<Definition> def(makeDef(name));
+	    if (def->getMinOccurs() > 0)
+		use->addError(name, ValidationError::MISSING_REQUIRED);
+	}
+    }
 
     cout << "** errors at end: " << use->getParamCount() << endl;
     if (errs == 0 && ve.getParamCount() > 0) throw ve;

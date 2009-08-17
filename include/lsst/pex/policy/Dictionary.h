@@ -87,24 +87,16 @@ public:
          */
         BAD_VALUE = 96,
 
-        /**
-         * The value's name is not recognized.
-         */
+        /** The value's name is not recognized. */
         UNKNOWN_NAME = 128,
 
-        /**
-         * The value's dictionary definition is malformed.
-         */
+        /** The value's dictionary definition is malformed. */
         BAD_DEFINITION = 256,
 
-        /**
-         * Policy sub-files have not been loaded -- need to call loadPolicyFiles().
-         */
+        /** Policy sub-files have not been loaded -- need to call loadPolicyFiles(). */
         NOT_LOADED = 512,
 
-        /**
-         * an unknown error.  This is the highest error number.
-         */
+        /** an unknown error.  This is the highest error number. */
         UNKNOWN_ERROR = 1024
     };
 
@@ -301,6 +293,15 @@ public:
      */
     const std::string& getName() const { return _name; }
 
+    //@{
+    /**
+     * The prefix to this definition's parameter name -- relevant to validation
+     * of sub-policies.
+     */
+    const std::string getPrefix() const { return _prefix; }
+    void setPrefix(const std::string& prefix) { _prefix = prefix; }
+    //@}
+
     /**
      * set the name of the parameter.  Note that this will not effect the 
      * name in Dictionary that this Definition came from.  
@@ -440,9 +441,6 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    template <class T> void validate
-	(const std::string& name, const T& value, int curcount=-1,
-	 ValidationError *errs=0) const;
 
     void validate(const std::string& name, bool value, int curcount=-1, 
                   ValidationError *errs=0) const;
@@ -455,26 +453,6 @@ public:
     void validate(const std::string& name, const Policy& value, int curcount=-1, 
                   ValidationError *errs=0) const;
     //@}
-
-    /**
-     * confirm that a Policy parameter name-array value combination is 
-     * consistent with this dictionary.  Unlike the scalar version, 
-     * this does check occurrence compliance.  
-     *
-     * If a ValidationError instance is provided, any errors detected 
-     * will be loaded into it.  If no ValidationError is provided,
-     * then any errors detected will cause a ValidationError exception
-     * to be thrown.  
-     *
-     * @param name     the name of the parameter being checked
-     * @param policy   the policy whose named parameter is being checked
-     * @param errs     the ValidationError instance to load errors into
-     * @exception ValidationError   if the value does not conform.  The message
-     *                 should explain why.
-     */
-    template <class T> void validate
-	(const std::string& name, const Policy& policy,
-	 ValidationError *errs=0) const;
 
     //@{
     /**
@@ -494,10 +472,6 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    template <class T> void validate
-	(const std::string& name, const std::vector<T>& value,
-	 ValidationError *errs=0) const;
-
     void validate(const std::string& name, const Policy::BoolArray& value, 
                   ValidationError *errs=0) const;
     void validate(const std::string& name, const Policy::IntArray& value, 
@@ -510,6 +484,61 @@ public:
     void validate(const std::string& name, 
                   const Policy::ConstPolicyPtrArray& value, 
                   ValidationError *errs=0) const;
+    //@}
+
+    /**
+     * confirm that a Policy parameter name-array value combination is 
+     * consistent with this dictionary.  Unlike the scalar version, 
+     * this does check occurrence compliance.  
+     *
+     * If a ValidationError instance is provided, any errors detected 
+     * will be loaded into it.  If no ValidationError is provided,
+     * then any errors detected will cause a ValidationError exception
+     * to be thrown.
+     *
+     * Only does basic validation (min, max, minOccurs, maxOccurs, allowed
+     * values); doesn't recursively check sub-dictionaries.
+     *
+     * @param name     the name of the parameter being checked
+     * @param policy   the policy whose named parameter is being checked
+     * @param errs     the ValidationError instance to load errors into
+     * @exception ValidationError   if the value does not conform.  The message
+     *                 should explain why.
+     */
+    template <class T> void validateBasic
+	(const std::string& name, const Policy& policy,
+	 ValidationError *errs=0) const;
+
+    //@{
+    /**
+     * Confirm that a policy value is consistent with this dictionary; does
+     * basic checks (min, max, minOccurs, maxOccurs, allowed values), but does
+     * not recurse if <tt>value</tt> is itself a Policy with a sub-dictionary.
+     *
+     * Equivalent to <tt>validate(name, value, errs)</tt> for basic types, but
+     * not for Policies.
+     */
+    template <class T> void validateBasic
+	(const std::string& name, const T& value, int curcount=-1,
+	 ValidationError *errs=0) const;
+    template <class T> void validateBasic
+	(const std::string& name, const std::vector<T>& value,
+	 ValidationError *errs=0) const;
+    //@}
+
+    //@{
+    /**
+     * Recursively validate <tt>value</tt>, using a sub-definition, if present
+     * in this Dictionary.
+     * @param name  the name of the parameter being checked
+     * @param value the value being checked against name's definition
+     * @param errs  used to store errors that are found (not allowed to be null)
+     */
+    void validateRecurse(const std::string& name, Policy::ConstPolicyPtrArray value,
+			 ValidationError *errs) const;
+
+    void validateRecurse(const std::string& name, const Policy& value,
+			 ValidationError *errs) const;
     //@}
 
 protected:
@@ -529,6 +558,7 @@ protected:
 
 private:
     mutable Policy::ValueType _type;
+    std::string _prefix; // for recursive validation, eg "foo.bar."
     std::string _name;
     Policy::Ptr _policy;
 };
@@ -750,9 +780,21 @@ public:
      */
     virtual void loadPolicyFiles(const fs::path& repository,bool strict=false);
 
+    //@{
+    /**
+     * The prefix to this Dictionary's parameter names, for user messages during
+     * validation of sub-policies.
+     */
+    const std::string getPrefix() const { return _prefix; }
+    void setPrefix(const std::string& prefix) { _prefix = prefix; }
+    //@}
+
+
 protected:
     static const boost::regex FIELDSEP_RE;
 
+private:
+    std::string _prefix; // for recursive validation, eg "foo.bar."
 };
 
 }}}  // end namespace lsst::pex::policy

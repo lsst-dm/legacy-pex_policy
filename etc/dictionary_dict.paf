@@ -84,7 +84,7 @@ definitions: {
                           and > 1 means that a vector value is required."
            minOccurs:    0
            maxOccurs:    1
-           default       0
+           default:      0
          }
          maxOccurs: {
            type:         int

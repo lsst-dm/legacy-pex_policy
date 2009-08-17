@@ -286,6 +286,24 @@ class DictionaryTestCase(unittest.TestCase):
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve)
 
+    def testNested(self):
+        d = Dictionary("tests/dictionary/nested_dictionary.paf")
+        d.check()
+        p = Policy("tests/dictionary/nested_policy_good.paf")
+        d.validate(p)
+        ve = ValidationError("Dictionary_1.py", 1, "testNested")
+        p = Policy("tests/dictionary/nested_policy_bad.paf")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("policy_1") == ValidationError.WRONG_TYPE);
+        self.assert_(ve.getErrors("policy_2.foo")
+                     == ValidationError.VALUE_DISALLOWED);
+        self.assert_(ve.getErrors("policy_2.bar")
+                     == ValidationError.MISSING_REQUIRED);
+        self.assert_(ve.getErrors("policy_3.baz.qux")
+                     == ValidationError.WRONG_TYPE);
+        self.assert_(ve.getErrors("policy_3.baz.paisley")
+                     == ValidationError.MISSING_REQUIRED);
+
 def suite():
     """a suite containing all the test cases in this module"""
     tests.init()

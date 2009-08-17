@@ -210,7 +210,8 @@ void Definition::setDefaultIn(Policy& policy, const string& withName) const {
 
     default:
         throw LSST_EXCEPT(pexExcept::LogicErrorException,
-                          string("Programmer Error: Unknown type: ") + Policy::typeName[getType()]);
+                          string("Programmer Error: Unknown type: ") 
+			  + Policy::typeName[getType()]);
     }
 }
 
@@ -232,7 +233,7 @@ void Definition::validate(const Policy& policy, const string& name,
     if (! policy.exists(name)) {
         try {
             if (_policy->getInt("minOccurs") > 0)
-                use->addError(name, ValidationError::MISSING_REQUIRED);
+                use->addError(getPrefix() + name, ValidationError::MISSING_REQUIRED);
         }
         catch (NameNotFound&) { }
         return;
@@ -243,32 +244,34 @@ void Definition::validate(const Policy& policy, const string& name,
 
     switch (type) {
     case Policy::BOOL: 
-        validate<bool>(name, policy, use);
+        validateBasic<bool>(name, policy, use);
         break;
 
     case Policy::INT:
-        validate<int>(name, policy, use);
+        validateBasic<int>(name, policy, use);
         break;
 
     case Policy::DOUBLE:
-        validate<double>(name, policy, use);
+        validateBasic<double>(name, policy, use);
         break;
 
     case Policy::STRING:
-        validate<string>(name, policy, use);
+        validateBasic<string>(name, policy, use);
         break;
 
     case Policy::POLICY:
-        validate<Policy::ConstPtr>(name, policy, use);
+        validateBasic<Policy::ConstPtr>(name, policy, use);
+	validateRecurse(name, policy.getConstPolicyArray(name), use);
         break;
 
     case Policy::FILE:
-        use->addError(name, ValidationError::NOT_LOADED);
+        use->addError(getPrefix() + name, ValidationError::NOT_LOADED);
         break;
 
     default:
         throw LSST_EXCEPT(pexExcept::LogicErrorException,
-                          string("Unknown type: ") + policy.getTypeName(name));
+                          string("Unknown type for \"") + getPrefix() + name 
+			  + "\": \"" + policy.getTypeName(name) + "\"");
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -285,27 +288,27 @@ void Definition::validateCount(const string& name, int count,
                                ValidationError *errs) const {
     int max = getMaxOccurs(); // -1 means no limit / undefined
     if (max >= 0 && count > max) 
-        errs->addError(name, ValidationError::TOO_MANY_VALUES);
+        errs->addError(getPrefix() + name, ValidationError::TOO_MANY_VALUES);
     if (count < getMinOccurs()) {
         if (count == 0) 
-            errs->addError(name, ValidationError::MISSING_REQUIRED);
+            errs->addError(getPrefix() + name, ValidationError::MISSING_REQUIRED);
         else if (count == 1) 
-            errs->addError(name, ValidationError::NOT_AN_ARRAY);
+            errs->addError(getPrefix() + name, ValidationError::NOT_AN_ARRAY);
         else 
-            errs->addError(name, ValidationError::ARRAY_TOO_SHORT);
+            errs->addError(getPrefix() + name, ValidationError::ARRAY_TOO_SHORT);
     }
 }
 
 template <class T>
-void Definition::validate(const string& name, const Policy& policy,
-			  ValidationError *errs) const
+void Definition::validateBasic(const string& name, const Policy& policy,
+			       ValidationError *errs) const
 {
-    validate(name, policy.getValueArray<T>(name), errs);
+    validateBasic(name, policy.getValueArray<T>(name), errs);
 }
 
 template <class T>
-void Definition::validate(const string& name, const vector<T>& value,
-			  ValidationError *errs) const
+void Definition::validateBasic(const string& name, const vector<T>& value,
+			       ValidationError *errs) const
 {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
@@ -314,7 +317,7 @@ void Definition::validate(const string& name, const vector<T>& value,
     validateCount(name, value.size(), use);
 
     for (typename vector<T>::const_iterator i = value.begin(); i != value.end(); ++i) {
-	validate<T>(name, *i, -1, use);
+	validateBasic<T>(name, *i, -1, use);
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -329,9 +332,43 @@ bool operator<(const Policy& a, const Policy& b) { return true; }
 bool operator<(const Policy::ConstPtr& a, const Policy::ConstPtr& b) { return true; }
 bool operator<(const Policy::FilePtr& a, const Policy::FilePtr& b) { return true; }
 
+void Definition::validateRecurse(const string& name,
+				 Policy::ConstPolicyPtrArray value,
+				 ValidationError *errs) const
+{
+    for (Policy::ConstPolicyPtrArray::const_iterator i = value.begin();
+	 i != value.end(); ++i) {
+	Policy::ConstPtr p = *i;
+	validateRecurse(name, *p, errs);
+    }
+}
+
+void Definition::validateRecurse(const string& name, const Policy& value,
+				 ValidationError *errs) const
+{
+    if (!getType() == Policy::POLICY) // should have checked this at a higher level
+	throw LSST_EXCEPT
+	    (pexExcept::LogicErrorException, string("Wrong type: expected ") 
+	     + Policy::typeName[Policy::POLICY] + " for " + getPrefix() + name 
+	     + " but found " + getTypeName() + ".");
+    else if (_policy->exists("dictionary")) { // recurse if we have a sub-definition
+	if (!_policy->isPolicy("dictionary"))
+	    throw LSST_EXCEPT
+		(DictionaryError, string("Wrong type for ") + getPrefix() + name 
+		 + " \"dictionary\": expected Policy, but found " 
+		 + _policy->getTypeName("dictionary") + ".");
+	else {
+	    Dictionary subdict(*(_policy->getPolicy("dictionary")));
+	    subdict.setPrefix(_prefix + name + ".");
+	    subdict.validate(value, errs);
+	}
+    }
+
+}
+
 template <class T>
-void Definition::validate(const string& name, const T& value,
-			  int curcount, ValidationError *errs) const
+void Definition::validateBasic(const string& name, const T& value,
+			       int curcount, ValidationError *errs) const
 {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
@@ -341,11 +378,11 @@ void Definition::validate(const string& name, const T& value,
     if (curcount >= 0) {
         int maxOccurs = getMaxOccurs();
         if (maxOccurs >= 0 && curcount + 1 > maxOccurs) 
-            use->addError(name, ValidationError::TOO_MANY_VALUES);
+            use->addError(getPrefix() + name, ValidationError::TOO_MANY_VALUES);
     }
 
     if (getType() != Policy::UNDEF && getType() != Policy::getValueType<T>()) {
-        use->addError(name, ValidationError::WRONG_TYPE);
+        use->addError(getPrefix() + name, ValidationError::WRONG_TYPE);
     }
     else if (_policy->isPolicy("allowed")) {
         Policy::PolicyPtrArray allowed = _policy->getPolicyArray("allowed");
@@ -361,7 +398,8 @@ void Definition::validate(const string& name, const T& value,
                 if (minFound) {
 		    // TODO: catch this in Dictionary::check()
                     throw LSST_EXCEPT
-                        (DictionaryError, string("Min value for ") + name
+                        (DictionaryError, 
+			 string("Min value for ") + getPrefix() + name
 			 + " (" + lexical_cast<string>(min) 
 			 + ") already specified; additional value not allowed.");
 		}
@@ -369,7 +407,8 @@ void Definition::validate(const string& name, const T& value,
 		    min = a->getValue<T>("min");
 		} catch(TypeError& e) {
 		    throw LSST_EXCEPT
-			(DictionaryError, string("Wrong type for ") + name 
+			(DictionaryError, 
+			 string("Wrong type for ") + getPrefix() + name 
 			 + " min value: expected " + getTypeName() + ", found \"" 
 			 + lexical_cast<string>(max) + "\".");
 		} catch(...) {
@@ -380,14 +419,16 @@ void Definition::validate(const string& name, const T& value,
             if (a->exists("max")) {
                 if (maxFound)
                     throw LSST_EXCEPT
-                        (DictionaryError, string("Max value for ") + name
+                        (DictionaryError,
+			 string("Max value for ") + getPrefix() + name
 			 + " (" + lexical_cast<string>(max) 
 			 + ") already specified; additional value not allowed.");
 		try {
 		    max = a->getValue<T>("max");
 		} catch(TypeError& e) {
 		    throw LSST_EXCEPT
-			(DictionaryError, string("Wrong type for ") + name 
+			(DictionaryError, 
+			 string("Wrong type for ") + getPrefix() + name 
 			 + " max value: expected " + getTypeName() + ", found \"" 
 			 + lexical_cast<string>(max) + "\".");
 		}
@@ -399,11 +440,11 @@ void Definition::validate(const string& name, const T& value,
              << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
 
         if ((minFound && value < min) || (maxFound && max < value))
-            use->addError(name, ValidationError::VALUE_OUT_OF_RANGE);
+            use->addError(getPrefix() + name, ValidationError::VALUE_OUT_OF_RANGE);
 
         if (allvals.size() > 0 && allvals.count(value) == 0) {
             cout << "## value " << value << " not allowed for " << name << endl;
-            use->addError(name, ValidationError::VALUE_DISALLOWED);
+            use->addError(getPrefix() + name, ValidationError::VALUE_DISALLOWED);
         }
     }
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
@@ -420,31 +461,32 @@ void Definition::validate(const string& name, const T& value,
 void Definition::validate(const string& name, bool value, int curcount,
                           ValidationError *errs) const 
 { 
-    validate<bool>(name, value, curcount, errs);
+    validateBasic<bool>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, int value, int curcount,
                           ValidationError *errs) const 
 { 
-    validate<int>(name, value, curcount, errs);
+    validateBasic<int>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, double value, int curcount,
                           ValidationError *errs) const 
 { 
-    validate<double>(name, value, curcount, errs);
+    validateBasic<double>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, string value, int curcount,
                           ValidationError *errs) const 
 { 
-    validate<string>(name, value, curcount, errs);
+    validateBasic<string>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, const Policy& value, 
                           int curcount, ValidationError *errs) const 
 { 
-    validate<Policy>(name, value, curcount, errs);
+    validateBasic<Policy>(name, value, curcount, errs);
+    validateRecurse(name, value, errs);
 }
 
 /*
@@ -459,30 +501,31 @@ void Definition::validate(const string& name, const Policy& value,
 void Definition::validate(const string& name, const Policy::BoolArray& value, 
                           ValidationError *errs) const 
 { 
-    validate<bool>(name, value, errs);
+    validateBasic<bool>(name, value, errs);
 }
 
 void Definition::validate(const string& name, const Policy::IntArray& value, 
                           ValidationError *errs) const 
 { 
-    validate<int>(name, value, errs);
+    validateBasic<int>(name, value, errs);
 }
 
 void Definition::validate(const string& name, const Policy::DoubleArray& value,
                           ValidationError *errs) const 
 { 
-    validate<double>(name, value, errs);
+    validateBasic<double>(name, value, errs);
 }
 void Definition::validate(const string& name, const Policy::StringArray& value, 
                           ValidationError *errs) const 
 { 
-    validate<string>(name, value, errs);
+    validateBasic<string>(name, value, errs);
 }
 
 void Definition::validate(const string& name, const Policy::ConstPolicyPtrArray& value, 
                           ValidationError *errs) const 
 { 
-    validate<Policy::ConstPtr>(name, value, errs);
+    validateBasic<Policy::ConstPtr>(name, value, errs);
+    validateRecurse(name, value, errs);
 }
 
 ///////////////////////////////////////////////////////////
@@ -496,15 +539,18 @@ const regex Dictionary::FIELDSEP_RE("\\.");
  */
 Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) + ": does not contain a dictionary");
+        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
+			  + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(const string& filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) + ": does not contain a dictionary");
+        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
+			  + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) { 
     if (!exists("definitions"))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, filePath.getPath() + ": does not contain a dictionary");
+        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, filePath.getPath() 
+			  + ": does not contain a dictionary");
 }
 
 /*
@@ -524,7 +570,8 @@ Definition* Dictionary::makeDef(const string& name) const {
     while (it != end) {
         find = *it;
         if (! p->isPolicy("definitions"))
-            throw LSST_EXCEPT(DictionaryError, "Definition for " + find + " not found.");
+            throw LSST_EXCEPT(DictionaryError, "Definition for " + find 
+			      + " not found.");
         sp = p->getPolicy("definitions");
         if (! sp->isPolicy(find)) throw LSST_EXCEPT(NameNotFound, find);
         sp = sp->getPolicy(find);
@@ -537,7 +584,9 @@ Definition* Dictionary::makeDef(const string& name) const {
         }
     }
     // TODO: if no definition found, look for childDefinition
-    return new Definition(name, sp);
+    Definition* result = new Definition(name, sp);
+    result->setPrefix(getPrefix());
+    return result;
 }
 
 void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
@@ -578,7 +627,9 @@ void Dictionary::check() const {
 	    (DictionaryError, string("expected a single \"definitions\" section; "
 				     "found ") + lexical_cast<string>(defs.size()));
     Policy::StringArray names = defs[0]->names(false);
-    for (Policy::StringArray::const_iterator i = names.begin(); i != names.end(); ++i) {
+    for (Policy::StringArray::const_iterator i = names.begin();
+	 i != names.end(); ++i) 
+    {
 	cout << " %%% checking \"" << *i << "\" %%%" << endl;
 	scoped_ptr<Definition> def(makeDef(*i));
     }
@@ -600,15 +651,18 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
             def->validate(pol, *i, use);
         }
         catch (NameNotFound& e) {
-            use->addError(*i, ValidationError::UNKNOWN_NAME);
+            use->addError(getPrefix() + *i, ValidationError::UNKNOWN_NAME);
         }
         catch (TypeError& e) {
-            throw LSST_EXCEPT(pexExcept::LogicErrorException, string("Programmer Error: Param's type morphed: ") + e.what());
+            throw LSST_EXCEPT(pexExcept::LogicErrorException,
+			      string("Programmer Error: Param's type morphed: ") 
+			      + e.what());
         }
         cout << "-- errors after " << *i << ": " << use->getParamCount()
              << " / " << use->getErrors(*i) << endl;
     }
-    // TODO: handle NameNotFound as a validation error -- add to errs -- rather than simply throwing an exception
+    // TODO: handle NameNotFound as a validation error -- add to errs -- rather
+    // than simply throwing an exception
 
     // TODO: handle nested definitions
 
@@ -620,7 +674,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
 	if (!pol.exists(name)) { // item in dictionary, but not in policy
 	    scoped_ptr<Definition> def(makeDef(name));
 	    if (def->getMinOccurs() > 0)
-		use->addError(name, ValidationError::MISSING_REQUIRED);
+		use->addError(getPrefix() + name, ValidationError::MISSING_REQUIRED);
 	}
     }
 

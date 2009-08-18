@@ -678,10 +678,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
         cout << "-- errors after " << *i << ": " << use->getParamCount()
              << " / " << use->getErrors(*i) << endl;
     }
-    // TODO: handle NameNotFound as a validation error -- add to errs -- rather
-    // than simply throwing an exception
-
-    // TODO: handle nested definitions
+    // TODO: ensure that default values are legal (type, value, #)
 
     // check definitions of missing elements for required elements
     Policy::ConstPtr defs = getDefinitions();

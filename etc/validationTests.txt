@@ -34,7 +34,10 @@ Validating Policies:
   * allowed.description
      * no test necessary
   * childDefinition
-     * Let's procrastinate on this one for now
+     * no more than 1 per dictionary definition (per level)
+     * applies independently to each named element that uses it
+        * for example, if multiple elements with different names match a
+          childDefintion, minOccurs & maxOccurs are not cumulative
 
 In pseudocode, operating on a policy:
 

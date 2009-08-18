@@ -354,8 +354,7 @@ class DictionaryTestCase(unittest.TestCase):
                      == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getParamCount() == 7)
         
-# TODO: maxOccurs = 0 (childDef and normal)
-# TODO: maxOccurs < minOccurs
+# TODO: ensure that default values are legal (type, value, #)
 
 def suite():
     """a suite containing all the test cases in this module"""

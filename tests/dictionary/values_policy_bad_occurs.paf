@@ -8,3 +8,4 @@ policy_count_type: {
 policy_count_type: {}
 policy_count_type: { baz: false }
 policy_count_type: { qux: "lovely" }
+disallowed: foo

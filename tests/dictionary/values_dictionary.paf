@@ -70,6 +70,10 @@ definitions: {
      maxOccurs:  5
    }
 
+   disallowed: {
+     maxOccurs: 0
+   }
+
    policy_count_type: {
      type: "Policy"
      minOccurs: 1

@@ -235,7 +235,7 @@ public:
      */
     Definition(const std::string& paramName = "")
         : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
-          _name(paramName), _policy()
+	_name(paramName), _policy(), _wildcard(false)
     {
         _policy.reset(new Policy());
     }
@@ -247,7 +247,7 @@ public:
      */
     Definition(const std::string& paramName, const Policy::Ptr& defn) 
         : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
-          _name(paramName), _policy(defn)
+          _name(paramName), _policy(defn), _wildcard(false)
     { }
 
     /**
@@ -256,7 +256,7 @@ public:
      */
     Definition(const Policy::Ptr& defn) 
         : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
-          _name(), _policy(defn)
+          _name(), _policy(defn), _wildcard(false)
     { }
 
     /**
@@ -264,7 +264,7 @@ public:
      */
     Definition(const Definition& that) 
         : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
-          _name(that._name), _policy(that._policy)
+          _name(that._name), _policy(that._policy), _wildcard(false)
     { }
 
     /**
@@ -274,6 +274,8 @@ public:
         _type = Policy::UNDETERMINED;
         _name = that._name;
         _policy = that._policy;
+	_prefix = that._prefix;
+	_wildcard = that._wildcard;
         return *this;
     }
 
@@ -300,6 +302,17 @@ public:
      */
     const std::string getPrefix() const { return _prefix; }
     void setPrefix(const std::string& prefix) { _prefix = prefix; }
+    //@}
+
+    //@{
+    /**
+     * Was this definition created from a wildcard "childDefinition" definition
+     * in a Dictionary?  Default false.
+     */
+    const bool isChildDefinition() const { return _wildcard; }
+    void setChildDefinition(bool wildcard) { _wildcard = wildcard; }
+    const bool isWildcard() const { return _wildcard; }
+    void setWildcard(bool wildcard) { _wildcard = wildcard; }
     //@}
 
     /**
@@ -561,6 +574,7 @@ private:
     std::string _prefix; // for recursive validation, eg "foo.bar."
     std::string _name;
     Policy::Ptr _policy;
+    bool _wildcard;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
@@ -649,10 +663,10 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  *                                      int and double typed parameters.
  * allowed.max   optional     *       The maximum allowed value, used for 
  *                                      int and double typed parameters.
- * childDefinition optional   Policy    A general definition for policy elements
- *                                      whose names may or may not be known
- *                                      ahead of time; all such elements must be
- *                                      of uniform type
+ * childDefinition optional   Policy    A general definition for wildcard policy
+ *                                      elements whose names may or may not be
+ *                                      known ahead of time; all such elements
+ *                                      must be of uniform type
  * -------------------------------------------------------------------------
  * *the type must be that specified by the type parameter. 
  * \endverbatim

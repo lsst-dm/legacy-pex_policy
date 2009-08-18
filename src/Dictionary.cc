@@ -78,11 +78,14 @@ char const* ValidationError::what(void) const throw() {
     // copied from pex/exceptions/src/Exception.cc
     static std::string buffer;
     ostringstream os;
-    os << "Validation error: ";
+    int n = getParamCount();
+    os << "Validation error";
+    if (n == 1) os << " (1 error)";
+    else if (n > 1) os << " (" << getParamCount() << " errors)";
     if (getParamCount() == 0)
-	os << "no errors" << "\n";
+	os << ": no errors" << "\n";
     else {
-	os << "\n" << describe("  * ");
+	os << ": \n" << describe("  * ");
     }
     buffer = os.str();
     return buffer.c_str();
@@ -567,14 +570,28 @@ Definition* Dictionary::makeDef(const string& name) const {
     sregex_token_iterator it = make_regex_token_iterator(name,FIELDSEP_RE, -1);
     sregex_token_iterator end;
     string find;
+    bool childDef = false; // was the immediate parent a wildcard childDefinition?
     while (it != end) {
         find = *it;
         if (! p->isPolicy("definitions"))
             throw LSST_EXCEPT(DictionaryError, "Definition for " + find 
 			      + " not found.");
         sp = p->getPolicy("definitions");
-        if (! sp->isPolicy(find)) throw LSST_EXCEPT(NameNotFound, find);
-        sp = sp->getPolicy(find);
+	if (sp->isPolicy(find)) {
+	    sp = sp->getPolicy(find);
+	    childDef = false; // update each time, to get only immediate parent
+	}
+	else if (sp->isPolicy("childDefinition")) {
+	    cout << " && looking up childDefinition for " << name << "; found " 
+		 << sp->valueCount("childDefinition") << endl;
+	    if (sp->valueCount("childDefinition") > 1)
+		throw LSST_EXCEPT
+		    (DictionaryError, string("Multiple childDefinitions found ") 
+		     + "that match " + getPrefix() + name + ".");
+	    sp = sp->getPolicy("childDefinition");
+	    childDef = true;
+	}
+	else throw LSST_EXCEPT(NameNotFound, find);
         p = sp.get();
         if (++it != end) {
             if (! sp->isPolicy("dictionary"))
@@ -583,8 +600,8 @@ Definition* Dictionary::makeDef(const string& name) const {
             p = sp.get();
         }
     }
-    // TODO: if no definition found, look for childDefinition
     Definition* result = new Definition(name, sp);
+    result->setWildcard(childDef);
     result->setPrefix(getPrefix());
     return result;
 }
@@ -673,8 +690,9 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
 	const string& name = *i;
 	if (!pol.exists(name)) { // item in dictionary, but not in policy
 	    scoped_ptr<Definition> def(makeDef(name));
-	    if (def->getMinOccurs() > 0)
-		use->addError(getPrefix() + name, ValidationError::MISSING_REQUIRED);
+	    if (name != "childDefinition" && def->getMinOccurs() > 0)
+		use->addError(getPrefix() + name,
+			      ValidationError::MISSING_REQUIRED);
 	}
     }
 

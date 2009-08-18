@@ -91,6 +91,21 @@ class DictionaryTestCase(unittest.TestCase):
                             "Wrong type for int_range_count_type max",
                             d.validate, "Wrong max type.", p)
 
+        # conflict between minOccurs and maxOccurs
+        d = Dictionary("tests/dictionary/conflict_occurs_dictionary.paf")
+        p = Policy("tests/dictionary/conflict_occurs_policy_1.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testBadDictionary")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("1to0") == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getErrors("2to1") == ValidationError.NOT_AN_ARRAY)
+        self.assert_(ve.getParamCount() == 2)
+        p = Policy("tests/dictionary/conflict_occurs_policy_2.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testBadDictionary")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("1to0") == ValidationError.MISSING_REQUIRED)
+        self.assert_(ve.getErrors("2to1") == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getParamCount() == 2)
+
     def testSimpleValidate(self):
         d = Dictionary("tests/dictionary/simple_dictionary.paf")
         p = Policy("tests/dictionary/simple_policy.paf")
@@ -201,9 +216,6 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("policy_type") == 0, "correct type")
         self.assert_(ve.getParamCount() == 4, "wrong type")
 
-        # TODO: test missing elements (minOccurs >= 1)
-        # TODO: test bad dictionary (wrong types for allowed values, etc.)
-
     def testValues(self):
         d = Dictionary("tests/dictionary/values_dictionary.paf")
         d.check()
@@ -233,7 +245,7 @@ class DictionaryTestCase(unittest.TestCase):
         p = Policy("tests/dictionary/values_policy_bad_occurs.paf")
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve)
-        self.assert_(ve.getParamCount() == 5)
+        self.assert_(ve.getParamCount() == 6)
         self.assert_(ve.getErrors("bool_set_count_type")
                     == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getErrors("int_range_count_type")
@@ -242,6 +254,8 @@ class DictionaryTestCase(unittest.TestCase):
                     == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getErrors("string_count_type")
                     == ValidationError.ARRAY_TOO_SHORT)
+        self.assert_(ve.getErrors("disallowed")
+                    == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getErrors("policy_count_type")
                     == ValidationError.TOO_MANY_VALUES)
 
@@ -303,6 +317,45 @@ class DictionaryTestCase(unittest.TestCase):
                      == ValidationError.WRONG_TYPE);
         self.assert_(ve.getErrors("policy_3.baz.paisley")
                      == ValidationError.MISSING_REQUIRED);
+
+    def testChildDef(self):
+        # simple
+        d = Dictionary("tests/dictionary/childdef_simple_dictionary.paf")
+        p = Policy("tests/dictionary/childdef_simple_policy_good.paf")
+        d.validate(p)
+        p = Policy("tests/dictionary/childdef_simple_policy_bad.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testChildDef")
+        d.validate(p, ve);
+        self.assert_(ve.getErrors("baz") == ValidationError.WRONG_TYPE);
+
+        # multiple childDefs (DictionaryError)
+        d = Dictionary("tests/dictionary/childdef_dictionary_bad_multiple.paf")
+        self.assertRaiseLCE("DictionaryError", "Multiple childDef",
+                            d.validate, "Dictionary specifies unknown types", p)
+
+        # complex
+        d = Dictionary("tests/dictionary/childdef_complex_dictionary.paf")
+        p = Policy("tests/dictionary/childdef_complex_policy_good_1.paf")
+        d.validate(p)
+        p = Policy("tests/dictionary/childdef_complex_policy_good_2.paf")
+        d.validate(p)
+        p = Policy("tests/dictionary/childdef_complex_policy_bad_1.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testChildDef")
+        d.validate(p, ve)
+        self.assert_(ve.getErrors("joe") == ValidationError.NOT_AN_ARRAY)
+        self.assert_(ve.getErrors("deb") == ValidationError.NOT_AN_ARRAY)
+        self.assert_(ve.getErrors("bob") == ValidationError.NOT_AN_ARRAY)
+        self.assert_(ve.getErrors("bob.bar") == ValidationError.NOT_AN_ARRAY)
+        self.assert_(ve.getErrors("nested.helen.qux") 
+                     == ValidationError.MISSING_REQUIRED)
+        self.assert_(ve.getErrors("nested.marvin.rafael") 
+                     == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getErrors("disallowed.foo") 
+                     == ValidationError.TOO_MANY_VALUES)
+        self.assert_(ve.getParamCount() == 7)
+        
+# TODO: maxOccurs = 0 (childDef and normal)
+# TODO: maxOccurs < minOccurs
 
 def suite():
     """a suite containing all the test cases in this module"""

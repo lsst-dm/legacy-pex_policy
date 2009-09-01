@@ -12,13 +12,6 @@ from lsst.pex.exceptions import LsstCppException
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 class DictionaryTestCase(unittest.TestCase):
-    def testDictionaryLoad(self):
-        d = Dictionary()
-        df = PolicyFile("tests/dictionary/simple_dictionary.paf")
-        self.assert_(not d.isDictionary(), "false positive dictionary")
-        df.load(d)
-        self.assert_(d.isDictionary(), "failed to recognize a dictionary")
-
     def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """
         Expect callableObj(args, kwargs) to raise an LsstCppException that wraps
@@ -34,12 +27,15 @@ class DictionaryTestCase(unittest.TestCase):
         try:
             callableObj(*args, **kwargs)
         except LsstCppException, e:
+            self.assert_(isinstance(e, LsstCppException))
             lce = "lsst.pex.exceptions.exceptionsLib.LsstCppException"
             self.assert_(str(e.__class__).find(lce) > 0,
                          failMsg + ": expected an " + lce + ", found a " 
                          + str(e.__class__))
             self.assert_(len(e.args) == 1)
             nested = e.args[0] # the real exception that was thrown
+#            print "%%% wrapped exception is ", nested
+#            print "  % class is ", nested.__class__
             self.assert_(str(nested.__class__).find(excClass) > 0,
                          failMsg + ": expected a " + excClass + "; found a " 
                          + str(nested.__class__))
@@ -53,6 +49,13 @@ class DictionaryTestCase(unittest.TestCase):
 #            print "    % inspect(e): ", inspect.getmembers(e)
         else:
             self.fail(failMsg + ": did not raise " + excClass)
+
+    def testDictionaryLoad(self):
+        d = Dictionary()
+        df = PolicyFile("tests/dictionary/simple_dictionary.paf")
+        self.assert_(not d.isDictionary(), "false positive dictionary")
+        df.load(d)
+        self.assert_(d.isDictionary(), "failed to recognize a dictionary")
 
     def testBadDictionary(self):
         # TODO: have this fail on load, instead of on inspection
@@ -353,7 +356,29 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("disallowed.foo") 
                      == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getParamCount() == 7)
+#        print ve.what()
         
+    def testDefaults(self):
+        p = Policy.createPolicy("tests/dictionary/defaults_dictionary_good.paf",
+                                "", True)
+        self.assert_(p.valueCount("bool_set_count") == 1)
+        self.assert_(p.getBool("bool_set_count") == True)
+        self.assert_(p.valueCount("int_range_count") == 3)
+
+        try:
+            p = Policy.createPolicy("tests/dictionary/defaults_dictionary_bad_1.paf",
+                                    "", True)
+        except LsstCppException, e:
+            ve = e.args[0] # the real exception that was thrown
+            self.assert_(ve.getErrors("double")
+                         == ValidationError.WRONG_TYPE)
+            self.assert_(ve.getErrors("int_range_count")
+                         == ValidationError.NOT_AN_ARRAY)
+            self.assert_(ve.getErrors("bool_set_count")
+                         == ValidationError.TOO_MANY_VALUES)
+            self.assert_(ve.getParamCount() == 3)
+
+
 # TODO: ensure that default values are legal (type, value, #)
 
 def suite():

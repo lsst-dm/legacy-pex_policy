@@ -6,9 +6,7 @@
 #include "lsst/pex/policy/PolicySource.h"
 #include "lsst/pex/policy/Dictionary.h"
 #include "lsst/pex/policy/parserexceptions.h"
-/*
-#include "lsst/pex/logging/Trace.h"
-*/
+// #include "lsst/pex/logging/Trace.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -82,24 +80,33 @@ Policy::Policy(const char *filePath)
 /*
  * Create a default Policy from a Dictionary.  
  *
- * Note:  validation is not implemented yet.
- *
  * @param validate  if true, a (shallow) copy of the Dictionary will be 
  *                    held onto by this Policy and used to validate 
  *                    future updates.  
  * @param dict      the Dictionary file load defaults from
+ * @exception ValidationError if the value does not conform to this definition.
  */
 Policy::Policy(bool validate, const Dictionary& dict, 
                const fs::path& repository) 
     : Citizen(typeid(this)), Persistable(), _data(new PropertySet()) 
 { 
+    if (validate) {
+	// TODO: validate defaults?
+	_dictionary = DictPtr(new Dictionary(dict));
+	_dictionary->loadPolicyFiles(repository, true);
+    }
+
     list<string> names;
     dict.definedNames(names);
 
     std::auto_ptr<Definition> def;
+    ValidationError ve(LSST_EXCEPT_HERE);
     for(list<string>::iterator it = names.begin(); it != names.end(); ++it) {
         def.reset(dict.makeDef(*it));
-        def->setDefaultIn(*this);
+        def->setDefaultIn(*this, &ve);
+	cout << " ** set defaults for " << *it 
+	     << "; errors so far: " << ve.getParamCount() << endl;
+	// TODO validate sub-dictionary values
         if (def->getType() == Policy::POLICY && exists(*it)) {
             Policy::Ptr subp = getPolicy(*it);
 
@@ -134,6 +141,7 @@ Policy::Policy(bool validate, const Dictionary& dict,
             }
         }
     }
+    if (ve.getParamCount() > 0) throw ve;
 }
 
 /*
@@ -420,6 +428,32 @@ template <> Policy::ValueType Policy::getValueType<Policy::FilePtr>() { return F
 template <> Policy::ValueType Policy::getValueType<Policy::Ptr>() { return POLICY; }
 template <> Policy::ValueType Policy::getValueType<Policy::ConstPtr>() { return POLICY; }
 
+template <> void Policy::set(const string& name, const bool& value) {
+    set(name, value); }
+template <> void Policy::set(const string& name, const int& value) {
+    set(name, value); }
+template <> void Policy::set(const string& name, const double& value) {
+    set(name, value); }
+template <> void Policy::set(const string& name, const string& value) {
+    set(name, value); }
+template <> void Policy::set(const string& name, const Ptr& value) {
+    set(name, value); }
+template <> void Policy::set(const string& name, const FilePtr& value) {
+    set(name, value); }
+
+template <> void Policy::addT(const string& name, const bool& value) {
+    add(name, value); }
+template <> void Policy::addT(const string& name, const int& value) {
+    add(name, value); }
+template <> void Policy::addT(const string& name, const double& value) {
+    add(name, value); }
+template <> void Policy::addT(const string& name, const string& value) {
+    add(name, value); }
+template <> void Policy::addT(const string& name, const Ptr& value) {
+    add(name, value); }
+template <> void Policy::addT(const string& name, const FilePtr& value) {
+    add(name, value); }
+
 Policy::ConstPolicyPtrArray Policy::getConstPolicyArray(const string& name) const {
     ConstPolicyPtrArray out;
     vector<PropertySet::Ptr> psa = _getPropSetList(name);
@@ -563,7 +597,7 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
  * use the values found in the given policy as default values for 
  * parameters not specified in this policy.  This function will iterate
  * through the parameter names in the given policy, and if the name is 
- * not found in this policy, the value from the given one will by copied 
+ * not found in this policy, the value from the given one will be copied 
  * into this one.  No attempt is made to add match the number of values 
  * available per name.  
  * @param defaultPol   the policy to pull default values from.  This may 
@@ -580,6 +614,8 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
     if (def->exists("definitions")) {
         pol.reset(new Policy(false, Dictionary(*def)));
         def = pol.get();
+	// TODO: implement -- merge defaults and validate
+	// TODO: should we validate the whole thing, or just the new values?
     }
 
     list<string> params;
@@ -621,9 +657,13 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
             }
             else {
                 // should not happen
-                added--;
+		throw LSST_EXCEPT(pexExcept::LogicErrorException,
+				  string("Unknown type for \"") + *nm 
+				  + "\": \"" + getTypeName(*nm) + "\"");
+                // added--;
             }
             added++;
+
         }
     }
 
@@ -693,7 +733,8 @@ string Policy::str(const string& name, const string& indent) const {
             }
         }
         else {
-            throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type held by any");
+            throw LSST_EXCEPT(pexExcept::LogicErrorException,
+			      "Policy: unexpected type held by any");
         }
     }
     catch (NameNotFound&) {

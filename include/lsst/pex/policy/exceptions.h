@@ -46,7 +46,7 @@ public:
 };
 
 /**
- * there is a problem with a dictionary, generally found while parsing a policy
+ * There is a problem with a dictionary.
  */
 class DictionaryError : public pexExcept::DomainErrorException {
 public:

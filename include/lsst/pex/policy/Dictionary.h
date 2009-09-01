@@ -131,10 +131,26 @@ public:
      * create an empty ValidationError message
      */
     ValidationError(char const* ex_file, int ex_line, char const* ex_func) 
-       : pexExcept::LogicErrorException(ex_file, ex_line, ex_func, 
-                                        "policy has unknown validation errors"), 
+	: pexExcept::LogicErrorException(ex_file, ex_line, ex_func,
+					 "Policy has unknown validation errors"), 
        _errors() 
     { }
+
+    virtual pexExcept::Exception *clone() const;
+    virtual char const *getType(void) const throw();
+
+    /**
+     * Copy constructor.
+     */
+    ValidationError(const ValidationError& that) 
+	: pexExcept::LogicErrorException(that), _errors(that._errors) 
+    { }
+
+    ValidationError& operator=(const ValidationError& that) {
+	LogicErrorException::operator=(that);
+	_errors = that._errors;
+	return *this;
+    }
 
 // Swig is having trouble with this macro
 //    ValidationError(POL_EARGS_TYPED) 
@@ -385,11 +401,13 @@ public:
     }
 
     /**
-     * the default value into the given policy
-     * @param policy    the policy object update
+     * Insert the default value into the given policy
+     * @param policy  the policy object update
+     * @param errs  a validation error to add complaints to, if there are any.
+     * @exception ValidationError if the value does not conform to this definition.
      */
-    void setDefaultIn(Policy& policy) const {
-        setDefaultIn(policy, _name);
+    void setDefaultIn(Policy& policy, ValidationError* errs=0) const {
+        setDefaultIn(policy, _name, errs);
     }
 
     /**
@@ -397,7 +415,15 @@ public:
      * @param withName  the name to look for the value under.  If not given
      *                    the name set in this definition will be used.
      */
-    void setDefaultIn(Policy& policy, const std::string& withName) const;
+    void setDefaultIn(Policy& policy, const std::string& withName,
+		      ValidationError* errs=0) const;
+
+    /**
+     * @copydoc setDefaultIn(Policy&) const
+     */
+    template <class T> void setDefaultIn(Policy& policy,
+					 const std::string& withName,
+					 ValidationError* errs=0) const;
 
     /**
      * confirm that a Policy parameter conforms to this definition.  
@@ -526,7 +552,8 @@ public:
     /**
      * Confirm that a policy value is consistent with this dictionary; does
      * basic checks (min, max, minOccurs, maxOccurs, allowed values), but does
-     * not recurse if <tt>value</tt> is itself a Policy with a sub-dictionary.
+     * not recurse if \code value \endcode is itself a Policy with a
+     * sub-dictionary.
      *
      * Equivalent to <tt>validate(name, value, errs)</tt> for basic types, but
      * not for Policies.
@@ -541,8 +568,8 @@ public:
 
     //@{
     /**
-     * Recursively validate <tt>value</tt>, using a sub-definition, if present
-     * in this Dictionary.
+     * Recursively validate \code value \endcode, using a sub-definition, if
+     * present in this Dictionary.
      * @param name  the name of the parameter being checked
      * @param value the value being checked against name's definition
      * @param errs  used to store errors that are found (not allowed to be null)
@@ -810,6 +837,53 @@ protected:
 private:
     std::string _prefix; // for recursive validation, eg "foo.bar."
 };
+
+template <class T>
+void Definition::validateBasic(const std::string& name, const Policy& policy,
+			       ValidationError *errs) const
+{
+    validateBasic(name, policy.getValueArray<T>(name), errs);
+}
+
+template <class T>
+void Definition::validateBasic(const std::string& name, const std::vector<T>& value,
+			       ValidationError *errs) const
+{
+    ValidationError ve(LSST_EXCEPT_HERE);
+    ValidationError *use = &ve;
+    if (errs != 0) use = errs;
+
+    validateCount(name, value.size(), use);
+
+    for (typename std::vector<T>::const_iterator i = value.begin();
+	 i != value.end();
+	 ++i)
+	validateBasic<T>(name, *i, -1, use);
+
+    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+}
+
+template <class T>
+void Definition::setDefaultIn(Policy& policy, const std::string& withName,
+			      ValidationError *errs) const 
+{
+    ValidationError ve(LSST_EXCEPT_HERE);
+    ValidationError *use = (errs == 0 ? &ve : errs);
+
+    if (_policy->exists("default")) {
+	const std::vector<T> defs = _policy->getValueArray<T>("default");
+	validateBasic(withName, defs, use);
+	if (use->getErrors(withName) == ValidationError::OK) {
+	    policy.remove(withName);
+	    for (typename std::vector<T>::const_iterator i = defs.begin();
+		 i != defs.end();
+		 ++i)
+		policy.addT<T>(withName, *i);
+	}
+    }
+
+    if (errs == 0 && ve.getParamCount() > 0) throw ve;
+}
 
 }}}  // end namespace lsst::pex::policy
 

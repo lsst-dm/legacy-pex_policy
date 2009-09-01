@@ -125,7 +125,7 @@ namespace dafBase = lsst::daf::base;
  * it is a little inelegant to provide a default hard-coded in the object's
  * implementation, <em>by design</em>.  Instead it is recommended that 
  * defaults be loaded from another Policy.  The intended way to do this is 
- * to load defaults via a DefaultPolicyFile (which can located a policy file
+ * to load defaults via a DefaultPolicyFile (which can locate a policy file
  * from any EUPS-setup installation directory) and to merge them into to the
  * primary Policy instance via the mergeDefaults() function.  
  * 
@@ -149,8 +149,11 @@ class Policy : public dafBase::Citizen, public dafBase::Persistable {
 public:
 
     typedef boost::shared_ptr<Policy> Ptr;
-    typedef boost::shared_ptr<PolicyFile> FilePtr;
     typedef boost::shared_ptr<const Policy> ConstPtr;
+    typedef boost::shared_ptr<Dictionary> DictPtr;
+    typedef boost::shared_ptr<const Dictionary> ConstDictPtr;
+    typedef boost::shared_ptr<PolicyFile> FilePtr;
+
     typedef std::vector<bool> BoolArray;
     typedef std::vector<int> IntArray;
     typedef std::vector<double> DoubleArray;
@@ -569,45 +572,20 @@ public:
      */
     FilePtrArray getFileArray(const std::string& name) const; 
 
+    //@{
     /**
-     * return an array of booleans associated with the given name
+     * return an array of values associated with the given name
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             an boolean type.  
+     *                          the expected type.
      */
     BoolArray getBoolArray(const std::string& name) const;  // inlined
-    
-    /**
-     * return an array of integers associated with the given name
-     * @param name     the name of the parameter.  This can be a hierarchical
-     *                    name with fields delimited with "."
-     * @exception NameNotFound  if no value is associated with the given name.
-     * @exception TypeError     if the value associated the given name is not
-     *                             an integer type.  
-     */
     IntArray getIntArray(const std::string& name) const;    // inlined
-    
-    /**
-     * return an array of doubles associated with the given name
-     * @param name     the name of the parameter.  This can be a hierarchical
-     *                    name with fields delimited with "."
-     * @exception NameNotFound  if no value is associated with the given name.
-     * @exception TypeError     if the value associated the given name is not
-     *                             a double type.  
-     */
     DoubleArray getDoubleArray(const std::string& name) const; // inlined
-    
-    /**
-     * return an array of string pointers associated with the given name
-     * @param name     the name of the parameter.  This can be a hierarchical
-     *                    name with fields delimited with "."
-     * @exception NameNotFound  if no value is associated with the given name.
-     * @exception TypeError     if the value associated the given name is not
-     *                             a string type.  
-     */
     StringArray getStringArray(const std::string& name) const;  //inlined
+    //@}
 
     //@{
     /**
@@ -625,6 +603,7 @@ public:
      *                    the value type does not match the definition 
      *                    associated with the name. 
      */
+    template <class T> void set(const std::string& name, const T& value);
     void set(const std::string& name, const Ptr& value);      // inlined below
     void set(const std::string& name, const FilePtr& value);  // inlined below
     void set(const std::string& name, bool value);            // inlined below
@@ -651,6 +630,8 @@ public:
      *                    the value type does not match the definition 
      *                    associated with the name. 
      */
+    // avoid name confusion with appended T
+    template <class T> void addT(const std::string& name, const T& value);
     void add(const std::string& name, const Ptr& value);      // inlined below
     void add(const std::string& name, const FilePtr& value);  // inlined below
     void add(const std::string& name, bool value);            // inlined below
@@ -659,6 +640,13 @@ public:
     void add(const std::string& name, const std::string& value);    // inlined
     void add(const std::string& name, const char *value);     // inlined below
     //@}
+
+    /**
+     * Remove all values with a given name.
+     * @param name The name of the parameter to remove. Can be hierarchical
+     *             name with fields delimited with ".".
+     */
+    void remove(const std::string& name); // inlined below
 
     /**
      * recursively replace all PolicyFile values with the contents of the 
@@ -685,12 +673,11 @@ public:
     virtual void loadPolicyFiles(const fs::path& repository,bool strict=false);
 
     /**
-     * use the values found in the given policy as default values for 
-     * parameters not specified in this policy.  This function will iterate
-     * through the parameter names in the given policy, and if the name is 
-     * not found in this policy, the value from the given one will by copied 
-     * into this one.  No attempt is made to add match the number of values 
-     * available per name.  
+     * use the values found in the given policy as default values for parameters
+     * not specified in this policy.  This function will iterate through the
+     * parameter names in the given policy, and if the name is not found in this
+     * policy, the value from the given one will be copied into this one.  No
+     * attempt is made to match the number of values available per name.
      * @param defaultPol   the policy to pull default values from.  This may 
      *                        be a Dictionary; if so, the default values will 
      *                        drawn from the appropriate default keyword.
@@ -732,7 +719,6 @@ public:
     dafBase::PropertySet::Ptr asPropertySet();             // inlined below
 
 protected:
-
     /**
      * use a PropertySet as the data for a new Policy object
      */
@@ -742,6 +728,8 @@ protected:
 
 private:
     dafBase::PropertySet::Ptr _data;
+
+    DictPtr _dictionary;
 
     int _names(std::list<std::string>& names, bool topLevelOnly=false, 
                bool append=false, int want=3) const;
@@ -959,7 +947,9 @@ inline void Policy::add(const std::string& name, const char *value) {
     POL_ADD(name, std::string(value)); 
 }
 
-
+inline void Policy::remove(const std::string& name) {
+    _data->remove(name);
+}
 
 inline Policy* Policy::createPolicy(PolicySource& input, bool doIncludes, 
                                     bool validate) 
@@ -1025,7 +1015,13 @@ template <class T> std::vector<T> Policy::getValueArray(const std::string& name)
 }
 
 template <class T> Policy::ValueType Policy::getValueType() {
-    throw LSST_EXCEPT(TypeError, std::string("unknown"), "not implemented for this type");
+    throw LSST_EXCEPT(TypeError, "unknown", "not implemented for this type");
+}
+template <class T> void Policy::set(const std::string& name, const T& value) {
+    throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
+}
+template <class T> void Policy::addT(const std::string& name, const T& value) {
+    throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
 
 }}}  // end namespace lsst::pex::policy

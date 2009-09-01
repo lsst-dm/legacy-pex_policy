@@ -5,14 +5,14 @@
 #include "lsst/pex/policy/PolicyFile.h"
 // #include "lsst/pex/utils/Trace.h"
 
+#include <boost/scoped_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <stdexcept>
 #include <iostream> // TODO: remove after debugging
 #include <memory>
 #include <string>
 #include <set>
-#include <boost/scoped_ptr.hpp>
-// #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace lsst {
 namespace pex {
@@ -29,6 +29,8 @@ using namespace boost;
 const string ValidationError::EMPTY;
 
 ValidationError::MsgLookup ValidationError::_errmsgs;
+
+POL_EXCEPT_VIRTFUNCS(lsst::pex::policy::ValidationError)
 
 void ValidationError::_loadMessages() {
     _errmsgs[OK] = EMPTY;
@@ -129,93 +131,33 @@ Policy::ValueType Definition::_determineType() const {
  * @param policy   the policy object update
  * @param withName the name to look for the value under.  This must be 
  *                    a non-hierarchical name.
+ * @exception ValidationError if the value does not conform to this definition.
  */
-void Definition::setDefaultIn(Policy& policy, const string& withName) const {
+void Definition::setDefaultIn(Policy& policy, const string& withName,
+			      ValidationError* errs) const 
+{
     if (! _policy->exists("default")) return;
+/*
     Policy::ValueType type = getType();
     if (type == Policy::UNDEF) 
         type = _policy->getValueType("default");
+*/
+    Policy::ValueType type = _policy->getValueType("default");
 
-    switch (type) {
-    case Policy::BOOL: 
-    {
-        const Policy::BoolArray& defs = _policy->getBoolArray("default");
-        Policy::BoolArray::const_iterator it;
-        for(it=defs.begin(); it != defs.end(); ++it) {
-            if (it == defs.begin()) 
-                // erase previous values
-                policy.set(withName, *it);
-            else 
-                policy.add(withName, *it);
-        }
-        break;
-    }
-
-    case Policy::INT:
-    {
-        const Policy::IntArray& defs = 
-            _policy->getIntArray("default");
-        Policy::IntArray::const_iterator it;
-        for(it=defs.begin(); it != defs.end(); ++it) {
-            if (it == defs.begin()) 
-                // erase previous values
-                policy.set(withName, *it);
-            else 
-                policy.add(withName, *it);
-        }
-        break;
-    }
-
-    case Policy::DOUBLE:
-    {
-        const Policy::DoubleArray& defs = 
-            _policy->getDoubleArray("default");
-        Policy::DoubleArray::const_iterator it;
-        for(it=defs.begin(); it != defs.end(); ++it) {
-            if (it == defs.begin()) 
-                // erase previous values
-                policy.set(withName, *it);
-            else 
-                policy.add(withName, *it);
-        }
-        break;
-    }
-
-    case Policy::STRING:
-    {
-        const Policy::StringArray defs = 
-            _policy->getStringArray("default");
-        Policy::StringArray::const_iterator it;
-        for(it=defs.begin(); it != defs.end(); ++it) {
-            if (it == defs.begin()) 
-                // erase previous values
-                policy.set(withName, *it);
-            else 
-                policy.add(withName, *it);
-        }
-        break;
-    }
-
-    case Policy::POLICY:
-    {
-        const Policy::PolicyPtrArray& defs = 
-            _policy->getPolicyArray("default");
-        Policy::PolicyPtrArray::const_iterator it;
-        for(it=defs.begin(); it != defs.end(); ++it) {
-            if (it == defs.begin()) 
-                // erase previous values
-                policy.set(withName, *it);
-            else 
-                policy.add(withName, *it);
-        }
-        break;
-    }
-
-    default:
-        throw LSST_EXCEPT(pexExcept::LogicErrorException,
-                          string("Programmer Error: Unknown type: ") 
-			  + Policy::typeName[getType()]);
-    }
+    if (type == Policy::BOOL) 
+	setDefaultIn<bool>(policy, withName, errs);
+    else if (type == Policy::INT)
+	setDefaultIn<int>(policy, withName, errs);
+    else if (type == Policy::DOUBLE)
+	setDefaultIn<double>(policy, withName, errs);
+    else if (type == Policy::STRING)
+	setDefaultIn<string>(policy, withName, errs);
+    else if (type == Policy::POLICY)
+	setDefaultIn<Policy::Ptr>(policy, withName, errs);
+    else throw LSST_EXCEPT(pexExcept::LogicErrorException,
+			   string("Programmer Error: Unknown type for \"")
+			   + getPrefix() + withName + "\": "
+			   + Policy::typeName[getType()]);
 }
 
 /*
@@ -289,6 +231,8 @@ void Definition::validate(const Policy& policy, const string& name,
  */
 void Definition::validateCount(const string& name, int count,
                                ValidationError *errs) const {
+    cout << "** " << name << " occurrences min " << getMinOccurs()
+	 << ", max " << getMaxOccurs() << endl;
     int max = getMaxOccurs(); // -1 means no limit / undefined
     if (max >= 0 && count > max) 
         errs->addError(getPrefix() + name, ValidationError::TOO_MANY_VALUES);
@@ -300,30 +244,6 @@ void Definition::validateCount(const string& name, int count,
         else 
             errs->addError(getPrefix() + name, ValidationError::ARRAY_TOO_SHORT);
     }
-}
-
-template <class T>
-void Definition::validateBasic(const string& name, const Policy& policy,
-			       ValidationError *errs) const
-{
-    validateBasic(name, policy.getValueArray<T>(name), errs);
-}
-
-template <class T>
-void Definition::validateBasic(const string& name, const vector<T>& value,
-			       ValidationError *errs) const
-{
-    ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
-    if (errs != 0) use = errs;
-
-    validateCount(name, value.size(), use);
-
-    for (typename vector<T>::const_iterator i = value.begin(); i != value.end(); ++i) {
-	validateBasic<T>(name, *i, -1, use);
-    }
-
-    if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
 /**
@@ -439,7 +359,7 @@ void Definition::validateBasic(const string& name, const T& value,
             }
             if (a->exists("value")) allvals.insert(a->getValue<T>("value"));
         }
-        cout << "** min = " << (minFound ? lexical_cast<string>(min) : "none") 
+        cout << "** " << name << " values min = " << (minFound ? lexical_cast<string>(min) : "none") 
              << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
 
         if ((minFound && value < min) || (maxFound && max < value))
@@ -582,8 +502,6 @@ Definition* Dictionary::makeDef(const string& name) const {
 	    childDef = false; // update each time, to get only immediate parent
 	}
 	else if (sp->isPolicy("childDefinition")) {
-	    cout << " && looking up childDefinition for " << name << "; found " 
-		 << sp->valueCount("childDefinition") << endl;
 	    if (sp->valueCount("childDefinition") > 1)
 		throw LSST_EXCEPT
 		    (DictionaryError, string("Multiple childDefinitions found ") 
@@ -645,7 +563,7 @@ void Dictionary::check() const {
 				     "found ") + lexical_cast<string>(defs.size()));
     Policy::StringArray names = defs[0]->names(false);
     for (Policy::StringArray::const_iterator i = names.begin();
-	 i != names.end(); ++i) 
+	 i != names.end(); ++i)
     {
 	cout << " %%% checking \"" << *i << "\" %%%" << endl;
 	scoped_ptr<Definition> def(makeDef(*i));

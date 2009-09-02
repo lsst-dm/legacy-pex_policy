@@ -7,13 +7,14 @@
 #include <list>
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+
 #include "lsst/daf/base/Citizen.h"
 #include "lsst/daf/base/Persistable.h"
 #include "lsst/daf/base/PropertySet.h"
 #include "lsst/pex/policy/exceptions.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 
 namespace lsst {
 namespace pex {
@@ -736,6 +737,12 @@ private:
     int _names(std::vector<std::string>& names, bool topLevelOnly=false, 
                bool append=false, int want=3) const;
 
+    /**
+     * If _dictionary is non-null, validate value against it, assuming curCount
+     * current values for name.
+     */
+    template <class T> void _validate(const std::string& name, const T& value, int curCount = 0);
+
     std::vector<dafBase::Persistable::Ptr> 
         _getPersistList(const std::string& name) const 
     {
@@ -904,21 +911,27 @@ Policy::DoubleArray Policy::getDoubleArray(const std::string& name) const {
 }
 
 inline void Policy::set(const std::string& name, const Ptr& value) {
+    _validate(name, value);
     _data->set(name, value->asPropertySet());
 }
 inline void Policy::set(const std::string& name, bool value) { 
+    _validate(name, value);
     _data->set(name, value); 
 }
 inline void Policy::set(const std::string& name, int value) { 
+    _validate(name, value);
     _data->set(name, value); 
 }
 inline void Policy::set(const std::string& name, double value) { 
+    _validate(name, value);
     _data->set(name, value); 
 }
 inline void Policy::set(const std::string& name, const std::string& value) { 
+    _validate(name, value);
     _data->set(name, value); 
 }
 inline void Policy::set(const std::string& name, const char *value) { 
+    _validate(name, std::string(value));
     _data->set(name, std::string(value)); 
 }
 
@@ -929,24 +942,32 @@ inline void Policy::set(const std::string& name, const char *value) {
     }
 
 inline void Policy::add(const std::string& name, const Ptr& value) {
+    _validate(name, value, valueCount(name));
     POL_ADD(name, value->asPropertySet())
 }
 inline void Policy::add(const std::string& name, bool value) { 
+    _validate(name, value, valueCount(name));
     POL_ADD(name, value); 
 }
 inline void Policy::add(const std::string& name, int value) { 
+    _validate(name, value, valueCount(name));
     POL_ADD(name, value); 
 }
 inline void Policy::add(const std::string& name, double value) { 
+    _validate(name, value, valueCount(name));
     POL_ADD(name, value); 
 }
 inline void Policy::add(const std::string& name, const std::string& value) { 
+    _validate(name, value, valueCount(name));
     POL_ADD(name, value); 
 }
 inline void Policy::add(const std::string& name, const char *value) { 
-    POL_ADD(name, std::string(value)); 
+    std::string v(value);
+    _validate(name, v, valueCount(name));
+    POL_ADD(name, v); 
 }
 
+// TODO: validate if required value?
 inline void Policy::remove(const std::string& name) {
     _data->remove(name);
 }

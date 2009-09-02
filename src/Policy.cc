@@ -8,6 +8,7 @@
 #include "lsst/pex/policy/parserexceptions.h"
 // #include "lsst/pex/logging/Trace.h"
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include <stdexcept>
@@ -334,6 +335,12 @@ int Policy::_names(list<string>& names,
     return count;
 }
 
+template <class T> void Policy::_validate(const std::string& name, const T& value, int curCount) {
+    if (_dictionary) {
+	boost::scoped_ptr<Definition> def(_dictionary->makeDef(name));
+	def->validateBasic(name, value, curCount);
+    }
+}
 
 /*
  * return the type information for the underlying type associated with

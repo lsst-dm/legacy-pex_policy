@@ -409,7 +409,7 @@ class DictionaryTestCase(unittest.TestCase):
             self.assert_(e.args[0].getErrors("int_range_count")
                          == ValidationError.NOT_AN_ARRAY)
             self.assert_(e.args[0].getErrors("required")
-                         == ValidationError.TOO_FEW_VALUES)
+                         == ValidationError.MISSING_REQUIRED)
         p.add("int_range_count", -8)
         p.set("required", "foo")
         p.validate()

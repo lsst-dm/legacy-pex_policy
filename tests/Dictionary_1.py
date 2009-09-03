@@ -402,6 +402,16 @@ class DictionaryTestCase(unittest.TestCase):
         self.assertValidationError(
             ValidationError.VALUE_OUT_OF_RANGE, 
             p.add, "int_range_count", 10)
+        try:
+            p.validate()
+        except LsstCppException, e:
+            self.assert_(e.args[0].getErrors("int_range_count")
+                         == ValidationError.NOT_AN_ARRAY)
+            self.assert_(e.args[0].getErrors("required")
+                         == ValidationError.TOO_FEW_VALUES)
+        p.add("int_range_count", -8)
+        p.set("required", "foo")
+        p.validate()
 
     def testSelfValidation(self):
         # assign a dictionary after creation

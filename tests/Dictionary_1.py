@@ -402,6 +402,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assertValidationError(
             ValidationError.VALUE_OUT_OF_RANGE, 
             p.add, "int_range_count", 10)
+        # add & set don't check against minOccurs, but validate() does
         try:
             p.validate()
         except LsstCppException, e:

@@ -378,8 +378,86 @@ class DictionaryTestCase(unittest.TestCase):
                          == ValidationError.TOO_MANY_VALUES)
             self.assert_(ve.getParamCount() == 3)
 
+    def assertValidationError(self, errorCode, callableObj, field, value):
+        try:
+            callableObj(field, value)
+        except LsstCppException, e:
+            ve = e.args[0]
+            self.assert_(ve.getErrors(field) == errorCode)
 
-# TODO: ensure that default values are legal (type, value, #)
+    # test setting and adding when created with a dictionary
+    def testSetAdd(self):
+        p = Policy.createPolicy("tests/dictionary/defaults_dictionary_good.paf",
+                                "", True)
+        self.assert_(p.canValidate())
+        self.assertValidationError(
+            ValidationError.TOO_MANY_VALUES, 
+            p.add, "bool_set_count", True)
+        self.assert_(p.valueCount("bool_set_count") == 1)
+        self.assertValidationError(
+            ValidationError.VALUE_DISALLOWED, 
+            p.set, "bool_set_count", False)
+        self.assert_(p.getBool("bool_set_count") == True)
+        p.set("int_range_count", -7)
+        self.assertValidationError(
+            ValidationError.VALUE_OUT_OF_RANGE, 
+            p.add, "int_range_count", 10)
+
+    def testSelfValidation(self):
+        # assign a dictionary after creation
+        p = Policy("tests/dictionary/types_policy_good.paf")
+        p.loadPolicyFiles()
+        types_d = Dictionary("tests/dictionary/types_dictionary.paf")
+        values_d = Dictionary("tests/dictionary/values_dictionary.paf")
+        self.assert_(not p.canValidate())
+        p.setDictionary(types_d)
+        self.assert_(p.canValidate())
+        p.validate()
+        p.set("bool_type", True)
+        self.assertValidationError(
+            ValidationError.WRONG_TYPE, p.set, "bool_type", "foo")
+
+        # create with dictionary
+        p = Policy.createPolicy("tests/dictionary/types_dictionary.paf", "", True)
+        self.assert_(p.canValidate())
+        p.set("bool_type", True)
+        self.assertValidationError(
+            ValidationError.WRONG_TYPE, p.set, "bool_type", "foo")
+
+        # assign a dictionary after invalid modifications
+        p = Policy()
+        p.set("bool_type", "foo")
+        p.setDictionary(types_d)
+        ve = ValidationError("Dictionary_1.py", 1, "testSelfValidation")
+        p.validate(ve)
+        self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
+        try:
+            p.validate()
+        except LsstCppException, e:
+            ve = e.args[0]
+            self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
+            self.assert_(ve.getParamCount() == 1)
+        p.set("bool_type", True)
+        p.set("int_type", 1)
+        p.validate()
+
+        # switch dictionaries
+        oldD = p.getDictionary()
+        p.setDictionary(values_d)
+        try:
+            p.validate()
+        except LsstCppException, e:
+            self.assert_(e.args[0].getErrors("bool_type")
+                         == ValidationError.UNKNOWN_NAME)
+        p.set("string_range_type", "moo")
+        try:
+            p.set("string_range_type", "victor")
+        except LsstCppException, e:
+            self.assert_(e.args[0].getErrors("string_range_type")
+                         == ValidationError.VALUE_OUT_OF_RANGE)
+        p.setDictionary(oldD)
+        p.remove("string_range_type")
+        p.validate()
 
 def suite():
     """a suite containing all the test cases in this module"""

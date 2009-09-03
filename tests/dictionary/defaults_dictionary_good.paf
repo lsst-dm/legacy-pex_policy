@@ -18,6 +18,8 @@ definitions: {
         default: -5 -7 -6
     }
 
+    # this is okay because no default is given -- eventually a value will
+    # need to be supplied, but not necessarily right away.
     required: {
         minOccurs: 1
     }

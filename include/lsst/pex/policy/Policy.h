@@ -24,6 +24,7 @@ namespace policy {
 class PolicySource;
 class PolicyFile;
 class Dictionary;
+class ValidationError;
 
 namespace fs = boost::filesystem;
 namespace pexExcept = lsst::pex::exceptions;
@@ -359,7 +360,39 @@ public:
      * return true if it appears that this Policy actually contains dictionary
      * definition data.
      */
-    bool isDictionary() {  return exists("definitions");  }
+    bool isDictionary() const { return exists("definitions");  }
+
+    /**
+     * Can this policy validate itself -- that is, does it have a dictionary
+     * that it can use to validate itself?  If true, then set() and add()
+     * operations will be checked against it.
+     */
+    bool canValidate() const;
+
+    /**
+     * The dictionary (if any) that this policy uses to validate itself,
+     * including checking set() and add() operations for validity.
+     */
+    const DictPtr getDictionary() const;
+
+    /**
+     * Update this policy's dictionary that it uses to validate itself.  Note
+     * that this will *not* trigger validation -- you will need to call \code
+     * validate() \endcode afterwards.
+     */
+    void setDictionary(const Dictionary& dict);
+
+    /**
+     * Validate this policy, using its stored dictionary.  If \code
+     * canValidate() \endcode is false, this will throw a LogicErrorException.
+     *
+     * If validation errors are found and \code err \endcode is null, a
+     * ValidationError will be thrown.
+     *
+     * @param errs if non-null, any validation errors will be stored here
+     * instead of being thrown.
+     */
+    void validate(ValidationError *errs=0) const;
 
     /**
      * return the number of values currently associated with a given name
@@ -590,12 +623,22 @@ public:
 
     //@{
     /**
-     * add a value with a given name.  
+     * Set a value with the given name.  
+     *
      * Any previous value set with the same name will be overwritten.  In 
      * particular, if the property previously pointed to an array of values,
      * all those values will be forgotten.
+     *
+     * If this policy has a \code Dictionary \endcode (see \code canValidate()
+     * \endcode), this operation will be checked before it is performed, and if
+     * it would create an invalid state, it will not succeed, and a \code
+     * ValidationError \endcode will be thrown.  With the exception that the
+     * minimum number of values (in the case of an array) will *not* be checked,
+     * in case this will be followed by \code add \endcode operations.
+     *
      * Note that \code set(const string&, const string&) \endcode and 
      * \code set(const string&, const char *) \endcode are equivalent.
+     *
      * @param name       the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @param value      the value--int, double, string or Policy--to 
@@ -616,9 +659,18 @@ public:
 
     //@{
     /**
-     * add a value to an array of values with a given name.  
+     * Add a value to an array of values with a given name.  
+     *
      * If a value was previously set using the set() function, that previous
      * value will be retained as the first value of the array.
+     *
+     * If this policy has a \code Dictionary \endcode (see \code canValidate()
+     * \endcode), this operation will be checked before it is performed, and if
+     * it would create an invalid state, it will not succeed, and a \code
+     * ValidationError \endcode will be thrown.  With the exception that the
+     * minimum number of values (in the case of an array) will *not* be checked,
+     * in case this is part of a sequence of \code add \endcode operations.
+     *
      * Note that \code add(const string&, const string&) \endcode and 
      * \code add(const string&, const char *) \endcode are equivalent.
      * @param name       the name of the parameter.  This can be a hierarchical
@@ -741,7 +793,8 @@ private:
      * If _dictionary is non-null, validate value against it, assuming curCount
      * current values for name.
      */
-    template <class T> void _validate(const std::string& name, const T& value, int curCount = 0);
+    template <class T> 
+    void _validate(const std::string& name, const T& value, int curCount=0);
 
     std::vector<dafBase::Persistable::Ptr> 
         _getPersistList(const std::string& name) const 

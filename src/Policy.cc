@@ -93,7 +93,7 @@ Policy::Policy(bool validate, const Dictionary& dict,
 { 
     if (validate) {
 	// TODO: validate defaults?
-	_dictionary = DictPtr(new Dictionary(dict));
+	setDictionary(dict);
 	_dictionary->loadPolicyFiles(repository, true);
     }
 
@@ -198,6 +198,46 @@ Policy* Policy::_createPolicy(const string& input, bool doIncludes,
  * Create an empty policy
  */
 Policy::~Policy() { }
+
+/**
+ * Can this policy validate itself -- that is, does it have a dictionary
+ * that it can use to validate itself?  If true, then set() and add()
+ * operations will be checked against it.
+ */
+bool Policy::canValidate() const {
+    return _dictionary;
+}
+
+/**
+ * The dictionary (if any) that this policy uses to validate itself,
+ * including checking set() and add() operations for validity.
+ */
+const Policy::DictPtr Policy::getDictionary() const {
+    return _dictionary;
+}
+
+/**
+ * Update this policy's dictionary that it uses to validate itself.  Note
+ * that this will *not* trigger validation -- you will need to call \code
+ * validate() \endcode afterwards.
+ */
+void Policy::setDictionary(const Dictionary& dict) {
+    _dictionary = DictPtr(new Dictionary(dict));
+}
+
+/**
+ * Validate this policy, using its stored dictionary.  If \code
+ * canValidate() \endcode is false, this will throw a LogicErrorException.
+ *
+ * If validation errors are found and \code err \endcode is null, a
+ * ValidationError will be thrown.
+ *
+ * @param errs if non-null, any validation errors will be stored here
+ * instead of being thrown.
+ */
+void Policy::validate(ValidationError *errs) const {
+    _dictionary->validate(*this, errs);
+}
 
 /** 
  * Given the human-readable name of a type ("bool", "int", "policy", etc),

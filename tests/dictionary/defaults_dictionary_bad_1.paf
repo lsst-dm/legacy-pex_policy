@@ -3,8 +3,8 @@ target: types
 definitions: {
     bool_set_count: {
 	type: "bool"
-	maxOccurs: 1
-	allowed: { value: true }
+        maxOccurs: 1
+        allowed: { value: true }
         default: true true
     }
 

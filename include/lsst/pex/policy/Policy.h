@@ -720,9 +720,10 @@ public:
      *                    IoErrorException or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
      *                    (that is, "{}").
+     * @return            the number of files loaded
      */
-    void loadPolicyFiles(bool strict=false) {
-	loadPolicyFiles(fs::path(), strict);
+    int loadPolicyFiles(bool strict=false) {
+	return loadPolicyFiles(fs::path(), strict);
     }
 
     /**
@@ -732,7 +733,7 @@ public:
      *                    absolute path will this.  If empty or not provided,
      *                    the directorywill be assumed to be the current one.
      */
-    virtual void loadPolicyFiles(const fs::path& repository, bool strict=false);
+    virtual int loadPolicyFiles(const fs::path& repository, bool strict=false);
 
     /**
      * use the values found in the given policy as default values for parameters

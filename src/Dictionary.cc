@@ -605,36 +605,50 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
     return result;
 }
 
-void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
-    // find the "dictionaryFile" parameters
-    list<string> params;
-    paramNames(params, false);
-    list<string> toRemove;
-    for (list<string>::const_iterator ni=params.begin(); ni != params.end(); ++ni) { 
-        static string endswith = string(".") + KW_DICT_FILE;
-        size_t p = ni->rfind(endswith);
-        if (p == ni->length()-endswith.length()) {
-            string parent = ni->substr(0, p);
-            Policy::Ptr defin = getPolicy(parent);
-            PolicyFile subd;
+int Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
+    int maxLevel = 16;
+    int result = 0;
+    // loop until we reach the leaves
+    for (int level = 0; level < maxLevel; ++level) {
+	// find the "dictionaryFile" parameters
+	list<string> params;
+	paramNames(params, false);
+	list<string> toRemove;
+	for (list<string>::const_iterator ni=params.begin(); ni != params.end(); ++ni) { 
+	    static string endswith = string(".") + KW_DICT_FILE;
+	    size_t p = ni->rfind(endswith);
+	    if (p == ni->length()-endswith.length()) {
+		string parent = ni->substr(0, p);
+		Policy::Ptr defin = getPolicy(parent);
+		PolicyFile subd;
+		
+		// these will get dereferenced with the call to super method
+		if (isFile(*ni)) 
+		    defin->set(Dictionary::KW_DICT, getFile(*ni));
+		else
+		    defin->set(Dictionary::KW_DICT, 
+			       Policy::FilePtr(new PolicyFile(getString(*ni))));
+		
+		toRemove.push_back(*ni);
+	    }
+	}
+	
+	// if no new loads, then we've loaded everything
+	int newLoads = Policy::loadPolicyFiles(repository, strict);
+	
+	// remove obsolete dictionaryFile references, to prevent re-loading
+	// TODO: note reference to loaded filename?
+	for (list<string>::iterator i = toRemove.begin(); i != toRemove.end(); ++i)
+	    remove(*i);
 
-            // these will get dereferenced with the call to super method
-            if (isFile(*ni)) 
-                defin->set(Dictionary::KW_DICT, getFile(*ni));
-            else
-                defin->set(Dictionary::KW_DICT, 
-                           Policy::FilePtr(new PolicyFile(getString(*ni))));
-
-	    toRemove.push_back(*ni);
-        }
+	if (newLoads == 0) return result;
+	else result += newLoads;
     }
-
-    Policy::loadPolicyFiles(repository, strict);
-
-    // remove obsolete dictionaryFile references, to prevent re-loading
-    // TODO: note reference to loaded filename?
-    for (list<string>::iterator i = toRemove.begin(); i != toRemove.end(); ++i)
-	remove(*i);
+    throw LSST_EXCEPT
+	(DictionaryError, string("Exceeded recursion limit (") 
+	 + lexical_cast<string>(maxLevel) 
+	 + ") loading policy files; does this dictionary contain a circular"
+	 " definition?");
 }
 
 /**

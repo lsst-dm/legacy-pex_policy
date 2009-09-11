@@ -320,8 +320,9 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(not d.hasSubDictionary("policy_1"))
         self.assert_(d.hasSubDictionary("policy_2"))
         self.assert_(not d.hasSubDictionary("policy_load"))
-        d.loadPolicyFiles("tests/dictionary", True)
+        n = d.loadPolicyFiles("tests/dictionary", True)
         self.assert_(d.hasSubDictionary("policy_load"))
+        self.assert_(n == 1) # number of files loaded
         d.validate(p)
 
         ve = ValidationError("Dictionary_1.py", 1, "testNested")
@@ -341,6 +342,19 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("policy_load.height")
                      == ValidationError.MISSING_REQUIRED);
         self.assert_(ve.getParamCount() == 6)
+
+        # multiple nesting
+        p = Policy("tests/dictionary/nested_policy_1.paf")
+        n = p.loadPolicyFiles("tests/dictionary")
+        self.assert_(n == 3)
+        self.assert_(p.getString("1.2b.foo") == "bar")
+
+        d = Dictionary("tests/dictionary/nested_dictionary_1.paf")
+        n = d.loadPolicyFiles("tests/dictionary")
+        self.assert_(n == 3)
+        p = Policy(True, d) # load from defaults
+        self.assert_(p.getString("1.2a.foo") == "bar")
+        self.assert_(p.getString("1.2b.foo") == "bar")
 
     def testChildDef(self):
         # simple
@@ -492,6 +506,15 @@ class DictionaryTestCase(unittest.TestCase):
         p.setDictionary(oldD)
         p.remove("string_range_type")
         p.validate()
+
+    def testMergeDefaults(self):
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        d = Dictionary("tests/dictionary/defaults_dictionary_good.paf")
+        d.loadPolicyFiles("tests/dictionary", True)
+        self.assert_(p.nameCount() == 1)
+        p.mergeDefaults(d)
+        self.assert_(p.valueCount("int_range_count") == 3)
+        self.assert_(p.nameCount() == 4)
 
 def suite():
     """a suite containing all the test cases in this module"""

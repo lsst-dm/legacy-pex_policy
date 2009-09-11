@@ -845,30 +845,21 @@ public:
      *                    IoErrorException or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
      *                    (that is, "{}").
+     * @return            the number of files loaded
      */
-    void loadPolicyFiles(bool strict=false) {
-	loadPolicyFiles(fs::path(), strict);
+    int loadPolicyFiles(bool strict=false) {
+	return loadPolicyFiles(fs::path(), strict);
     }
 
     /**
-     * recursively replace all PolicyFile values with the contents of the 
-     * files they refer to.  In addition support for the standard Policy
-     * behavior (see Policy::loadPolicyFiles()), this implementation will 
-     * also dereference values of the "dictionaryFile" parameters and save
-     * the results into a "dictionary" parameter at the same level in the 
-     * hierarchy, but only when the "dictionary" parameter does not already 
-     * exist. 
+     * \copydoc loadPolicyFiles()
      * @param repository  a directory to look in for the referenced files.  
-     *                      Only when the name of the file to be included is an
-     *                      absolute path will this.  If empty or not provided,
-     *                      the directorywill be assumed to be the current one.
-     * @param strict      if true, throw an exception if an error occurs 
-     *                      while reading and/or parsing the file.  Otherwise,
-     *                      an unrecoverable error will result in the failing
-     *                      PolicyFile being replaced with an incomplete
-     *                      Policy.  
+     *                    Only when the name of the file to be included is an
+     *                    absolute path will this.  If empty or not provided,
+     *                    the directorywill be assumed to be the current one.
+     * @return            the number of files loaded
      */
-    virtual void loadPolicyFiles(const fs::path& repository, bool strict=false);
+    virtual int loadPolicyFiles(const fs::path& repository, bool strict=false);
 
     //@{
     /**

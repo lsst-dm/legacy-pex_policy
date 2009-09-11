@@ -550,8 +550,9 @@ void Policy::add(const string& name, const FilePtr& value) {
  *                    absolute path will this.  If empty or not provided,
  *                    the directorywill be assumed to be the current one.
  */
-void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
+int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
     fs::path repos = repository;
+    int result = 0;
     if (repos.empty()) repos = ".";
 
     // iterate through the top-level names in this Policy
@@ -577,6 +578,8 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             PolicyFile pf(path.file_string());
 
             try {
+		// increment even if fail, since we will remove the file record
+		++result;
                 pf.load(*policy);
             }
             catch (pexExcept::IoErrorException& e) {
@@ -609,10 +612,11 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
 
         // iterate through the Policies in this array
         PolicyPtrArray::iterator pi;
-        for(pi = policies.begin(); pi != policies.end(); pi++) {
-            (*pi)->loadPolicyFiles(repos, strict);
-        }
+        for(pi = policies.begin(); pi != policies.end(); pi++)
+            result += (*pi)->loadPolicyFiles(repos, strict);
     }
+
+    return result;
 }
 
 
@@ -638,7 +642,6 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
 	// extract default values from dictionary
         pol.reset(new Policy(false, Dictionary(*def)));
         def = pol.get();
-	// TODO: test this
 	// TODO: should we validate the whole thing, or just the new values?
     }
 

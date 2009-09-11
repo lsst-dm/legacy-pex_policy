@@ -314,10 +314,8 @@ void Definition::validateRecurse(const string& name, const Policy& value,
 	     + "." + Dictionary::KW_DICT_FILE + " needs to be loaded with "
 	     "Dictionary.loadPolicyFiles() before validating.");
     }
-    // Otherwise, assume it's okay -- could be "type: Policy" or empty, or maybe
-    // other legitimate things?  The danger is that somebody was trying to
-    // specify some constraints and got it wrong.
-    // TODO: more robust checking?
+    // Otherwise, make sure no unknown fields are there -- did somebody try to
+    // specify some constraints and get it wrong?
     else {
 	static set<string> okayNames;
 	if (okayNames.size() == 0) {
@@ -371,7 +369,8 @@ void Definition::validateBasic(const string& name, const T& value,
             Policy::Ptr a = *it;
             if (a->exists(Dictionary::KW_MIN)) {
                 if (minFound) {
-                    // TODO: catch this in Dictionary::check()
+                    // Would like to catch this in Dictionary::check(), but that
+                    // would require some fancy type-based logic.
                     throw LSST_EXCEPT
                         (DictionaryError, 
                          string("Min value for ") + getPrefix() + name
@@ -671,7 +670,9 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     Policy::StringArray params = pol.names(true);
 
     // validate each item in policy
-    for (Policy::StringArray::const_iterator i = params.begin(); i != params.end(); ++i) {
+    for (Policy::StringArray::const_iterator i = params.begin();
+	 i != params.end(); ++i) 
+    {
         try {
             scoped_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
@@ -680,7 +681,6 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
             use->addError(getPrefix() + *i, ValidationError::UNKNOWN_NAME);
         }
     }
-    // TODO: ensure that default values are legal (type, value, #)
 
     // check definitions of missing elements for required elements
     Policy::ConstPtr defs = getDefinitions();

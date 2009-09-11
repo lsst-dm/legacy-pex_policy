@@ -374,31 +374,22 @@ public:
     }
 
     /**
-     * return the semantic definition for the parameter
+     * Return the semantic definition for the parameter, empty string if none is
+     * specified, or throw a TypeError if it is the wrong type.
      */
-    const std::string getDescription() const {
-        if (! _policy->isString("description")) 
-            return ValidationError::EMPTY;
-        return _policy->getString("description");
-    }
+    const std::string getDescription() const;
 
     /**
      * return the maximum number of occurrences allowed for this parameter, 
      * or -1 if there is no limit.
      */
-    const int getMaxOccurs() const {
-        try {  return _policy->getInt("maxOccurs");  }
-        catch (NameNotFound& ex) {  return -1;  }
-    }
+    const int getMaxOccurs() const;
 
     /**
      * return the minimum number of occurrences allowed for this parameter.
      * Zero is returned if a minimum is not specified.
      */
-    const int getMinOccurs() const {
-        try {  return _policy->getInt("minOccurs");  }
-        catch (NameNotFound& ex) {  return 0;  }
-    }
+    const int getMinOccurs() const;
 
     /**
      * Insert the default value into the given policy
@@ -703,10 +694,18 @@ class Dictionary : public Policy {
 public:
 
     // keywords
-    // TODO: switch to using constants
-    static const char *KW_DICTIONARY;
+    static const char *KW_DICT;
     static const char *KW_DICT_FILE;
     static const char *KW_TYPE;
+    static const char *KW_DESCRIPTION;
+    static const char *KW_DEFS;
+    static const char *KW_CHILD_DEF;
+    static const char *KW_ALLOWED;
+    static const char *KW_MIN_OCCUR;
+    static const char *KW_MAX_OCCUR;
+    static const char *KW_MIN;
+    static const char *KW_MAX;
+    static const char *KW_VALUE;
 
     /**
      * return an empty dictionary.  This can be passed to a parser to be 
@@ -846,7 +845,6 @@ public:
      *                    (that is, "{}").
      */
     void loadPolicyFiles(bool strict=false) {
-	std::cout << "    ==> Dictionary::loadPolicyFiles(" << strict << ")" << std::endl;
 	loadPolicyFiles(fs::path(), strict);
     }
 

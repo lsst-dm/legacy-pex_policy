@@ -313,7 +313,7 @@ class DictionaryTestCase(unittest.TestCase):
                             d.check, "Malformed subdictionary")
         d = Dictionary("tests/dictionary/nested_dictionary_bad_2.paf")
         self.assertRaiseLCE("DictionaryError",
-                            "Unknown dictionary property",
+                            "Unknown Dictionary property",
                             d.validate, "Malformed subdictionary", p)
         
         d = Dictionary("tests/dictionary/nested_dictionary_good.paf")
@@ -323,10 +323,8 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(not d.hasSubDictionary("policy_1"))
         self.assert_(d.hasSubDictionary("policy_2"))
         self.assert_(not d.hasSubDictionary("policy_load"))
-        print "*&&& before: ", d
         d.loadPolicyFiles("tests/dictionary", True)
         self.assert_(d.hasSubDictionary("policy_load"))
-        print "*&&& after: ", d
         d.validate(p)
 
         ve = ValidationError("Dictionary_1.py", 1, "testNested")

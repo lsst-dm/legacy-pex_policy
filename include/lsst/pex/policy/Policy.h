@@ -6,7 +6,6 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <iostream> // TODO: remove after debugging
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>
@@ -723,7 +722,6 @@ public:
      *                    (that is, "{}").
      */
     void loadPolicyFiles(bool strict=false) {
-	std::cout << "    ==> Policy::loadPolicyFiles(" << strict << ")" << std::endl;
 	loadPolicyFiles(fs::path(), strict);
     }
 

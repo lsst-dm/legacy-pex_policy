@@ -87,50 +87,14 @@ void extractDefaults(Policy& target, const Dictionary& dict, ValidationError& ve
 	const string& name = *it;
 	std::auto_ptr<Definition> def(dict.makeDef(name));
         def->setDefaultIn(target, &ve);
-	cout << " ** set defaults for " << def->getPrefix() << name
-	     << " (" << Policy::typeName[def->getType()] << ")"
-	     << "; errors so far: " << ve.getParamCount() << endl;
 	// recurse into sub-dictionaries
         if (def->getType() == Policy::POLICY && dict.hasSubDictionary(name)) {
-	    cout << "  * sub-defaults for " << name << endl;
             Policy::Ptr subp = Policy::Ptr(new Policy());
 	    extractDefaults(*subp, *dict.getSubDictionary(name), ve);
 	    if (subp->nameCount() > 0)
 		target.add(name, subp);
 	}
     }
-
-/*
-            // look for defaults in sub-dictionary
-            if (def->getData()->exists("dictionary")) {
-                Dictionary subd;
-                if (def->getData()->isFile("dictionary")) {
-                    PolicyFile 
-                        file(def->getData()->getFile("dictionary")->getPath(),
-                             repository);
-                    subd = Dictionary(file);
-                }
-                else {
-                    subd=Dictionary(*(def->getData()->getPolicy("dictionary")));
-                }
-                subp->mergeDefaults(subd);
-            }
-            else if (def->getData()->exists("dictionaryFile")) {
-                Dictionary subd;
-                if (def->getData()->isFile("dictionaryFile")) {
-                   PolicyFile 
-                     file(def->getData()->getFile("dictionaryFile")->getPath(),
-                          repository);
-                   subd = Dictionary(file);
-                }
-                else {
-                   PolicyFile file(def->getData()->getString("dictionaryFile"),
-                                   repository);
-                   subd = Dictionary(file);
-                }
-                subp->mergeDefaults(subd);
-            }
-*/
 }
 
 /**
@@ -192,7 +156,7 @@ Policy* Policy::_createPolicy(PolicySource& source, bool doIncludes,
     auto_ptr<Policy> pol(new Policy());
     source.load(*pol);
 
-    if (pol->exists("definitions")) {
+    if (pol->exists(Dictionary::KW_DEFS)) {
         Dictionary d(*pol);
         pol.reset(new Policy(validate, d, repository));
     }
@@ -587,9 +551,6 @@ void Policy::add(const string& name, const FilePtr& value) {
  *                    the directorywill be assumed to be the current one.
  */
 void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
-    cout << "    ==> Policy::loadPolicyFiles(" 
-	 << repository << ", " << strict << ")" << endl;
-
     fs::path repos = repository;
     if (repos.empty()) repos = ".";
 

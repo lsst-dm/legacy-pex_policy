@@ -10,3 +10,6 @@ policy_3: {
                                  # missing value for "paisley"
     }
 }
+policy_load: {
+    foo: bar                     # missing value for "height"
+}

@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
              << files[i] << endl;
 
         Policy p(pfile);
-        p.loadPolicyFiles("examples");
+        p.loadPolicyFiles("examples", false);
         cout << p << endl;
 
         if (i==0) {

@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <iostream> // TODO: remove after debugging
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>
@@ -206,21 +207,20 @@ public:
     explicit Policy(const PolicyFile& file);
 
     /**
-     * Create a default Policy from a Dictionary.  If the Dictionary 
-     *   references files containing dictionaries for sub-Policies, an
-     *   attempt is made to open them and extract the default data.
+     * Create a default Policy from a Dictionary.  If the Dictionary references
+     * files containing dictionaries for sub-Policies, an attempt is made to
+     * open them and extract the default data, and if that attempt fails, an
+     * exception is thrown (probably an IoErrorException or ParseError).
      *
-     * Note:  validation is not implemented yet.
-     *
-     * @param validate    if true, a (shallow) copy of the Dictionary will be 
-     *                      held onto by this Policy and used to validate 
-     *                      future updates.  
-     * @param dict        the Dictionary file load defaults from
+     * @param validate    if true, a shallow copy of the Dictionary will be
+     *                    held onto by this Policy and used to validate future
+     *                    updates.
+     * @param dict        the Dictionary to load defaults from
      * @param repository  the directory to look for dictionary files referenced
-     *                      in \c dict.  The default is the current directory.
+     *                    in \c dict.  The default is the current directory.
      */
-    Policy(bool validate, const Dictionary& dict, 
-           const fs::path& repository="");
+    Policy(bool validate, const Dictionary& dict,
+	   const fs::path& repository="");
 
     /**
      * copy a Policy.  
@@ -307,6 +307,13 @@ public:
      */
     virtual ~Policy();
 
+    /**
+     * How many names of parameters does this policy file have?
+     */
+    int nameCount() const {
+	return _data->nameCount();
+    }
+
     //@{
     /**
      * load the names of parameters into a given list.  \c names() returns
@@ -373,7 +380,7 @@ public:
      * The dictionary (if any) that this policy uses to validate itself,
      * including checking set() and add() operations for validity.
      */
-    const DictPtr getDictionary() const;
+    const ConstDictPtr getDictionary() const;
 
     /**
      * Update this policy's dictionary that it uses to validate itself.  Note
@@ -496,6 +503,7 @@ public:
      */
     template <class T> std::vector<T> getValueArray(const std::string& name) const;
 
+    //@{
     /**
      * return a "sub-Policy" identified by a given name.  
      * @param name     the name of the parameter.  This can be a hierarchical
@@ -506,6 +514,7 @@ public:
      */
     ConstPtr getPolicy(const std::string& name) const;       // inlined below
     Ptr getPolicy(const std::string& name);                  // inlined below
+    //@}
 
     /**
      * return a PolicyFile (a reference to a file with "sub-Policy" data) 
@@ -702,28 +711,30 @@ public:
     void remove(const std::string& name); // inlined below
 
     /**
-     * recursively replace all PolicyFile values with the contents of the 
+     * Recursively replace all PolicyFile values with the contents of the 
      * files they refer to.  The type of a parameter containing a PolicyFile
      * will consequently change to a Policy upon successful completion.  If
      * the value is an array, all PolicyFiles in the array must load without
-     * error before the PolicyFile values themselves are erased 
+     * error before the PolicyFile values themselves are erased.
+     * @param strict      If true, throw an exception if an error occurs 
+     *                    while reading and/or parsing the file (probably an
+     *                    IoErrorException or ParseError).  Otherwise, replace
+     *                    the file reference with a partial or empty sub-policy
+     *                    (that is, "{}").
      */
-    void loadPolicyFiles() { loadPolicyFiles(fs::path()); }
+    void loadPolicyFiles(bool strict=false) {
+	std::cout << "    ==> Policy::loadPolicyFiles(" << strict << ")" << std::endl;
+	loadPolicyFiles(fs::path(), strict);
+    }
 
     /**
-     * \copydoc loadPolicyFiles() (unless 
-     * strict=true; see arguments below).  
+     * \copydoc loadPolicyFiles()
      * @param repository  a directory to look in for the referenced files.  
-     *                      Only when the name of the file to be included is an
-     *                      absolute path will this.  If empty or not provided,
-     *                      the directorywill be assumed to be the current one.
-     * @param strict      if true, throw an exception if an error occurs 
-     *                      while reading and/or parsing the file.  Otherwise,
-     *                      an unrecoverable error will result in the failing
-     *                      PolicyFile being replaced with an incomplete
-     *                      Policy.  
+     *                    Only when the name of the file to be included is an
+     *                    absolute path will this.  If empty or not provided,
+     *                    the directorywill be assumed to be the current one.
      */
-    virtual void loadPolicyFiles(const fs::path& repository,bool strict=false);
+    virtual void loadPolicyFiles(const fs::path& repository, bool strict=false);
 
     /**
      * use the values found in the given policy as default values for parameters
@@ -732,8 +743,8 @@ public:
      * policy, the value from the given one will be copied into this one.  No
      * attempt is made to match the number of values available per name.
      * @param defaultPol   the policy to pull default values from.  This may 
-     *                        be a Dictionary; if so, the default values will 
-     *                        drawn from the appropriate default keyword.
+     *                     be a Dictionary; if so, the default values will 
+     *                     drawn from the appropriate default keyword.
      * @return int         the number of parameter names copied over
      */
     int mergeDefaults(const Policy& defaultPol);

@@ -206,6 +206,7 @@ void Definition::validate(const Policy& policy, const string& name,
 
     case Policy::POLICY:
         validateBasic<Policy::ConstPtr>(name, policy, use);
+	cout << " --> recursing to validate " << _prefix << name << endl;
 	validateRecurse(name, policy.getConstPolicyArray(name), use);
         break;
 
@@ -231,7 +232,7 @@ void Definition::validate(const Policy& policy, const string& name,
  */
 void Definition::validateCount(const string& name, int count,
                                ValidationError *errs) const {
-    cout << "** " << name << " occurrences min " << getMinOccurs()
+    cout << "** " << _prefix << name << " occurrences min " << getMinOccurs()
 	 << ", max " << getMaxOccurs() << endl;
     int max = getMaxOccurs(); // -1 means no limit / undefined
     if (max >= 0 && count > max) 
@@ -266,6 +267,7 @@ void Definition::validateRecurse(const string& name,
     }
 }
 
+/* Validate a sub-policy using a sub-dictionary. */
 void Definition::validateRecurse(const string& name, const Policy& value,
 				 ValidationError *errs) const
 {
@@ -286,12 +288,41 @@ void Definition::validateRecurse(const string& name, const Policy& value,
 	    subdict.validate(value, errs);
 	}
     }
-
+    else if (_policy->exists("dictionaryFile")) {
+	throw LSST_EXCEPT
+	    (pexExcept::LogicErrorException, _prefix + name
+	     + ".dictionaryFile needs to be loaded with "
+	     "Dictionary.loadPolicyFiles() before validating.");
+    }
+    // Otherwise, assume it's okay -- could be "type: Policy" or empty, or maybe
+    // other legitimate things?  The danger is that somebody was trying to
+    // specify some constraints and got it wrong.
+    // TODO: more robust checking?
+    else {
+	static set<string> okayNames;
+	if (okayNames.size() == 0) {
+	    okayNames.insert("type");
+	    okayNames.insert("dictionary");
+	    okayNames.insert("dictionaryFile");
+	    okayNames.insert("minOccurs");
+	    okayNames.insert("maxOccurs");
+	    okayNames.insert("allowed");
+	}
+	Policy::StringArray names = _policy->names(true);
+	for (Policy::StringArray::const_iterator i = names.begin();
+	     i != names.end(); ++i) 
+	{
+	    if (okayNames.count(*i) == 1) continue;
+	    else throw LSST_EXCEPT
+		(DictionaryError, string("Unknown dictionary property found at ")
+		 + _prefix + name + ": " + *i);
+	}
+    }
 }
 
 template <class T>
 void Definition::validateBasic(const string& name, const T& value,
-			       int curcount, ValidationError *errs) const
+                               int curcount, ValidationError *errs) const
 {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
@@ -319,54 +350,54 @@ void Definition::validateBasic(const string& name, const T& value,
             Policy::Ptr a = *it;
             if (a->exists("min")) {
                 if (minFound) {
-		    // TODO: catch this in Dictionary::check()
+                    // TODO: catch this in Dictionary::check()
                     throw LSST_EXCEPT
                         (DictionaryError, 
-			 string("Min value for ") + getPrefix() + name
-			 + " (" + lexical_cast<string>(min) 
-			 + ") already specified; additional value not allowed.");
-		}
-		try {
-		    min = a->getValue<T>("min");
-		} catch(TypeError& e) {
-		    throw LSST_EXCEPT
-			(DictionaryError, 
-			 string("Wrong type for ") + getPrefix() + name 
-			 + " min value: expected " + getTypeName() + ", found \"" 
-			 + lexical_cast<string>(max) + "\".");
-		} catch(...) {
-		    throw;
-		}
+                         string("Min value for ") + getPrefix() + name
+                         + " (" + lexical_cast<string>(min) 
+                         + ") already specified; additional value not allowed.");
+                }
+                try {
+                    min = a->getValue<T>("min");
+                } catch(TypeError& e) {
+                    throw LSST_EXCEPT
+                        (DictionaryError, 
+                         string("Wrong type for ") + getPrefix() + name 
+                         + " min value: expected " + getTypeName() + ", found \"" 
+                         + lexical_cast<string>(max) + "\".");
+                } catch(...) {
+                    throw;
+                }
                 minFound = true; // after min assign, in case of exceptions
             }
             if (a->exists("max")) {
                 if (maxFound)
                     throw LSST_EXCEPT
                         (DictionaryError,
-			 string("Max value for ") + getPrefix() + name
-			 + " (" + lexical_cast<string>(max) 
-			 + ") already specified; additional value not allowed.");
-		try {
-		    max = a->getValue<T>("max");
-		} catch(TypeError& e) {
-		    throw LSST_EXCEPT
-			(DictionaryError, 
-			 string("Wrong type for ") + getPrefix() + name 
-			 + " max value: expected " + getTypeName() + ", found \"" 
-			 + lexical_cast<string>(max) + "\".");
-		}
+                         string("Max value for ") + getPrefix() + name
+                         + " (" + lexical_cast<string>(max) 
+                         + ") already specified; additional value not allowed.");
+                try {
+                    max = a->getValue<T>("max");
+                } catch(TypeError& e) {
+                    throw LSST_EXCEPT
+                        (DictionaryError, 
+                         string("Wrong type for ") + getPrefix() + name 
+                         + " max value: expected " + getTypeName() + ", found \"" 
+                         + lexical_cast<string>(max) + "\".");
+                }
                 maxFound = true; // after max assign, in case of exceptions
             }
             if (a->exists("value")) allvals.insert(a->getValue<T>("value"));
         }
-        cout << "** " << name << " values min = " << (minFound ? lexical_cast<string>(min) : "none") 
+        cout << "** " << _prefix << name << " values min = " << (minFound ? lexical_cast<string>(min) : "none") 
              << "; max = " << (maxFound ? lexical_cast<string>(max) : "none" ) << endl;
 
         if ((minFound && value < min) || (maxFound && max < value))
             use->addError(getPrefix() + name, ValidationError::VALUE_OUT_OF_RANGE);
 
         if (allvals.size() > 0 && allvals.count(value) == 0) {
-            cout << "## value " << value << " not allowed for " << name << endl;
+            cout << "## value " << value << " not allowed for " << _prefix << name << endl;
             use->addError(getPrefix() + name, ValidationError::VALUE_DISALLOWED);
         }
     }
@@ -455,6 +486,10 @@ void Definition::validate(const string& name, const Policy::ConstPolicyPtrArray&
 //  Dictionary
 ///////////////////////////////////////////////////////////
 
+const char* Dictionary::KW_DICTIONARY = "dictionary";
+const char* Dictionary::KW_DICT_FILE = "dictionaryFile";
+const char* Dictionary::KW_TYPE = "type";
+
 const regex Dictionary::FIELDSEP_RE("\\.");
 
 /*
@@ -463,17 +498,17 @@ const regex Dictionary::FIELDSEP_RE("\\.");
 Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
     if (!exists("definitions"))
         throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
-			  + ": does not contain a dictionary");
+                          + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(const string& filePath) : Policy(filePath) { 
     if (!exists("definitions"))
         throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
-			  + ": does not contain a dictionary");
+                          + ": does not contain a dictionary");
 }
 Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) { 
     if (!exists("definitions"))
         throw LSST_EXCEPT(pexExcept::RuntimeErrorException, filePath.getPath() 
-			  + ": does not contain a dictionary");
+                          + ": does not contain a dictionary");
 }
 
 /*
@@ -484,10 +519,10 @@ Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) {
  */
 Definition* Dictionary::makeDef(const string& name) const {
     Policy *p = const_cast<Dictionary*>(this);
-    Policy::Ptr sp;
+    Policy::Ptr sp; // sub-policy
 
     // split the name
-    sregex_token_iterator it = make_regex_token_iterator(name,FIELDSEP_RE, -1);
+    sregex_token_iterator it = make_regex_token_iterator(name, FIELDSEP_RE, -1);
     sregex_token_iterator end;
     string find;
     bool childDef = false; // was the immediate parent a wildcard childDefinition?
@@ -495,21 +530,21 @@ Definition* Dictionary::makeDef(const string& name) const {
         find = *it;
         if (! p->isPolicy("definitions"))
             throw LSST_EXCEPT(DictionaryError, "Definition for " + find 
-			      + " not found.");
+                              + " not found.");
         sp = p->getPolicy("definitions");
-	if (sp->isPolicy(find)) {
-	    sp = sp->getPolicy(find);
-	    childDef = false; // update each time, to get only immediate parent
-	}
-	else if (sp->isPolicy("childDefinition")) {
-	    if (sp->valueCount("childDefinition") > 1)
-		throw LSST_EXCEPT
-		    (DictionaryError, string("Multiple childDefinitions found ") 
-		     + "that match " + getPrefix() + name + ".");
-	    sp = sp->getPolicy("childDefinition");
-	    childDef = true;
-	}
-	else throw LSST_EXCEPT(NameNotFound, find);
+        if (sp->isPolicy(find)) {
+            sp = sp->getPolicy(find);
+            childDef = false; // update each time, to get only immediate parent
+        }
+        else if (sp->isPolicy("childDefinition")) {
+            if (sp->valueCount("childDefinition") > 1)
+                throw LSST_EXCEPT
+                    (DictionaryError, string("Multiple childDefinitions found ") 
+                     + "that match " + getPrefix() + name + ".");
+            sp = sp->getPolicy("childDefinition");
+            childDef = true;
+        }
+        else throw LSST_EXCEPT(NameNotFound, find);
         p = sp.get();
         if (++it != end) {
             if (! sp->isPolicy("dictionary"))
@@ -524,16 +559,37 @@ Definition* Dictionary::makeDef(const string& name) const {
     return result;
 }
 
+/**
+ * Return a branch of this dictionary, if this dictionary describes a
+ * complex policy structure -- that is, if it describes a policy with
+ * sub-policies.
+ */
+Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
+    string subname = string("definitions.") + name + ".dictionary";
+    if (!exists(subname)) throw LSST_EXCEPT
+        (pexExcept::LogicErrorException,
+         string("sub-policy \"") + subname + "\" not found.");
+    if (!isPolicy(subname)) throw LSST_EXCEPT
+        (DictionaryError, subname + " is a " + getTypeName(subname) 
+         + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
+    ConstPtr subpol = getPolicy(subname);
+    Policy::DictPtr result = Policy::DictPtr(new Dictionary(*subpol));
+    result->setPrefix(_prefix + name + ".");
+    return result;
+}
+
 void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
+    cout << "   ==> Dictionary::loadPolicyFiles(" << repository 
+	 << ", " << strict << ")" << endl;
     // find the "dictionaryFile" parameters
-    std::list<std::string> params;
+    list<string> params;
     paramNames(params, false);
-    std::list<std::string>::iterator ni;
-    for (ni=params.begin(); ni != params.end(); ++ni) { 
-        std::string endswith(".dictionaryFile");
+    list<string> toRemove;
+    for (list<string>::const_iterator ni=params.begin(); ni != params.end(); ++ni) { 
+        static string endswith(".dictionaryFile");
         size_t p = ni->rfind(endswith);
         if (p == ni->length()-endswith.length()) {
-            std::string parent = ni->substr(0, p);
+            string parent = ni->substr(0, p);
             Policy::Ptr defin = getPolicy(parent);
             PolicyFile subd;
 
@@ -543,10 +599,17 @@ void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
             else
                 defin->set("dictionary", 
                            Policy::FilePtr(new PolicyFile(getString(*ni))));
+
+	    toRemove.push_back(*ni);
         }
     }
 
     Policy::loadPolicyFiles(repository, strict);
+
+    // remove obsolete dictionaryFile references, to prevent re-loading
+    // TODO: note reference to loaded filename?
+    for (list<string>::iterator i = toRemove.begin(); i != toRemove.end(); ++i)
+	remove(*i);
 }
 
 /**
@@ -556,17 +619,19 @@ void Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
 void Dictionary::check() const {
     PolicyPtrArray defs = getValueArray<Policy::Ptr>("definitions");
     if (defs.size() == 0)
-	throw LSST_EXCEPT(DictionaryError, "no \"definitions\" section found");
+        throw LSST_EXCEPT(DictionaryError, "no \"definitions\" section found");
     if (defs.size() > 1)
-	throw LSST_EXCEPT
-	    (DictionaryError, string("expected a single \"definitions\" section; "
-				     "found ") + lexical_cast<string>(defs.size()));
+        throw LSST_EXCEPT
+            (DictionaryError, string("expected a single \"definitions\" section; "
+                                     "found ") + lexical_cast<string>(defs.size()));
     Policy::StringArray names = defs[0]->names(false);
     for (Policy::StringArray::const_iterator i = names.begin();
-	 i != names.end(); ++i)
+         i != names.end(); ++i)
     {
-	cout << " %%% checking \"" << *i << "\" %%%" << endl;
-	scoped_ptr<Definition> def(makeDef(*i));
+        cout << " %%% checking \"" << _prefix << *i << "\" %%%" << endl;
+        scoped_ptr<Definition> def(makeDef(*i));
+        if (hasSubDictionary(*i))
+            getSubDictionary(*i)->check();
     }
 }
 
@@ -580,7 +645,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     Policy::StringArray params = pol.names(true);
 
     // validate each item in policy
-    for (Policy::StringArray::iterator i = params.begin(); i != params.end(); ++i) {
+    for (Policy::StringArray::const_iterator i = params.begin(); i != params.end(); ++i) {
         try {
             scoped_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
@@ -588,12 +653,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
         catch (NameNotFound& e) {
             use->addError(getPrefix() + *i, ValidationError::UNKNOWN_NAME);
         }
-        catch (TypeError& e) {
-            throw LSST_EXCEPT(pexExcept::LogicErrorException,
-			      string("Programmer Error: Param's type morphed: ") 
-			      + e.what());
-        }
-        cout << "-- errors after " << *i << ": " << use->getParamCount()
+        cout << "-- errors after " << _prefix << *i << ": " << use->getParamCount()
              << " / " << use->getErrors(*i) << endl;
     }
     // TODO: ensure that default values are legal (type, value, #)
@@ -601,14 +661,14 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     // check definitions of missing elements for required elements
     Policy::ConstPtr defs = getDefinitions();
     Policy::StringArray dn = defs->names(false);
-    for (Policy::StringArray::iterator i = dn.begin(); i != dn.end(); ++i) {
-	const string& name = *i;
-	if (!pol.exists(name)) { // item in dictionary, but not in policy
-	    scoped_ptr<Definition> def(makeDef(name));
-	    if (name != "childDefinition" && def->getMinOccurs() > 0)
-		use->addError(getPrefix() + name,
-			      ValidationError::MISSING_REQUIRED);
-	}
+    for (Policy::StringArray::const_iterator i = dn.begin(); i != dn.end(); ++i) {
+        const string& name = *i;
+        if (!pol.exists(name)) { // item in dictionary, but not in policy
+            scoped_ptr<Definition> def(makeDef(name));
+            if (name != "childDefinition" && def->getMinOccurs() > 0)
+                use->addError(getPrefix() + name,
+                              ValidationError::MISSING_REQUIRED);
+        }
     }
 
     cout << "** errors at end: " << use->getParamCount() << endl;

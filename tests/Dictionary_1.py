@@ -146,7 +146,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "no other errors")
         self.assert_(ve.getParamCount() == 2, "no other errors")
 
-        p.loadPolicyFiles()
+        p.loadPolicyFiles(True)
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
         d.validate(p, ve)
 
@@ -211,7 +211,7 @@ class DictionaryTestCase(unittest.TestCase):
                      "not loaded")
         self.assert_(ve.getErrors("policy_type") == ValidationError.NOT_LOADED,
                      "not loaded")
-        p.loadPolicyFiles()
+        p.loadPolicyFiles(True)
         ve = ValidationError("Dictionary_1.py", 6, "testWrongType")
         d.validate(p, ve);
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
@@ -303,11 +303,32 @@ class DictionaryTestCase(unittest.TestCase):
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve)
 
+    # TODO: try this without "target: types" in dictionary file
+    # TODO: fix spelling mistake in example policy filenames
     def testNested(self):
-        d = Dictionary("tests/dictionary/nested_dictionary.paf")
-        d.check()
+        d = Dictionary("tests/dictionary/nested_dictionary_bad_1.paf")
         p = Policy("tests/dictionary/nested_policy_good.paf")
+        self.assertRaiseLCE("DictionaryError",
+                            "policy_bad_subdef.dictionary is a string",
+                            d.check, "Malformed subdictionary")
+        d = Dictionary("tests/dictionary/nested_dictionary_bad_2.paf")
+        self.assertRaiseLCE("DictionaryError",
+                            "Unknown dictionary property",
+                            d.validate, "Malformed subdictionary", p)
+        
+        d = Dictionary("tests/dictionary/nested_dictionary_good.paf")
+        d.check()
+        self.assertRaiseLCE("LogicErrorException", "dictionaryFile needs to be loaded",
+                            d.validate, "dictionaryFile not loaded", p)
+        self.assert_(not d.hasSubDictionary("policy_1"))
+        self.assert_(d.hasSubDictionary("policy_2"))
+        self.assert_(not d.hasSubDictionary("policy_load"))
+        print "*&&& before: ", d
+        d.loadPolicyFiles("tests/dictionary", True)
+        self.assert_(d.hasSubDictionary("policy_load"))
+        print "*&&& after: ", d
         d.validate(p)
+
         ve = ValidationError("Dictionary_1.py", 1, "testNested")
         p = Policy("tests/dictionary/nested_policy_bad.paf")
         d.validate(p, ve)
@@ -320,6 +341,11 @@ class DictionaryTestCase(unittest.TestCase):
                      == ValidationError.WRONG_TYPE);
         self.assert_(ve.getErrors("policy_3.baz.paisley")
                      == ValidationError.MISSING_REQUIRED);
+        self.assert_(ve.getErrors("policy_3.baz.paisley")
+                     == ValidationError.MISSING_REQUIRED);
+        self.assert_(ve.getErrors("policy_load.height")
+                     == ValidationError.MISSING_REQUIRED);
+        self.assert_(ve.getParamCount() == 6)
 
     def testChildDef(self):
         # simple
@@ -356,7 +382,6 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("disallowed.foo") 
                      == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getParamCount() == 7)
-#        print ve.what()
         
     def testDefaults(self):
         p = Policy.createPolicy("tests/dictionary/defaults_dictionary_good.paf",
@@ -364,6 +389,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(p.valueCount("bool_set_count") == 1)
         self.assert_(p.getBool("bool_set_count") == True)
         self.assert_(p.valueCount("int_range_count") == 3)
+        self.assert_(p.getDouble("deep.sub_double") == 1.)
 
         try:
             p = Policy.createPolicy("tests/dictionary/defaults_dictionary_bad_1.paf",
@@ -376,7 +402,9 @@ class DictionaryTestCase(unittest.TestCase):
                          == ValidationError.NOT_AN_ARRAY)
             self.assert_(ve.getErrors("bool_set_count")
                          == ValidationError.TOO_MANY_VALUES)
-            self.assert_(ve.getParamCount() == 3)
+            self.assert_(ve.getErrors("deep.sub_double")
+                         == ValidationError.WRONG_TYPE)
+            self.assert_(ve.getParamCount() == 4)
 
     def assertValidationError(self, errorCode, callableObj, field, value):
         try:
@@ -414,10 +442,11 @@ class DictionaryTestCase(unittest.TestCase):
         p.set("required", "foo")
         p.validate()
 
+    # TODO: try dictionary.definitions syntax
     def testSelfValidation(self):
         # assign a dictionary after creation
         p = Policy("tests/dictionary/types_policy_good.paf")
-        p.loadPolicyFiles()
+        p.loadPolicyFiles(True)
         types_d = Dictionary("tests/dictionary/types_dictionary.paf")
         values_d = Dictionary("tests/dictionary/values_dictionary.paf")
         self.assert_(not p.canValidate())

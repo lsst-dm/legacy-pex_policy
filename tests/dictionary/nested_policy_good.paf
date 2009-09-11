@@ -10,3 +10,6 @@ policy_3: {
         paisley: anything
     }
 }
+policy_load: {
+    height: 1.
+}

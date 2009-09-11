@@ -60,7 +60,8 @@ int main(int argc, char** argv) {
         Assert(defp->getMaxOccurs() == 1, "wrong maxOccurs");
         Assert(defp->getMinOccurs() == 0, "wrong minOccurs");
 
-        p.reset(new Policy(false, *d));
+	d->loadPolicyFiles("examples", false);
+        p.reset(new Policy(false, *d, "examples"));
         cout << *p << endl;
         Assert(p->getInt("standalone") == 0, "default loading error");
 

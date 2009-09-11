@@ -702,6 +702,12 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
 class Dictionary : public Policy {
 public:
 
+    // keywords
+    // TODO: switch to using constants
+    static const char *KW_DICTIONARY;
+    static const char *KW_DICT_FILE;
+    static const char *KW_TYPE;
+
     /**
      * return an empty dictionary.  This can be passed to a parser to be 
      * filled.
@@ -711,7 +717,7 @@ public:
     /**
      * return a dictionary that is a copy of the given Policy.  It is assumed
      * that the Policy object follows the Dictionary schema.  If the 
-     * policy has a top-level Policy parameter called "dictionary", it's 
+     * policy has a top-level Policy parameter called "dictionary", its 
      * contents will be copied into this dictionary.
      */
     Dictionary(const Policy& pol) 
@@ -720,7 +726,7 @@ public:
     { }
 
     /**
-     * return a dictionary that is a copy of another policy
+     * return a dictionary that is a copy of another dictionary
      */
     Dictionary(const Dictionary& dict) : Policy(dict) { }
 
@@ -786,6 +792,29 @@ public:
     Definition* makeDef(const std::string& name) const;
 
     /**
+     * Does this dictionary have a branch named \code name \endcode that is also
+     * a dictionary?
+     * @see getSubDictionary
+     */
+    bool hasSubDictionary(const std::string& name) const {
+	std::string key = std::string("definitions.") + name + ".dictionary";
+	// could also check isPolicy(key), but we would rather have
+	// getSubDictionary(name) fail with a DictionaryError if the
+	// sub-dictionary is the wrong type
+	return exists(key);
+    }
+
+    //@{
+    /**
+     * Return a branch of this dictionary, if this dictionary describes a
+     * complex policy structure -- that is, if it describes a policy with
+     * sub-policies.
+     */
+    DictPtr getSubDictionary(const std::string& name) const;
+    // DictPtr getSubDictionary(const std::string& name) const;
+    //@}
+
+    /**
      * validate a Policy against this Dictionary.
      *
      * If a ValidationError instance is provided, any errors detected 
@@ -800,6 +829,26 @@ public:
      *                 should explain why.
      */
     void validate(const Policy& pol, ValidationError *errs=0) const;
+
+    // C++ inheritance & function overloading limitations require us to
+    // re-declare this here, even though an identical function is declared in
+    // Policy
+    /**
+     * Recursively replace all PolicyFile values with the contents of the 
+     * files they refer to.  The type of a parameter containing a PolicyFile
+     * will consequently change to a Policy upon successful completion.  If
+     * the value is an array, all PolicyFiles in the array must load without
+     * error before the PolicyFile values themselves are erased.
+     * @param strict      If true, throw an exception if an error occurs 
+     *                    while reading and/or parsing the file (probably an
+     *                    IoErrorException or ParseError).  Otherwise, replace
+     *                    the file reference with a partial or empty sub-policy
+     *                    (that is, "{}").
+     */
+    void loadPolicyFiles(bool strict=false) {
+	std::cout << "    ==> Dictionary::loadPolicyFiles(" << strict << ")" << std::endl;
+	loadPolicyFiles(fs::path(), strict);
+    }
 
     /**
      * recursively replace all PolicyFile values with the contents of the 
@@ -819,7 +868,7 @@ public:
      *                      PolicyFile being replaced with an incomplete
      *                      Policy.  
      */
-    virtual void loadPolicyFiles(const fs::path& repository,bool strict=false);
+    virtual void loadPolicyFiles(const fs::path& repository, bool strict=false);
 
     //@{
     /**

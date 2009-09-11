@@ -64,7 +64,6 @@ class PolicyTestCase(unittest.TestCase):
 
         # test hierarchical access
 
-
         # list names
 
         # test types

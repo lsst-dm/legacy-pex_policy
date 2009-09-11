@@ -1,8 +1,15 @@
 #<?cfg paf dictionary ?>  
 target: types
 definitions: {
-   this_type: { }
-}
-definitions: {
-   that_type: { }
+    sub: {
+        type: Policy
+        dictionary: {
+            definitions: {
+                this_type: { }
+            }
+            definitions: {
+                that_type: { }
+            }
+        }
+    }
 }

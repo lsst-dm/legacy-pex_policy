@@ -78,39 +78,29 @@ Policy::Policy(const char *filePath)
     file.load(*this);
 }
 
-/*
- * Create a default Policy from a Dictionary.  
- *
- * @param validate  if true, a (shallow) copy of the Dictionary will be 
- *                    held onto by this Policy and used to validate 
- *                    future updates.  
- * @param dict      the Dictionary file load defaults from
- * @exception ValidationError if the value does not conform to this definition.
- */
-Policy::Policy(bool validate, const Dictionary& dict, 
-               const fs::path& repository) 
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet()) 
-{ 
-    if (validate) {
-	// TODO: validate defaults?
-	setDictionary(dict);
-	_dictionary->loadPolicyFiles(repository, true);
-    }
-
+/* Extract defaults from dict into target.  Note any errors in ve. */
+void extractDefaults(Policy& target, const Dictionary& dict, ValidationError& ve) {
     list<string> names;
     dict.definedNames(names);
 
-    std::auto_ptr<Definition> def;
-    ValidationError ve(LSST_EXCEPT_HERE);
     for(list<string>::iterator it = names.begin(); it != names.end(); ++it) {
-        def.reset(dict.makeDef(*it));
-        def->setDefaultIn(*this, &ve);
-	cout << " ** set defaults for " << *it 
+	const string& name = *it;
+	std::auto_ptr<Definition> def(dict.makeDef(name));
+        def->setDefaultIn(target, &ve);
+	cout << " ** set defaults for " << def->getPrefix() << name
+	     << " (" << Policy::typeName[def->getType()] << ")"
 	     << "; errors so far: " << ve.getParamCount() << endl;
-	// TODO validate sub-dictionary values
-        if (def->getType() == Policy::POLICY && exists(*it)) {
-            Policy::Ptr subp = getPolicy(*it);
+	// recurse into sub-dictionaries
+        if (def->getType() == Policy::POLICY && dict.hasSubDictionary(name)) {
+	    cout << "  * sub-defaults for " << name << endl;
+            Policy::Ptr subp = Policy::Ptr(new Policy());
+	    extractDefaults(*subp, *dict.getSubDictionary(name), ve);
+	    if (subp->nameCount() > 0)
+		target.add(name, subp);
+	}
+    }
 
+/*
             // look for defaults in sub-dictionary
             if (def->getData()->exists("dictionary")) {
                 Dictionary subd;
@@ -140,8 +130,38 @@ Policy::Policy(bool validate, const Dictionary& dict,
                 }
                 subp->mergeDefaults(subd);
             }
-        }
+*/
+}
+
+/**
+ * Create a default Policy from a Dictionary.  If the Dictionary references
+ * files containing dictionaries for sub-Policies, an attempt is made to
+ * open them and extract the default data, and if that attempt fails, an
+ * exception is thrown.
+ *
+ * @param validate    if true, a shallow copy of the Dictionary will be
+ *                    held onto by this Policy and used to validate future
+ *                    updates.
+ * @param dict        the Dictionary to load defaults from
+ * @param repository  the directory to look for dictionary files referenced
+ *                    in \c dict.  The default is the current directory.
+ */
+Policy::Policy(bool validate, const Dictionary& dict, 
+               const fs::path& repository)
+    : Citizen(typeid(this)), Persistable(), _data(new PropertySet()) 
+{ 
+    DictPtr loadedDict; // the dictionary that has all policy files loaded
+    if (validate) { // keep loadedDict around for future validation
+	setDictionary(dict);
+	loadedDict = _dictionary;
     }
+    else { // discard loadedDict when we finish constructor
+	loadedDict.reset(new Dictionary(dict));
+    }
+    loadedDict->loadPolicyFiles(repository, true);
+
+    ValidationError ve(LSST_EXCEPT_HERE);
+    extractDefaults(*this, *loadedDict, ve);
     if (ve.getParamCount() > 0) throw ve;
 }
 
@@ -212,7 +232,7 @@ bool Policy::canValidate() const {
  * The dictionary (if any) that this policy uses to validate itself,
  * including checking set() and add() operations for validity.
  */
-const Policy::DictPtr Policy::getDictionary() const {
+const Policy::ConstDictPtr Policy::getDictionary() const {
     return _dictionary;
 }
 
@@ -551,25 +571,24 @@ void Policy::add(const string& name, const FilePtr& value) {
     _data->add(name, boost::dynamic_pointer_cast<Persistable>(value));
 }
 
-/*
- * recursively replace all PolicyFile values with the contents of the 
+/**
+ * Recursively replace all PolicyFile values with the contents of the 
  * files they refer to.  The type of a parameter containing a PolicyFile
  * will consequently change to a Policy upon successful completion.  If
  * the value is an array, all PolicyFiles in the array must load without
- * error before the PolicyFile values themselves are erased (unless 
- * strict=true; see arguments below).  
- *
+ * error before the PolicyFile values themselves are erased.
+ * @param strict      If true, throw an exception if an error occurs 
+ *                    while reading and/or parsing the file.  Otherwise,
+ *                    replace the file reference with a partial or empty
+ *                    (that is, "{}") sub-policy.
  * @param repository  a directory to look in for the referenced files.  
- *                      Only when the name of the file to be included is an
- *                      absolute path will this.  If empty, the directory
- *                      will be assumed to be the current one.  
- * @param strict      if true, throw an exception if an error occurs 
- *                      while reading and/or parsing the file.  Otherwise,
- *                      an unrecoverable error will result in the failing
- *                      PolicyFile being replaced with an incomplete
- *                      Policy.  
+ *                    Only when the name of the file to be included is an
+ *                    absolute path will this.  If empty or not provided,
+ *                    the directorywill be assumed to be the current one.
  */
 void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
+    cout << "    ==> Policy::loadPolicyFiles(" 
+	 << repository << ", " << strict << ")" << endl;
 
     fs::path repos = repository;
     if (repos.empty()) repos = ".";
@@ -616,13 +635,9 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             pols.push_back(policy);
         }
 
-        if (pols.size() > 0) {   // shouldn't actually be zero
-            PolicyPtrArray::iterator pi = pols.begin();
-            set(*it, *pi);
-            while(++pi != pols.end()) {
-                add(*it, *pi);
-            }
-        }
+	remove(*it);
+	for (PolicyPtrArray::iterator pi = pols.begin(); pi != pols.end(); ++pi)
+	    add(*it, *pi);
     }
 
     // Now iterate again to recurse into sub-Policy values
@@ -641,7 +656,7 @@ void Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
 
 
 /*
- * use the values found in the given policy as default values for 
+ * Use the values found in the given policy as default values for 
  * parameters not specified in this policy.  This function will iterate
  * through the parameter names in the given policy, and if the name is 
  * not found in this policy, the value from the given one will be copied 
@@ -658,10 +673,11 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
     // if this is a dictionary, extract out the default values.  
     auto_ptr<Policy> pol(0);
     const Policy *def = &defaultPol;
-    if (def->exists("definitions")) {
+    if (def->isDictionary()) {
+	// extract default values from dictionary
         pol.reset(new Policy(false, Dictionary(*def)));
         def = pol.get();
-	// TODO: implement -- merge defaults and validate
+	// TODO: test this
 	// TODO: should we validate the whole thing, or just the new values?
     }
 

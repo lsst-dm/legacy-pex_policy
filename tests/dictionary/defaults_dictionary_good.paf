@@ -2,9 +2,9 @@
 target: types
 definitions: {
     bool_set_count: {
-	type: bool
-	maxOccurs: 1
-	allowed: { value: true }
+        type: bool
+        maxOccurs: 1
+        allowed: { value: true }
         default: true
     }
 
@@ -16,6 +16,23 @@ definitions: {
             max: -3
         }
         default: -5 -7 -6
+    }
+
+    deep: {
+        type: Policy
+        dictionary: {
+            definitions: {
+                sub_double: {
+                    type: double
+                    default: 1.
+                }
+            }
+        }
+    }
+
+    indirect: {
+        type: Policy
+        dictionaryFile: defaults_dictionary_indirect.paf
     }
 
     # this is okay because no default is given -- eventually a value will

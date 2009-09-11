@@ -30,7 +30,7 @@ definitions: {
 
    reciever: {
      type:         "Policy"
-     dictionaryFile: "reciever_dict.paf"
+     dictionaryFile: "receiver_dict.paf"
      minOccurs:    0
      maxOccurs:    1
      description:  "parameters for configuring the receiver"

@@ -23,6 +23,18 @@ definitions: {
         default: foo
     }
 
+    deep: {
+        type: Policy
+        dictionary: {
+            definitions: {
+                sub_double: {
+                    type: double
+                    default: not a number
+                }
+            }
+        }
+    }
+
     required: {
         minOccurs: 1
     }

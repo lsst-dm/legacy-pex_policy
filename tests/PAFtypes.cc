@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     for(Policy::FilePtrArray::iterator vfi=vf.begin(); vfi!=vf.end(); ++vfi) 
         vfs.push_back((*vfi)->getPath());
     i=0;
-    TYPED_VALUE_IS(vfs, i, "EventTranmitter_policy.paf");  i++;
+    TYPED_VALUE_IS(vfs, i, "EventTransmitter_policy.paf");  i++;
     TYPED_VALUE_IS(vfs, i, "CacheManager_dict.paf");  i++;
 
     Policy::PolicyPtrArray vp = p.getPolicyArray("pol");

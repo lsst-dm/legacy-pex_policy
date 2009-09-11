@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
     Policy p2;
     PAFParser pp(p2);
-    ifstream is("examples/EventTranmitter_policy.paf");
+    ifstream is("examples/EventTransmitter_policy.paf");
 
     pp.parse(is);
 

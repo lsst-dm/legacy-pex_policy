@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 
     Policy p;
     string files[] = { 
-        string("examples/EventTranmitter_policy.paf"),
+        string("examples/EventTransmitter_policy.paf"),
         string("examples/pipeline_policy.paf") 
     };
     int nfiles = 2;

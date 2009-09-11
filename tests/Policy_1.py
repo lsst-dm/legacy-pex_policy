@@ -86,7 +86,7 @@ class PolicyTestCase(unittest.TestCase):
 
     def testSimpleLoad(self):
 #        n = mwid.Citizen_census(0)
-        p = Policy.createPolicy("examples/EventTranmitter_policy.paf")
+        p = Policy.createPolicy("examples/EventTransmitter_policy.paf")
         self.assertEquals(p.get("transmitter.serializationFormat"), "deluxe")
         p = None
 #        self.assertEquals(mwid.Citizen_census(0), n, "Policy apparently leaked")
@@ -95,7 +95,7 @@ class PolicyTestCase(unittest.TestCase):
         p = Policy()
 
     def testPolicyCopy(self):
-        p = Policy.createPolicy("examples/EventTranmitter_policy.paf")
+        p = Policy.createPolicy("examples/EventTransmitter_policy.paf")
         pp = Policy(p, True)
         self.assertEquals(p.get("transmitter.serializationFormat"), "deluxe")
         self.assertEquals(pp.getString("transmitter.serializationFormat"), "deluxe")

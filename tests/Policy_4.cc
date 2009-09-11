@@ -33,7 +33,7 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 int main(int argc, char** argv) {
 
     string files[] = { 
-        string("examples/EventTranmitter_dict.paf"),
+        string("examples/EventTransmitter_dict.paf"),
     };
     int nfiles = 1;
 

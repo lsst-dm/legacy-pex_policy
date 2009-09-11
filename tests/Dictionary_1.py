@@ -58,7 +58,6 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(d.isDictionary(), "failed to recognize a dictionary")
 
     def testBadDictionary(self):
-        # TODO: have this fail on load, instead of on inspection
         d = Dictionary("tests/dictionary/dictionary_bad_policyfile.paf")
         self.assertRaiseLCE("DictionaryError", "Illegal type: \"PolicyFile\"",
                             d.makeDef("file_type").getType,
@@ -304,7 +303,6 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve)
 
     # TODO: try this without "target: types" in dictionary file
-    # TODO: fix spelling mistake in example policy filenames
     def testNested(self):
         d = Dictionary("tests/dictionary/nested_dictionary_bad_1.paf")
         p = Policy("tests/dictionary/nested_policy_good.paf")
@@ -440,7 +438,6 @@ class DictionaryTestCase(unittest.TestCase):
         p.set("required", "foo")
         p.validate()
 
-    # TODO: try dictionary.definitions syntax
     def testSelfValidation(self):
         # assign a dictionary after creation
         p = Policy("tests/dictionary/types_policy_good.paf")

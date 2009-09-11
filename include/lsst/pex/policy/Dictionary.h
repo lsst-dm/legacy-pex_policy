@@ -814,7 +814,9 @@ public:
     //@}
 
     /**
-     * validate a Policy against this Dictionary.
+     * Validate a Policy against this Dictionary.  All relevant file references
+     * in the dictionary, including "dictionaryFile" references, must be
+     * resolved first, or else a DictionaryError will be thrown.
      *
      * If a ValidationError instance is provided, any errors detected 
      * will be loaded into it.  If no ValidationError is provided,

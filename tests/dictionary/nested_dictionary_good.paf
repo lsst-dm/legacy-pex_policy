@@ -29,21 +29,15 @@ definitions: {
 
     policy_3: {
         type: "Policy"
-        dictionary: {
-            definitions: {
-                baz: {
-                    type: "Policy"
-                    dictionary: {
-                        definitions: {
-                            qux: {
-                                type: int
-                                allowed: {
-                                    min: 0
-                                }
-                            }
-                            paisley: {
-                                minOccurs: 1
-                            }
+        dictionary.definitions: {
+            baz: {
+                type: "Policy"
+                dictionary: {
+                    definitions: {
+                        qux.type: int
+                        qux.allowed.min: 0
+                        paisley: {
+                            minOccurs: 1
                         }
                     }
                 }

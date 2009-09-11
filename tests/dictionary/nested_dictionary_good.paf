@@ -1,5 +1,4 @@
 #<?cfg paf dictionary ?>  
-target: types
 definitions: {
     simple: {
         type: int

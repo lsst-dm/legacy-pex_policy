@@ -302,7 +302,6 @@ class DictionaryTestCase(unittest.TestCase):
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve)
 
-    # TODO: try this without "target: types" in dictionary file
     def testNested(self):
         d = Dictionary("tests/dictionary/nested_dictionary_bad_1.paf")
         p = Policy("tests/dictionary/nested_policy_good.paf")

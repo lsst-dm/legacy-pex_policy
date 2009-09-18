@@ -6,6 +6,7 @@
 // #include "lsst/pex/utils/Trace.h"
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <stdexcept>
@@ -600,7 +601,7 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
         (DictionaryError, subname + " is a " + getTypeName(subname) 
          + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
     ConstPtr subpol = getPolicy(subname);
-    Policy::DictPtr result = Policy::DictPtr(new Dictionary(*subpol));
+    Policy::DictPtr result = make_shared<Dictionary>(*subpol);
     result->setPrefix(_prefix + name + ".");
     return result;
 }
@@ -626,8 +627,8 @@ int Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
 		if (isFile(*ni)) 
 		    defin->set(Dictionary::KW_DICT, getFile(*ni));
 		else
-		    defin->set(Dictionary::KW_DICT, 
-			       Policy::FilePtr(new PolicyFile(getString(*ni))));
+		    defin->set(Dictionary::KW_DICT,
+			       make_shared<PolicyFile>(getString(*ni)));
 		
 		toRemove.push_back(*ni);
 	    }

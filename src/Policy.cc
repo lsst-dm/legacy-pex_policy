@@ -8,6 +8,7 @@
 #include "lsst/pex/policy/parserexceptions.h"
 // #include "lsst/pex/logging/Trace.h"
 
+#include <boost/make_shared.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/filesystem/path.hpp>
 
@@ -19,6 +20,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace boost;
 namespace fs = boost::filesystem;
 namespace pexExcept = lsst::pex::exceptions;
 namespace dafBase = lsst::daf::base;
@@ -89,7 +91,7 @@ void extractDefaults(Policy& target, const Dictionary& dict, ValidationError& ve
         def->setDefaultIn(target, &ve);
 	// recurse into sub-dictionaries
         if (def->getType() == Policy::POLICY && dict.hasSubDictionary(name)) {
-            Policy::Ptr subp = Policy::Ptr(new Policy());
+            Policy::Ptr subp = make_shared<Policy>();
 	    extractDefaults(*subp, *dict.getSubDictionary(name), ve);
 	    if (subp->nameCount() > 0)
 		target.add(name, subp);
@@ -206,7 +208,7 @@ const Policy::ConstDictPtr Policy::getDictionary() const {
  * validate() \endcode afterwards.
  */
 void Policy::setDictionary(const Dictionary& dict) {
-    _dictionary = DictPtr(new Dictionary(dict));
+    _dictionary = make_shared<Dictionary>(dict);
 }
 
 /**
@@ -361,7 +363,7 @@ int Policy::_names(list<string>& names,
 
 template <class T> void Policy::_validate(const std::string& name, const T& value, int curCount) {
     if (_dictionary) {
-	boost::scoped_ptr<Definition> def(_dictionary->makeDef(name));
+	scoped_ptr<Definition> def(_dictionary->makeDef(name));
 	def->validateBasic(name, value, curCount);
     }
 }
@@ -505,7 +507,7 @@ Policy::PolicyPtrArray Policy::getPolicyArray(const string& name) const {
 
 Policy::FilePtr Policy::getFile(const string& name) const {
     FilePtr out = 
-        boost::dynamic_pointer_cast<PolicyFile>(_data->getAsPersistablePtr(name));
+        dynamic_pointer_cast<PolicyFile>(_data->getAsPersistablePtr(name));
     if (! out.get()) 
         throw LSST_EXCEPT(TypeError, name, string(typeName[FILE]));
     return out;
@@ -518,7 +520,7 @@ Policy::FilePtrArray Policy::getFileArray(const string& name) const
     vector<Persistable::Ptr>::const_iterator i;
     FilePtr fp;
     for(i = pfa.begin(); i != pfa.end(); ++i) {
-        fp = boost::dynamic_pointer_cast<PolicyFile>(*i);
+        fp = dynamic_pointer_cast<PolicyFile>(*i);
         if (! fp.get())
             throw LSST_EXCEPT(TypeError, name, string(typeName[FILE]));
         out.push_back(fp);
@@ -528,11 +530,11 @@ Policy::FilePtrArray Policy::getFileArray(const string& name) const
 }
 
 void Policy::set(const string& name, const FilePtr& value) {
-    _data->set(name, boost::dynamic_pointer_cast<Persistable>(value));
+    _data->set(name, dynamic_pointer_cast<Persistable>(value));
 }
 
 void Policy::add(const string& name, const FilePtr& value) {
-    _data->add(name, boost::dynamic_pointer_cast<Persistable>(value));
+    _data->add(name, dynamic_pointer_cast<Persistable>(value));
 }
 
 /**
@@ -574,7 +576,7 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
                 path = repos / (*pfi)->getPath();
             }
 
-            Ptr policy(new Policy());
+            Ptr policy = make_shared<Policy>();
             PolicyFile pf(path.file_string());
 
             try {

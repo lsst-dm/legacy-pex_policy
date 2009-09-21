@@ -847,7 +847,7 @@ public:
      *                    (that is, "{}").
      * @return            the number of files loaded
      */
-    int loadPolicyFiles(bool strict=false) {
+    int loadPolicyFiles(bool strict=true) {
 	return loadPolicyFiles(fs::path(), strict);
     }
 
@@ -859,7 +859,7 @@ public:
      *                    the directorywill be assumed to be the current one.
      * @return            the number of files loaded
      */
-    virtual int loadPolicyFiles(const fs::path& repository, bool strict=false);
+    virtual int loadPolicyFiles(const fs::path& repository, bool strict=true);
 
     //@{
     /**

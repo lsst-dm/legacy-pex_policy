@@ -1,4 +1,5 @@
 import optparse
+import sys
 
 from lsst.pex.policy import Policy, PolicyFile, Dictionary, ValidationError
 from lsst.pex.exceptions import LsstCppException
@@ -6,77 +7,141 @@ from lsst.pex.exceptions import LsstCppException
 usage = """usage: %prog <options> [policy] [dictionary]"""
 
 desc = """
-Use a dictionary file to validate a policy file.
+Validate a policy file against a dictionary (policy schema).
 """
 
-# see http://docs.python.org/library/optparse.html
-parser = optparse.OptionParser(usage=usage, description=desc)
-parser.add_option("-d", "--dictionary", dest="dictionary", metavar="FILE",
-                  help="the dictionary to validate a policy against")
-parser.add_option("-p", "--policy", dest="policy", metavar="FILE",
-                  help="the policy to validate")
-parser.add_option("-l", "--load-policy-references", dest="load_policy", metavar="FILE",
-                  help="directory from which to load policy file references")
-parser.add_option("-L", "--load-dict-references", dest="load_policy", metavar="FILE",
-                  help="directory from which to load dictionary file references")
-parser.add_option("-D", "--load-defaults", dest="defaults", metavar="FILE",
-                  help="load defaults from FILE, which can be a policy or dictionary")
-parser.add_option("-v", "--verbose", dest="verbosity", action="store_const", const=1,
-                  help="print extra messages")
-(options, args) = parser.parse_args()
+class PolicyValidator:
+    def __init__(self):
+        self.verbose = False
 
-def tryThis(callableObj, explain, *args, **kwargs):
-    try:
-        if verbosity > 0: print explain
-        result = callableObj(*args, **kwargs)
-        return result
-    except LsstCppException, e:
-        print "error", explain + ":"
-        print e.args[0].what()
-        sys.exit(2)
+    def main(self, argv=None):
+        self.parseArgs()
+
+        # 1. load policy
+        policy = self.tryThis(Policy,
+                              "reading policy file \"" + self.policyFile + "\"",
+                              self.policyFile)
+
+        # resolve policy file references
+        polLoadDir = self.options.loadPolicy
+        polLoadDesc = polLoadDir
+        if polLoadDir == None:
+            print " ### verbose?", self.verbose
+            if self.verbose:
+                print "No policy load dir specified; using current dir."
+            polLoadDir = ""
+            polLoadDesc = "current directory; " \
+                          "try -l DIR or --load-policy-references=DIR"
+        message = "resolving references in " + self.policyFile + ",\n    using " \
+                  + polLoadDesc
+        self.tryThis(policy.loadPolicyFiles, message, polLoadDir, True)
+
+        # 2. load dictionary
+        dictionary = self.tryThis(Dictionary,
+                                  "reading dictionary file \"" + self.dictFile + "\"",
+                                  self.dictFile)
+
+        # resolve dictionary file references
+        dictLoadDir = self.options.loadDict
+        dictLoadDesc = dictLoadDir
+        if (dictLoadDir == None):
+            if self.verbose:
+                print "No dictionary load dir specified; using policy load dir", \
+                      polLoadDesc
+            if polLoadDir != "":
+                dictLoadDir = polLoadDir
+                dictLoadDesc = polLoadDesc
+            else:
+                dictLoadDir = ""
+                dictLoadDesc = "current directory; " \
+                               "try -l DIR or --load-dictionary-references=DIR"
+        message = "resolving references in " + self.dictFile + ",\n" \
+                  "    using " + dictLoadDesc
+        self.tryThis(dictionary.loadPolicyFiles, message, dictLoadDir, True)
+    
+        # 3. merge defaults into policy
+        defaults = None
+        defaultsFile = self.options.defaults
+        if (defaultsFile != None):
+            defaults = self.tryThis(Policy,
+                                    "reading defaults from \"" + defaultsFile + "\"",
+                                    defaultsFile)
+        else: defaults = dictionary # if no defaults file specified, use dictionary
+        self.tryThis(policy.mergeDefaults, "merging defaults into policy", defaults)
+
+        # 4. validate
+        self.tryThis(dictionary.validate,
+                     "validating " + self.policyFile + "\n    against " + self.dictFile,
+                     policy)
+
+        if self.verbose: print
+        print "Validation passed:"
+        print "      policy: " + self.policyFile
+        print "                  is a valid instance of"
+        print "  dictionary: " + self.dictFile
+
+    def tryThis(self, callableObj, explain, *args, **kwargs):
+        try:
+            if self.verbose: print explain
+            result = callableObj(*args, **kwargs)
+            return result
+        except LsstCppException, e:
+            print "error", explain + ":"
+            print e.args[0].what()
+            sys.exit(2)
+
+    def parseArgs(self, argv=None):
+        # see http://docs.python.org/library/optparse.html
+        self.parser = optparse.OptionParser(usage=usage, description=desc)
+        self.parser.add_option("-d", "--dictionary", dest="dictionary", metavar="FILE",
+                               help="The dictionary to validate a policy against.")
+        self.parser.add_option("-p", "--policy", dest="policy", metavar="FILE",
+                               help="the policy to validate")
+        self.parser.add_option("-l", "--load-policy-references", dest="loadPolicy",
+                               metavar="DIR",
+                               help="Directory from which to load policy file "
+                               "references (if not specified, load from "
+                               "current directory).")
+        self.parser.add_option("-L", "--load-dictionary-references", dest="loadDict",
+                               metavar="DIR",
+                               help="Directory from which to load dictionary "
+                               "file references (if not specified, load from "
+                               "policy references dir).")
+        self.parser.add_option("-D", "--load-defaults", dest="defaults", metavar="FILE",
+                               help="Load defaults from FILE, which can be a policy "
+                               "or dictionary.  If not specified, load defaults from "
+                               "the dictionary being used for validation.")
+        self.parser.add_option("-v", "--verbose", dest="verbose",
+                               action="store_const", const=True,
+                               help="Print extra messages.")
+
+        if argv is None:
+            argv = sys.argv
+        (self.options, args) = self.parser.parse_args(argv)
+        # print "args =", args, len(args)
+        # print "options =", self.options
+        if (self.options.verbose != None):
+            self.verbose = self.options.verbose
+        
+        self.policyFile = self.options.policy
+        self.dictFile = self.options.dictionary
+        del args[0] # script name
+        if (self.policyFile == None):
+            if len(args) < 1:
+                self.parser.error("no policy specified")
+            self.policyFile = args[0]
+            del(args[0])
+        if (self.dictFile == None):
+            if len(args) < 1:
+                self.parser.error("no dictionary specified")
+            self.dictFile = args[0]
+            del(args[0])
+
+        if len(args) != 0:
+            self.parser.error("too many arguments: " + str(args) + " were not parsed.")
+        policy = None
 
 if __name__ == "__main__":
-    policyFile = options.policy
-    dictFile = options.dictionary
-    if (policyFile == None):
-        if len(args) < 1:
-            parser.error("no policy specified")
-        policyFile = args[0]
-        del(args[0])
-    if (dictFile == None):
-        if len(args) < 1:
-            parser.error("no dictionary specified")
-        dictFile = args[0]
-        del(args[0])
-
-    defaultsFile = options.defaults
-    print "--- defaults:", defaultsFile
-
-    if len(args) != 0:
-        parser.error("incorrect number of arguments")
-    # print "args =", args, len(args)
-    # print "options =", options
-    policy = None
-    verbosity = 0
-    if (options.verbosity != None): verbosity = options.verbosity
-
-    # 1. load policy
-    policy = tryThis(Policy, "reading policy file \"" + policyFile + "\"", policyFile)
-
-    # 2. merge defaults into policy (if specified)
-    defaults = None
-    if (defaultsFile != None):
-        defaults = tryThis(Policy, "reading defaults from \"" + defaultsFile + "\"",
-                           defaultsFile)
-        tryThis(policy.mergeDefaults, "merging defaults into policy", defaults)
-
-    # 3. load dictionary
-    dictionary = tryThis(Dictionary, "reading dictionary file \"" + dictFile + "\"",
-                         dictFile)
-    
-    # 4. validate
-    tryThis(dictionary.validate, "validating " + policyFile + " against " + dictFile,
-            policy)
-
-    if verbosity > 0: print
-    print "Validation succeeded:", policyFile, "is a valid instance of", dictFile
+    pv = PolicyValidator()
+    pv.main()
+    sys.exit(0)

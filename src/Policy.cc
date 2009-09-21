@@ -17,7 +17,6 @@
 #include <cctype>
 #include <algorithm>
 #include <sstream>
-#include <iostream>
 
 using namespace std;
 using namespace boost;

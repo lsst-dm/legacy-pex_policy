@@ -4,7 +4,7 @@ import sys
 from lsst.pex.policy import Policy, PolicyFile, Dictionary, ValidationError
 from lsst.pex.exceptions import LsstCppException
 
-usage = """usage: %prog <options> [policy] [dictionary]"""
+usage = """usage: %prog [--help] <options> [policy] [dictionary]"""
 
 desc = """
 Validate a policy file against a dictionary (policy schema).

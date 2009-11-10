@@ -157,7 +157,7 @@ Policy* Policy::_createPolicy(PolicySource& source, bool doIncludes,
     auto_ptr<Policy> pol(new Policy());
     source.load(*pol);
 
-    if (pol->exists(Dictionary::KW_DEFS)) {
+    if (pol->isDictionary()) {
         Dictionary d(*pol);
         pol.reset(new Policy(validate, d, repository));
     }
@@ -221,7 +221,8 @@ void Policy::setDictionary(const Dictionary& dict) {
  * instead of being thrown.
  */
 void Policy::validate(ValidationError *errs) const {
-    _dictionary->validate(*this, errs);
+    if (!_dictionary) throw LSST_EXCEPT(DictionaryError, "No dictionary set.");
+    else _dictionary->validate(*this, errs);
 }
 
 /** 
@@ -362,8 +363,14 @@ int Policy::_names(list<string>& names,
 
 template <class T> void Policy::_validate(const std::string& name, const T& value, int curCount) {
     if (_dictionary) {
-	scoped_ptr<Definition> def(_dictionary->makeDef(name));
-	def->validateBasic(name, value, curCount);
+	try {
+	    scoped_ptr<Definition> def(_dictionary->makeDef(name));
+	    def->validateBasic(name, value, curCount);
+	} catch(NameNotFound& e) {
+	    ValidationError ve(LSST_EXCEPT_HERE);
+	    ve.addError(name, ValidationError::UNKNOWN_NAME);
+	    throw ve;
+	}
     }
 }
 
@@ -621,36 +628,45 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
 }
 
 
-/*
- * Use the values found in the given policy as default values for 
- * parameters not specified in this policy.  This function will iterate
- * through the parameter names in the given policy, and if the name is 
- * not found in this policy, the value from the given one will be copied 
- * into this one.  No attempt is made to add match the number of values 
- * available per name.  
- * @param defaultPol   the policy to pull default values from.  This may 
- *                        be a Dictionary; if so, the default values will 
- *                        drawn from the appropriate default keyword.
- * @return int         the number of parameter names copied over
+/**
+ * use the values found in the given policy as default values for parameters not
+ * specified in this policy.  This function will iterate through the parameter
+ * names in the given policy, and if the name is not found in this policy, the
+ * value from the given one will be copied into this one.  No attempt is made to
+ * match the number of values available per name.
+ * @param defaultPol  the policy to pull default values from.  This may be a
+ *                    Dictionary; if so, the default values will drawn from the
+ *                    appropriate default keyword.
+ * @param keepForValidation if true, and if defaultPol is a Dictionary, keep
+ *                    a reference to it for validation future updates to
+ *                    this Policy.
+ * @param errs        an exception to load errors into -- only relevant if
+ *                    defaultPol is a Dictionary or if this Policy already has a
+ *                    dictionary to validate against; if a validation error is
+ *                    encountered, it will be added to errs if errs is non-null,
+ *                    and an exception will not be raised; however, if errs is
+ *                    null, an exception will be thrown if a validation error is
+ *                    encountered.
+ * @return int        the number of parameter names copied over
  */
-int Policy::mergeDefaults(const Policy& defaultPol) {
+int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation, 
+			  ValidationError *errs) 
+{
     int added = 0;
 
-    // if this is a dictionary, extract out the default values.  
+    // if defaultPol is a dictionary, extract the default values
     auto_ptr<Policy> pol(0);
     const Policy *def = &defaultPol;
     if (def->isDictionary()) {
 	// extract default values from dictionary
         pol.reset(new Policy(false, Dictionary(*def)));
         def = pol.get();
-	// TODO: should we validate the whole thing, or just the new values?
     }
 
     list<string> params;
     def->paramNames(params);
     list<string>::iterator nm;
     for(nm = params.begin(); nm != params.end(); ++nm) {
-
         if (! exists(*nm)) {
             const std::type_info& tp = def->getTypeInfo(*nm);
             if (tp == typeid(bool)) {
@@ -691,8 +707,14 @@ int Policy::mergeDefaults(const Policy& defaultPol) {
                 // added--;
             }
             added++;
-
         }
+    }
+
+    // if defaultPol is a dictionary, validate after all defaults are added
+    if (defaultPol.isDictionary()) {
+	Dictionary d(defaultPol);
+	if (keepForValidation) setDictionary(d);
+	d.validate(*this, errs);
     }
 
     return added;

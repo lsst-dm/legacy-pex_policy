@@ -787,6 +787,8 @@ public:
      * for deleting the returned object.  This is slightly more efficient than
      * getDef().
      * @param name    the hierarchical name for the parameter
+     * @exception     NameNotFoundError if no definition by this name exists
+     *                DictionaryError if this dictionary is found to be malformed
      */
     Definition* makeDef(const std::string& name) const;
 

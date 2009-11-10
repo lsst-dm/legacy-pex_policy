@@ -508,13 +508,61 @@ class DictionaryTestCase(unittest.TestCase):
         p.validate()
 
     def testMergeDefaults(self):
+        # from a non-trivial dictionary
         p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        p.set("required", "foo")
         d = Dictionary("tests/dictionary/defaults_dictionary_good.paf")
         d.loadPolicyFiles("tests/dictionary", True)
-        self.assert_(p.nameCount() == 1)
+        self.assert_(p.nameCount() == 2)
         p.mergeDefaults(d)
         self.assert_(p.valueCount("int_range_count") == 3)
-        self.assert_(p.nameCount() == 4)
+        self.assert_(p.nameCount() == 5)
+
+        # from a policy that's really a dictionary
+        p = Policy()
+        pd = Policy("tests/dictionary/defaults_dictionary_indirect.paf")
+        p.mergeDefaults(pd)
+        self.assert_(p.getString("string_type") == "foo")
+        self.assert_(p.getDictionary().isDictionary())
+        
+        # from a policy that's really a non-trivial dictionary
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        p.set("required", "foo")
+        pd = Policy("tests/dictionary/defaults_dictionary_policy.paf")
+        pd.loadPolicyFiles(True)
+        self.assert_(p.nameCount() == 2)
+        p.mergeDefaults(pd)
+        self.assert_(p.valueCount("int_range_count") == 3)
+        self.assert_(p.nameCount() == 5)
+
+        # ensure post-load validation
+        p.set("int_range_count", -5)
+        self.assertValidationError(ValidationError.UNKNOWN_NAME,
+                                   p.add, "unknown", 0)
+
+        # test throwing validation
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        try:
+            p.mergeDefaults(pd)
+        except LsstCppException, e:
+            self.assert_(e.args[0].getErrors("required")
+                         == ValidationError.MISSING_REQUIRED)
+
+        # test non-throwing validation
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        ve = ValidationError("Dictionary_1.py", 1, "testMergeDefaults")
+        p.mergeDefaults(pd, False, ve)
+        self.assert_(ve.getErrors("required") == ValidationError.MISSING_REQUIRED)
+        self.assert_(ve.getParamCount() == 1)
+
+        # test non-retention
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        p.set("required", "foo")
+        p.mergeDefaults(pd, False)
+        # make sure validate() fails gracefully when no dictionary present
+        self.assertRaiseLCE("DictionaryError", "No dictionary",
+                            p.validate, "No dictionary assigned")
+        p.add("unknown", 0) # would be rejected if dictionary was kept
 
 def suite():
     """a suite containing all the test cases in this module"""

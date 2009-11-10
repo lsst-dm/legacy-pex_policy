@@ -243,12 +243,12 @@ public:
      * file, the defined defaults will be loaded into the return policy.  
      * @param input       the input file or stream to load data from.
      * @param doIncludes  if true, any references found to external Policy 
-     *                      files will be resolved into sub-policy values.  
-     *                      The files will be looked for in a directory 
-     *                      relative the current directory.
+     *                    files will be resolved into sub-policy values.  
+     *                    The files will be looked for in a directory 
+     *                    relative the current directory.
      * @param validate    if true and the input file is a policy dictionary,
-     *                      it will be given to the returned policy and 
-     *                      used to validate future updates to the Policy.
+     *                    it will be given to the returned policy and 
+     *                    used to validate future updates to the Policy.
      */
     static Policy *createPolicy(PolicySource& input, bool doIncludes=true, 
                                 bool validate=false);
@@ -265,11 +265,11 @@ public:
      * file, the defined defaults will be loaded into the return policy.  
      * @param input       the input file or stream to load data from.
      * @param repos       a directory to look in for the referenced files.  
-     *                      Only when the name of the file to be included is an
-     *                      absolute path will this.  
+     *                    Only when the name of the file to be included is an
+     *                    absolute path will this.  
      * @param validate    if true and the input file is a policy dictionary,
-     *                      it will be given to the returned policy and 
-     *                      used to validate future updates to the Policy.
+     *                    it will be given to the returned policy and 
+     *                    used to validate future updates to the Policy.
      */
     static Policy *createPolicy(PolicySource& input, const fs::path& repos, 
                                 bool validate=false);
@@ -741,12 +741,23 @@ public:
      * parameter names in the given policy, and if the name is not found in this
      * policy, the value from the given one will be copied into this one.  No
      * attempt is made to match the number of values available per name.
-     * @param defaultPol   the policy to pull default values from.  This may 
-     *                     be a Dictionary; if so, the default values will 
-     *                     drawn from the appropriate default keyword.
-     * @return int         the number of parameter names copied over
+     * @param defaultPol  the policy to pull default values from.  This may 
+     *                    be a Dictionary; if so, the default values will 
+     *                    drawn from the appropriate default keyword.
+     * @param keepForValidation if true, and if defaultPol is a Dictionary, keep
+     *                    a reference to it for validation future updates to
+     *                    this Policy.
+     * @param errs        an exception to load errors into -- only relevant if
+     *                    defaultPol is a Dictionary or if this Policy already
+     *                    has a dictionary to validate against; if a validation
+     *                    error is encountered, it will be added to errs if errs
+     *                    is non-null, and an exception will not be raised;
+     *                    however, if errs is null, an exception will be thrown
+     *                    if a validation error is encountered.
+     * @return int        the number of parameter names copied over
      */
-    int mergeDefaults(const Policy& defaultPol);
+    int mergeDefaults(const Policy& defaultPol, bool keepForValidation=true,
+		      ValidationError *errs=0);
 
     /**
      * return a string representation of the value given by a name.  The

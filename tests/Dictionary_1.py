@@ -564,6 +564,13 @@ class DictionaryTestCase(unittest.TestCase):
                             p.validate, "No dictionary assigned")
         p.add("unknown", 0) # would be rejected if dictionary was kept
 
+        # test deep merge from a Policy that's not a Dictionary
+        p = Policy("tests/dictionary/defaults_policy_partial.paf")
+        p.mergeDefaults(Policy("tests/dictionary/defaults_policy_most.paf"))
+        self.assert_(p.nameCount() == 3)
+        self.assert_(p.getBool("bool_set_count") == True)
+        self.assert_(p.getString("indirect.string_type") == "bar")
+
 def suite():
     """a suite containing all the test cases in this module"""
     tests.init()

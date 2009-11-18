@@ -1,7 +1,7 @@
 import optparse
 import sys
 
-from lsst.pex.policy import Policy, PolicyFile, Dictionary, ValidationError
+from lsst.pex.policy import Policy, Dictionary
 from lsst.pex.exceptions import LsstCppException
 
 usage = """usage: %prog [--help] <options> [policy] [dictionary]"""
@@ -15,7 +15,7 @@ class PolicyValidator:
         self.verbose = False
 
     def main(self, argv=None):
-        self.parseArgs()
+        self.parseArgs(argv)
 
         # 1. load policy
         policy = self.tryThis(Policy,
@@ -74,7 +74,8 @@ class PolicyValidator:
                      "validating " + self.policyFile + "\n    against " + self.dictFile,
                      policy)
 
-        if self.verbose: print
+        if self.verbose:
+            print
         print "Validation passed:"
         print "      policy: " + self.policyFile
         print "                  is a valid instance of"
@@ -92,7 +93,7 @@ class PolicyValidator:
 
     def parseArgs(self, argv=None):
         # see http://docs.python.org/library/optparse.html
-        self.parser = optparse.OptionParser(usage=usage, description=desc)
+        self.parser = optparse.OptionParser(usage=usage, description=desc) # parasoft-suppress W0201
         self.parser.add_option("-d", "--dictionary", dest="dictionary", metavar="FILE",
                                help="The dictionary to validate a policy against.")
         self.parser.add_option("-p", "--policy", dest="policy", metavar="FILE",
@@ -117,14 +118,14 @@ class PolicyValidator:
 
         if argv is None:
             argv = sys.argv
-        (self.options, args) = self.parser.parse_args(argv)
+        (self.options, args) = self.parser.parse_args(argv) # parasoft-suppress W0201
         # print "args =", args, len(args)
         # print "options =", self.options
         if (self.options.verbose != None):
             self.verbose = self.options.verbose
         
-        self.policyFile = self.options.policy
-        self.dictFile = self.options.dictionary
+        self.policyFile = self.options.policy               # parasoft-suppress W0201
+        self.dictFile = self.options.dictionary             # parasoft-suppress W0201
         del args[0] # script name
         if (self.policyFile == None):
             if len(args) < 1:
@@ -139,7 +140,6 @@ class PolicyValidator:
 
         if len(args) != 0:
             self.parser.error("too many arguments: " + str(args) + " were not parsed.")
-        policy = None
 
 if __name__ == "__main__":
     pv = PolicyValidator()

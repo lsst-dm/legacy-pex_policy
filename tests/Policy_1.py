@@ -1,6 +1,5 @@
-import pdb                          # we may want to say pdb.set_trace()
+#import pdb                          # we may want to say pdb.set_trace()
 import unittest
-import math
 
 import lsst.utils.tests as tests
 from lsst.pex.policy import Policy
@@ -23,15 +22,15 @@ class PolicyTestCase(unittest.TestCase):
         self.failUnless(not p.exists("foo"),
                         "non-empty non-existence test failed")
         self.assertEqual(p.valueCount("foo.bar"), 0,
-                         "empty valueCount test failed");
+                         "empty valueCount test failed")
         self.failUnless(not p.isInt("foo"),
-                        "non-empty non-existence type test failed");
+                        "non-empty non-existence type test failed")
         self.assertRaises(LsstCppException, p.getTypeInfo, "foo")
 
         # existence tests
         self.assert_(p.exists("doall"), "non-empty existence test failed")
         self.assertEquals(p.valueCount("doall"), 1,
-                          "single valueCount test failed");
+                          "single valueCount test failed")
 
         self.assertRaises(LsstCppException, p.getInt, "doall")
         self.assertRaises(LsstCppException, p.getDoubleArray, "doall")
@@ -50,10 +49,10 @@ class PolicyTestCase(unittest.TestCase):
 
         self.assertEquals(ary[0], "duh", "scalar access via array failed")
 
-        p.add("doall", "never");
+        p.add("doall", "never")
         self.assertEquals(p.valueCount("doall"), 2,
                           "2-elem. valueCount test failed")
-        self.assertEquals(p.get("doall"), "never", "top-level add failed");
+        self.assertEquals(p.get("doall"), "never", "top-level add failed")
         ary = p.getArray("doall")
         self.assertEquals(len(ary), 2,
                           "scalar property has wrong number of values")

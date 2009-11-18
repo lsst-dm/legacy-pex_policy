@@ -85,16 +85,16 @@ void extractDefaults(Policy& target, const Dictionary& dict, ValidationError& ve
     dict.definedNames(names);
 
     for(list<string>::iterator it = names.begin(); it != names.end(); ++it) {
-	const string& name = *it;
-	std::auto_ptr<Definition> def(dict.makeDef(name));
+        const string& name = *it;
+        std::auto_ptr<Definition> def(dict.makeDef(name));
         def->setDefaultIn(target, &ve);
-	// recurse into sub-dictionaries
+        // recurse into sub-dictionaries
         if (def->getType() == Policy::POLICY && dict.hasSubDictionary(name)) {
             Policy::Ptr subp = make_shared<Policy>();
-	    extractDefaults(*subp, *dict.getSubDictionary(name), ve);
-	    if (subp->nameCount() > 0)
-		target.add(name, subp);
-	}
+            extractDefaults(*subp, *dict.getSubDictionary(name), ve);
+            if (subp->nameCount() > 0)
+                target.add(name, subp);
+        }
     }
 }
 
@@ -117,11 +117,11 @@ Policy::Policy(bool validate, const Dictionary& dict,
 { 
     DictPtr loadedDict; // the dictionary that has all policy files loaded
     if (validate) { // keep loadedDict around for future validation
-	setDictionary(dict);
-	loadedDict = _dictionary;
+        setDictionary(dict);
+        loadedDict = _dictionary;
     }
     else { // discard loadedDict when we finish constructor
-	loadedDict.reset(new Dictionary(dict));
+        loadedDict.reset(new Dictionary(dict));
     }
     loadedDict->loadPolicyFiles(repository, true);
 
@@ -234,27 +234,27 @@ Policy::ValueType Policy::getTypeByName(const string& name) {
     static map<string, Policy::ValueType> nameTypeMap;
 
     if (nameTypeMap.size() == 0) {
-	map<string, Policy::ValueType> tmp;
-	int n = sizeof(Policy::typeName) / sizeof(char *);
-	for (int i = 0; i < n; ++i) {
-	    // remember both capitalized and lowercase versions (eg Policy)
-	    tmp[Policy::typeName[i]] = (Policy::ValueType) i;
-	    string lowered(Policy::typeName[i]);
-	    transform(lowered.begin(), lowered.end(), lowered.begin(), ::tolower);
-	    tmp[lowered] = (Policy::ValueType) i;
-	}
-	// a few extras
-	tmp["file"] = Policy::FILE;
-	tmp["boolean"] = Policy::BOOL;
-	tmp["integer"] = Policy::INT;
-	tmp["undef"] = Policy::UNDEF;
-	// assign after initializationto avoid concurrency problems
-	nameTypeMap = tmp;
+        map<string, Policy::ValueType> tmp;
+        int n = sizeof(Policy::typeName) / sizeof(char *);
+        for (int i = 0; i < n; ++i) {
+            // remember both capitalized and lowercase versions (eg Policy)
+            tmp[Policy::typeName[i]] = (Policy::ValueType) i;
+            string lowered(Policy::typeName[i]);
+            transform(lowered.begin(), lowered.end(), lowered.begin(), ::tolower);
+            tmp[lowered] = (Policy::ValueType) i;
+        }
+        // a few extras
+        tmp["file"] = Policy::FILE;
+        tmp["boolean"] = Policy::BOOL;
+        tmp["integer"] = Policy::INT;
+        tmp["undef"] = Policy::UNDEF;
+        // assign after initializationto avoid concurrency problems
+        nameTypeMap = tmp;
 
-	if (tmp.count(name) == 1) return tmp[name];
+        if (tmp.count(name) == 1) return tmp[name];
     }
     else
-	if (nameTypeMap.count(name) == 1) return nameTypeMap[name];
+        if (nameTypeMap.count(name) == 1) return nameTypeMap[name];
     
     throw LSST_EXCEPT(BadNameError, name);
 }
@@ -276,13 +276,13 @@ Policy::ValueType Policy::getTypeByName(const string& name) {
 int Policy::_names(vector<string>& names, 
                    bool topLevelOnly, bool append, int want) const
 {
-    bool check = true;
+    bool shouldCheck = true;
     vector<string> src;
     int have = 0, count = 0;
     if (want == 1) {
         src = _data->propertySetNames(topLevelOnly);
         have = 1;
-        check = false;
+        shouldCheck = false;
     }
     else if (want == 7) 
         src = _data->names(topLevelOnly);
@@ -293,7 +293,7 @@ int Policy::_names(vector<string>& names,
 
     StringArray::iterator i;
     for(i = src.begin(); i != src.end(); ++i) {
-        if (check) {
+        if (shouldCheck) {
             if (isPolicy(*i)) 
                 have = 1;
             else if (isFile(*i)) 
@@ -327,13 +327,13 @@ int Policy::_names(vector<string>& names,
 int Policy::_names(list<string>& names, 
                    bool topLevelOnly, bool append, int want) const
 {
-    bool check = true;
+    bool shouldCheck = true;
     vector<string> src;
     int have = 0, count = 0;
     if (want == 1) {
         src = _data->propertySetNames(topLevelOnly);
         have = 1;
-        check = false;
+        shouldCheck = false;
     }
     else if (want == 7) 
         src = _data->names(topLevelOnly);
@@ -344,7 +344,7 @@ int Policy::_names(list<string>& names,
 
     StringArray::iterator i;
     for(i = src.begin(); i != src.end(); ++i) {
-        if (check) {
+        if (shouldCheck) {
             if (isPolicy(*i)) 
                 have = 1;
             else if (isFile(*i)) 
@@ -363,14 +363,14 @@ int Policy::_names(list<string>& names,
 
 template <class T> void Policy::_validate(const std::string& name, const T& value, int curCount) {
     if (_dictionary) {
-	try {
-	    scoped_ptr<Definition> def(_dictionary->makeDef(name));
-	    def->validateBasic(name, value, curCount);
-	} catch(NameNotFound& e) {
-	    ValidationError ve(LSST_EXCEPT_HERE);
-	    ve.addError(name, ValidationError::UNKNOWN_NAME);
-	    throw ve;
-	}
+        try {
+            scoped_ptr<Definition> def(_dictionary->makeDef(name));
+            def->validateBasic(name, value, curCount);
+        } catch(NameNotFound& e) {
+            ValidationError ve(LSST_EXCEPT_HERE);
+            ve.addError(name, ValidationError::UNKNOWN_NAME);
+            throw ve;
+        }
     }
 }
 
@@ -407,8 +407,8 @@ Policy::ValueType Policy::getValueType(const string& name) const {
         }
         else {
             throw LSST_EXCEPT
-		(pexExcept::LogicErrorException,
-		 string("Policy: illegal type held by PropertySet: ") + tp.name());
+                (pexExcept::LogicErrorException,
+                 string("Policy: illegal type held by PropertySet: ") + tp.name());
         }
     } catch (pexExcept::NotFoundException&) {
         return UNDEF;
@@ -586,8 +586,8 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             PolicyFile pf(path.file_string());
 
             try {
-		// increment even if fail, since we will remove the file record
-		++result;
+                // increment even if fail, since we will remove the file record
+                ++result;
                 pf.load(*policy);
             }
             catch (pexExcept::IoErrorException& e) {
@@ -607,9 +607,9 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
             pols.push_back(policy);
         }
 
-	remove(*it);
-	for (PolicyPtrArray::iterator pi = pols.begin(); pi != pols.end(); ++pi)
-	    add(*it, *pi);
+        remove(*it);
+        for (PolicyPtrArray::iterator pi = pols.begin(); pi != pols.end(); ++pi)
+            add(*it, *pi);
     }
 
     // Now iterate again to recurse into sub-Policy values
@@ -650,7 +650,7 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
  * @return int        the number of parameter names copied over
  */
 int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation, 
-			  ValidationError *errs) 
+                          ValidationError *errs) 
 {
     int added = 0;
 
@@ -658,7 +658,7 @@ int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation,
     auto_ptr<Policy> pol(0);
     const Policy *def = &defaultPol;
     if (def->isDictionary()) {
-	// extract default values from dictionary
+        // extract default values from dictionary
         pol.reset(new Policy(false, Dictionary(*def)));
         def = pol.get();
     }
@@ -701,9 +701,9 @@ int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation,
             }
             else {
                 // should not happen
-		throw LSST_EXCEPT(pexExcept::LogicErrorException,
-				  string("Unknown type for \"") + *nm 
-				  + "\": \"" + getTypeName(*nm) + "\"");
+                throw LSST_EXCEPT(pexExcept::LogicErrorException,
+                                  string("Unknown type for \"") + *nm 
+                                  + "\": \"" + getTypeName(*nm) + "\"");
                 // added--;
             }
             added++;
@@ -712,9 +712,9 @@ int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation,
 
     // if defaultPol is a dictionary, validate after all defaults are added
     if (defaultPol.isDictionary()) {
-	Dictionary d(defaultPol);
-	if (keepForValidation) setDictionary(d);
-	d.validate(*this, errs);
+        Dictionary d(defaultPol);
+        if (keepForValidation) setDictionary(d);
+        d.validate(*this, errs);
     }
 
     return added;
@@ -784,7 +784,7 @@ string Policy::str(const string& name, const string& indent) const {
         }
         else {
             throw LSST_EXCEPT(pexExcept::LogicErrorException,
-			      "Policy: unexpected type held by any");
+                              "Policy: unexpected type held by any");
         }
     }
     catch (NameNotFound&) {

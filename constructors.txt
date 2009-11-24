@@ -1,0 +1,229 @@
+=== !DefaultPolicyFile() ===
+
+''Should we change the signature to take a dictionary as well?''
+
+`find . "(" -name "*.h" -o -name "*.py" -o -name "*.cpp" -o -name "*.cc" ")" -wholename "*trunk*" -print | xargs grep -Hn "DefaultPolicyFile" | grep -v "policyLib.py" | grep -v "policyLib_wrap.cc" | grep -v "pex/policy/trunk"`
+
+|| '''file''' || '''#''' || '''line''' ||
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py#L117 ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py] || 117 || mpf = pexPolicy.DefaultPolicyFile("ctrl_dc3pipe",
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py#L51 ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py] || 51 || mpf = pexPolicy.DefaultPolicyFile("ctrl_dc3pipe",
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py#L118 ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py] || 118 || mpf = pexPolicy.DefaultPolicyFile("ctrl_dc3pipe", 
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py#L117 ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py] || 117 || mpf = pexPolicy.DefaultPolicyFile("ctrl_dc3pipe",
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfile.py#L51 ctrl/mospipe/trunk/bin/eventFromFitsfile.py] || 51 || mpf = pexPolicy.DefaultPolicyFile("ctrl_mospipe",
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfileList.py#L118 ctrl/mospipe/trunk/bin/eventFromFitsfileList.py] || 118 || mpf = pexPolicy.DefaultPolicyFile("ctrl_dc3pipe", 
+|| [source:/DMS/mops/nightmops/trunk/tests/testMopsStage.py#L828 mops/nightmops/trunk/tests/testMopsStage.py] || 828 || file = pexPolicy.DefaultPolicyFile("mops",
+|| [source:/DMS/pex/harness/trunk/examples/simpleStageTest.py#L24 pex/harness/trunk/examples/simpleStageTest.py] || 24 || file = pexPolicy.DefaultPolicyFile("pex_harness",
+|| [source:/DMS/pex/harness/trunk/examples/simpleStageTest.py#L31 pex/harness/trunk/examples/simpleStageTest.py] || 31 || file = pexPolicy.DefaultPolicyFile("pex_harness",
+|| [source:/DMS/pex/harness/trunk/examples/simpleStageTest.py#L85 pex/harness/trunk/examples/simpleStageTest.py] || 85 || file = pexPolicy.DefaultPolicyFile("pex_harness",   # package name
+
+=== class !PolicyConfigured ===
+
+''Interface that is apparently not used (?)''
+
+=== !PolicyFile() ===
+
+`find . "(" -name "*.h" -o -name "*.py" -o -name "*.cpp" -o -name "*.cc" ")" -wholename "*trunk*" -print | xargs grep -H "PolicyFile(" | grep -v "DefaultPolicyFile(" | grep -v "pex/policy/trunk"`
+
+|| '''file''' || '''#''' || '''line''' ||
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py#L89 ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py] || 89 || self._realRecordPolicyFile(self.db, policyFile, md5)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py#L90 ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py] || 90 || self._realRecordPolicyFile(self.globalDb, policyFile, md5)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py#L104 ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py] || 104 || def _realRecordPolicyFile(self, db, file, md5):
+|| [source:/DMS/ip/diffim/trunk/tests/StageTest.py#L39 ip/diffim/trunk/tests/StageTest.py] || 39 || diffimPolicyFile = pexPolicy.PolicyFile(path)
+|| [source:/DMS/meas/pipeline/trunk/tests/DetectTest.py#L44 meas/pipeline/trunk/tests/DetectTest.py] || 44 || policyFile = policy.PolicyFile(policyPath)
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L43 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 43 || policyFile = policy.PolicyFile(policyPath)
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L47 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 47 || policyFile = policy.PolicyFile(policyPath)
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L51 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 51 || policyFile = policy.PolicyFile(policyPath)
+
+=== Policy::createPolicy ===
+
+`find . "(" -name "*.h" -o -name "*.py" -o -name "*.cpp" -o -name "*.cc" ")" -wholename "*trunk*" -print | xargs grep -H "createPolicy" | grep -v "pex/policy/trunk" | grep -v "^\/\/"`
+
+|| '''file''' || '''#''' || '''line''' ||
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/launchDC3a.py#L105 ctrl/dc3pipe/trunk/bin/launchDC3a.py] || 105 || policy = Policy.createPolicy(policyFile, opts.repos)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/killPipeline.py#L67 ctrl/dc3pipe/trunk/bin/killPipeline.py] || 67 || policy = Policy.createPolicy(cl.opts.prodpol, False)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/killPipeline.py#L80 ctrl/dc3pipe/trunk/bin/killPipeline.py] || 80 || policy = Policy.createPolicy(cl.opts.platpol)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py#L119 ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py] || 119 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py#L203 ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py] || 203 || datatypePolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py#L213 ctrl/dc3pipe/trunk/bin/eventGeneratorForCFHT.py] || 213 || metadataPolicy = pexPolicy.Policy.createPolicy(metadataPolicy)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py#L54 ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py] || 54 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py#L57 ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py] || 57 || metadataPolicy = pexPolicy.Policy.createPolicy(mdPolicyFileName)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py#L59 ctrl/dc3pipe/trunk/bin/eventFromFitsfile.py] || 59 || dataPolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py#L120 ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py] || 120 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py#L191 ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py] || 191 || datatypePolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py#L201 ctrl/dc3pipe/trunk/bin/eventFromFitsfileList.py] || 201 || metadataPolicy = pexPolicy.Policy.createPolicy(metadataPolicy)
+|| [source:/DMS/ctrl/events/trunk/examples/receive_3.py#L7 ctrl/events/trunk/examples/receive_3.py] || 7 || p = policy.Policy.createPolicy("policies/activemq_policy.paf", 1)
+|| [source:/DMS/ctrl/events/trunk/examples/transmit_3.py#L6 ctrl/events/trunk/examples/transmit_3.py] || 6 || p = policy.Policy.createPolicy("policies/activemq_policy.paf", 1)
+|| [source:/DMS/ctrl/events/trunk/examples/receive_4.py#L7 ctrl/events/trunk/examples/receive_4.py] || 7 || p = policy.Policy.createPolicy("policies/localsockets_policy.paf", 1)
+|| [source:/DMS/ctrl/events/trunk/examples/transmit_4.py#L6 ctrl/events/trunk/examples/transmit_4.py] || 6 || p = policy.Policy.createPolicy("policies/localsockets_policy.paf", 1)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/launchMospipe.py#L105 ctrl/mospipe/trunk/bin/launchMospipe.py] || 105 || policy = Policy.createPolicy(policyFile, opts.repos)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/killPipeline.py#L67 ctrl/mospipe/trunk/bin/killPipeline.py] || 67 || policy = Policy.createPolicy(cl.opts.prodpol, False)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/killPipeline.py#L80 ctrl/mospipe/trunk/bin/killPipeline.py] || 80 || policy = Policy.createPolicy(cl.opts.platpol)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py#L119 ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py] || 119 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py#L203 ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py] || 203 || datatypePolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py#L213 ctrl/mospipe/trunk/bin/eventGeneratorForCFHT.py] || 213 || metadataPolicy = pexPolicy.Policy.createPolicy(metadataPolicy)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfile.py#L54 ctrl/mospipe/trunk/bin/eventFromFitsfile.py] || 54 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfile.py#L57 ctrl/mospipe/trunk/bin/eventFromFitsfile.py] || 57 || metadataPolicy = pexPolicy.Policy.createPolicy(mdPolicyFileName)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfile.py#L59 ctrl/mospipe/trunk/bin/eventFromFitsfile.py] || 59 || dataPolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfileList.py#L120 ctrl/mospipe/trunk/bin/eventFromFitsfileList.py] || 120 || metadataPolicy = pexPolicy.Policy.createPolicy(mpf,
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfileList.py#L191 ctrl/mospipe/trunk/bin/eventFromFitsfileList.py] || 191 || datatypePolicy = pexPolicy.Policy.createPolicy(cl.args[1])
+|| [source:/DMS/ctrl/mospipe/trunk/bin/eventFromFitsfileList.py#L201 ctrl/mospipe/trunk/bin/eventFromFitsfileList.py] || 201 || metadataPolicy = pexPolicy.Policy.createPolicy(metadataPolicy)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/AbePipelineManager.py#L156 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/AbePipelineManager.py] || 156 || newPolicy = pol.Policy.createPolicy(polfile, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/AbePipelineManager.py#L196 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/AbePipelineManager.py] || 196 || newPolicyObj = pol.Policy.createPolicy(newPolicyFile, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/SimplePipelineManager.py#L101 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/SimplePipelineManager.py] || 101 ||  newPolicy = pol.Policy.createPolicy(polfile, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/SimplePipelineManager.py#L134 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/SimplePipelineManager.py] || 134 ||  newPolicyObj = pol.Policy.createPolicy(newPolicyFile, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/PipelineManager.py#L162 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/PipelineManager.py] || 162 || newPolicy = pol.Policy.createPolicy(filename, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/PipelineManager.py#L175 ctrl/orca/trunk/python/lsst/ctrl/orca/pipelines/PipelineManager.py] || 175 || newPolicy = pol.Policy.createPolicy(filename, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/dbservers/DatabaseConfigurator.py#L136 ctrl/orca/trunk/python/lsst/ctrl/orca/dbservers/DatabaseConfigurator.py] || 136 ||   dbPolicyCredentials = Policy.createPolicy(dbPolicyCredentialsFile)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py#L92 ctrl/orca/trunk/python/lsst/ctrl/orca/provenance/Provenance.py] || 92 || p = Policy.createPolicy(policyFile, False)
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/ProductionRunManager.py#L66 ctrl/orca/trunk/python/lsst/ctrl/orca/ProductionRunManager.py] || 66 || self.policy = Policy.createPolicy(fullPolicyFilePath, False)
+|| [source:/DMS/ctrl/dc2pipe/trunk/bin/launchDC2.py#L96 ctrl/dc2pipe/trunk/bin/launchDC2.py] || 96 || pol = Policy.createPolicy(policyFile)
+|| [source:/DMS/ctrl/dc2pipe/trunk/bin/killPipeline.py#L57 ctrl/dc2pipe/trunk/bin/killPipeline.py] || 57 || policy = Policy.createPolicy(cl.opts.policy)
+|| [source:/DMS/coadd/chisquared/trunk/examples/makeCoadd.py#L88 coadd/chisquared/trunk/examples/makeCoadd.py] || 88 || makeCoaddPolicy = pexPolicy.Policy.createPolicy(makeCoaddPolicyPath)
+|| [source:/DMS/coadd/psfmatched/trunk/examples/makeCoadd.py#L88 coadd/psfmatched/trunk/examples/makeCoadd.py] || 88 || makeCoaddPolicy = pexPolicy.Policy.createPolicy(makeCoaddPolicyPath)
+|| [source:/DMS/coadd/kaiser/trunk/examples/makeBlurredCoadd.py#L123 coadd/kaiser/trunk/examples/makeBlurredCoadd.py] || 123 || makeBlurredCoaddPolicy = pexPolicy.Policy.createPolicy(makeBlurredCoaddPolicyPath)
+|| [source:/DMS/ip/diffim/trunk/examples/evaluateDC3a.py#L31 ip/diffim/trunk/examples/evaluateDC3a.py] || 31 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/examples/testSizes.py#L142 ip/diffim/trunk/examples/testSizes.py] || 142 || policy              = Policy.createPolicy(policyPath)
+|| [source:/DMS/ip/diffim/trunk/examples/subtractExposure.py#L71 ip/diffim/trunk/examples/subtractExposure.py] || 71 || policy           = Policy.createPolicy(policyPath)
+|| [source:/DMS/ip/diffim/trunk/examples/testSizes3.py#L35 ip/diffim/trunk/examples/testSizes3.py] || 35 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/examples/testSizes2.py#L33 ip/diffim/trunk/examples/testSizes2.py] || 33 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/examples/subtractMaskedImage.py#L147 ip/diffim/trunk/examples/subtractMaskedImage.py] || 147 || policy              = Policy.createPolicy(policyPath)
+|| [source:/DMS/ip/diffim/trunk/tests/FindSetBits.py#L25 ip/diffim/trunk/tests/FindSetBits.py] || 25 || self.policy = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/ConvolveAndSubtract.py#L31 ip/diffim/trunk/tests/ConvolveAndSubtract.py] || 31 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/PsfMatchingFunctor4.py#L35 ip/diffim/trunk/tests/PsfMatchingFunctor4.py] || 35 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/PsfMatchingFunctor3.py#L33 ip/diffim/trunk/tests/PsfMatchingFunctor3.py] || 33 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/GenerateBasisKernels.py#L25 ip/diffim/trunk/tests/GenerateBasisKernels.py] || 25 || self.policy = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/PsfMatchingFunctor2.py#L33 ip/diffim/trunk/tests/PsfMatchingFunctor2.py] || 33 || self.policy    = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/TestPythonCode.py#L33 ip/diffim/trunk/tests/TestPythonCode.py] || 33 || policy = lsst.pex.policy.Policy.createPolicy(policyPath)
+|| [source:/DMS/ip/diffim/trunk/tests/PsfMatchingFunctor.py#L28 ip/diffim/trunk/tests/PsfMatchingFunctor.py] || 28 || self.policy    = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/SpatialModel.py#L37 ip/diffim/trunk/tests/SpatialModel.py] || 37 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/ImageStatistics.py#L27 ip/diffim/trunk/tests/ImageStatistics.py] || 27 || self.policy = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/FindCounts.py#L25 ip/diffim/trunk/tests/FindCounts.py] || 25 || self.policy = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/diffim/trunk/tests/PsfMatchingFunctor5.py#L36 ip/diffim/trunk/tests/PsfMatchingFunctor5.py] || 36 || self.policy      = pexPolicy.Policy.createPolicy(diffimPolicy)
+|| [source:/DMS/ip/isr/trunk/python/lsst/ip/isr/IsrStages.py#L60 ip/isr/trunk/python/lsst/ip/isr/IsrStages.py] || 60 || linearityPolicy = pexPolicy.Policy.createPolicy(linearizePath)
+|| [source:/DMS/ip/isr/trunk/oldsrc/createChunkExposure.py#L55 ip/isr/trunk/oldsrc/createChunkExposure.py] || 55 || policy = pexPolicy.Policy.createPolicy(policyFile)
+|| [source:/DMS/ip/isr/trunk/oldsrc/createCcdMaskedImage.py#L76 ip/isr/trunk/oldsrc/createCcdMaskedImage.py] || 76 || policy = pexPolicy.Policy.createPolicy(policyFile)   
+|| [source:/DMS/ip/isr/trunk/tests/BiasAndDarkCorrection.py#L36 ip/isr/trunk/tests/BiasAndDarkCorrection.py] || 36 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTestSim.py#L39 ip/isr/trunk/tests/IsrStageTestSim.py] || 39 || dc3MetadataPolicy  = pexPolicy.Policy.createPolicy(dc3MetadataPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTestSim.py#L40 ip/isr/trunk/tests/IsrStageTestSim.py] || 40 || simMetadataPolicy = pexPolicy.Policy.createPolicy(simMetadataPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTestSim.py#L41 ip/isr/trunk/tests/IsrStageTestSim.py] || 41 || simCalibrationPolicy = pexPolicy.Policy.createPolicy(simCalibrationPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTestSim.py#L55 ip/isr/trunk/tests/IsrStageTestSim.py] || 55 || self.policy.add('isrPolicy', pexPolicy.Policy.createPolicy(os.path.join(isrDir, 'pipeline', 'isrPolicy.paf')))
+|| [source:/DMS/ip/isr/trunk/tests/CrRejection.py#L36 ip/isr/trunk/tests/CrRejection.py] || 36 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/Linearization.py#L34 ip/isr/trunk/tests/Linearization.py] || 34 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/TrimAndOverscanCorrection.py#L36 ip/isr/trunk/tests/TrimAndOverscanCorrection.py] || 36 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/FlatAndIlluminationCorrection.py#L36 ip/isr/trunk/tests/FlatAndIlluminationCorrection.py] || 36 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/SaturationCorrection.py#L36 ip/isr/trunk/tests/SaturationCorrection.py] || 36 || self.policy = pexPolicy.Policy.createPolicy(InputIsrPolicy)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L40 ip/isr/trunk/tests/IsrStageTest.py] || 40 || dc3MetadataPolicy  = pexPolicy.Policy.createPolicy(dc3MetadataPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L41 ip/isr/trunk/tests/IsrStageTest.py] || 41 || cfhtMetadataPolicy = pexPolicy.Policy.createPolicy(cfhtMetadataPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L42 ip/isr/trunk/tests/IsrStageTest.py] || 42 || cfhtCalibrationPolicy = pexPolicy.Policy.createPolicy(cfhtCalibrationPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L43 ip/isr/trunk/tests/IsrStageTest.py] || 43 || ampPolicy = pexPolicy.Policy.createPolicy(ampPolicyPath)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L57 ip/isr/trunk/tests/IsrStageTest.py] || 57 || self.policy.add('isrPolicy', pexPolicy.Policy.createPolicy(os.path.join(isrDir, 'pipeline', 'isrPolicy.paf')))
+|| [source:/DMS/detection/trunk/python/lsst/detection/runDetection.py#L53 detection/trunk/python/lsst/detection/runDetection.py] || 53 || policy = lsst.pex.policy.Policy.createPolicy(policyPath)
+|| [source:/DMS/detection/trunk/python/lsst/detection/runDetection2.py#L29 detection/trunk/python/lsst/detection/runDetection2.py] || 29 || policy = lsst.pex.policy.Policy.createPolicy(policyPath)
+|| [source:/DMS/dbserv/trunk/python/lsst/dbserv/policyReader.py#L16 dbserv/trunk/python/lsst/dbserv/policyReader.py] || 16 || self.policyObj = pexPolicy.Policy.createPolicy(fullPath)
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/SimpleStageTester.py#L179 pex/harness/trunk/python/lsst/pex/harness/SimpleStageTester.py] || 179 || policy = pexPolicy.Policy.createPolicy(policy)
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/Slice.py#L93 pex/harness/trunk/python/lsst/pex/harness/Slice.py] || 93 || topPolicy = policy.Policy.createPolicy(self.pipelinePolicyName, False)
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/Slice.py#L98 pex/harness/trunk/python/lsst/pex/harness/Slice.py] || 98 || p = policy.Policy.createPolicy(self.pipelinePolicyName, False)
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/Pipeline.py#L88 pex/harness/trunk/python/lsst/pex/harness/Pipeline.py] || 88 || topPolicy = policy.Policy.createPolicy(self.pipelinePolicyName)
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/Pipeline.py#L93 pex/harness/trunk/python/lsst/pex/harness/Pipeline.py] || 93 || p = policy.Policy.createPolicy(self.pipelinePolicyName)
+|| [source:/DMS/pex/harness/trunk/examples/simpleStageTest.py#L33 pex/harness/trunk/examples/simpleStageTest.py] || 33 || stagePolicy = pexPolicy.Policy.createPolicy(file)
+|| [source:/DMS/pex/harness/trunk/examples/simpleStageTest.py#L89 pex/harness/trunk/examples/simpleStageTest.py] || 89 || defpol = pexPolicy.Policy.createPolicy(file, file.getRepositoryPath())
+|| [source:/DMS/pex/harness/trunk/tests/TestIO.py#L8 pex/harness/trunk/tests/TestIO.py] || 8 || outputPolicy = lsst.pex.policy.Policy.createPolicy("tests/policy/output.policy")
+|| [source:/DMS/pex/harness/trunk/tests/TestIO.py#L9 pex/harness/trunk/tests/TestIO.py] || 9 || inputPolicy = lsst.pex.policy.Policy.createPolicy("tests/policy/input.policy")
+|| [source:/DMS/meas/algorithms/trunk/python/lsst/meas/algorithms/defects.py#L10 meas/algorithms/trunk/python/lsst/meas/algorithms/defects.py] || 10 || badPixelsPolicy = policy.Policy.createPolicy(policyFile)
+|| [source:/DMS/meas/algorithms/trunk/examples/MeasureSources.py#L171 meas/algorithms/trunk/examples/MeasureSources.py] || 171 || crPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/examples/MeasureSources.py#L240 meas/algorithms/trunk/examples/MeasureSources.py] || 240 || moPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/examples/MeasureSources.py#L281 meas/algorithms/trunk/examples/MeasureSources.py] || 281 || moPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/examples/CR.cc#L46 meas/algorithms/trunk/examples/CR.cc] || 46 || pexPolicy::Policy::createPolicy(eups::productDir("meas_algorithms") + "/pipeline/CosmicRays.paf")
+|| [source:/DMS/meas/algorithms/trunk/tests/Measure_1.py#L193 meas/algorithms/trunk/tests/Measure_1.py] || 193 || crPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/tests/Measure_1.py#L243 meas/algorithms/trunk/tests/Measure_1.py] || 243 || moPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/tests/CR.py#L70 meas/algorithms/trunk/tests/CR.py] || 70 || self.policy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/meas/algorithms/trunk/tests/PSFIO.py#L210 meas/algorithms/trunk/tests/PSFIO.py] || 210 || moPolicy = policy.Policy.createPolicy(os.path.join(eups.productDir("meas_algorithms"),
+|| [source:/DMS/cat/trunk/python/lsst/cat/policyReader.py#L16 cat/trunk/python/lsst/cat/policyReader.py] || 16 || self.policyObj = pexPolicy.Policy.createPolicy(fullPath)
+
+=== Policy() constructor ===
+
+`find . "(" -name "*.h" -o -name "*.py" -o -name "*.cpp" -o -name "*.cc" ")" -wholename "*trunk*" -print | xargs grep -Hn " Policy(" | grep -v "pex/policy/trunk"`
+
+|| '''file''' || '''#''' || '''line''' ||
+|| [source:/DMS/ctrl/dc3pipe/trunk/python/lsst/ctrl/dc3pipe/SliceInfoStage.py#L12 ctrl/dc3pipe/trunk/python/lsst/ctrl/dc3pipe/SliceInfoStage.py] || 12 || self.ampBBoxDb = Policy(self._policy.get("ampBBoxDbPath"))
+|| [source:/DMS/ctrl/orca/trunk/python/lsst/ctrl/orca/ProductionRunManager.py#L118 ctrl/orca/trunk/python/lsst/ctrl/orca/ProductionRunManager.py] || 118 || prodoverrides = Policy()
+|| [source:/DMS/ap/trunk/util/dumpObjects.cc#L187 ap/trunk/util/dumpObjects.cc] || 187 || Policy::Ptr policy(new Policy(policyFileName));
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L125 ap/trunk/tests/PipelineTest.py] || 125 || self.policies = [ Policy(os.path.join(policyDir,'LoadStage.paf')),
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L126 ap/trunk/tests/PipelineTest.py] || 126 || Policy(os.path.join(policyDir,'MatchDiaSourcesStageInput.paf')),
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L128 ap/trunk/tests/PipelineTest.py] || 128 || Policy(os.path.join(policyDir,'MatchDiaSourcesStageOutput.paf')),
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L129 ap/trunk/tests/PipelineTest.py] || 129 || Policy(os.path.join(policyDir,'MatchMopsPredsStageInput.paf')),
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L131 ap/trunk/tests/PipelineTest.py] || 131 || Policy(os.path.join(policyDir,'MatchMopsPredsStageOutput.paf')),
+|| [source:/DMS/ap/trunk/tests/PipelineTest.py#L132 ap/trunk/tests/PipelineTest.py] || 132 || Policy(os.path.join(policyDir,'StoreStage.paf')) ]
+|| [source:/DMS/ip/isr/trunk/python/lsst/ip/isr/cfht.py#L51 ip/isr/trunk/python/lsst/ip/isr/cfht.py] || 51 || ampBBoxDb = Policy(ampPolicy)
+|| [source:/DMS/daf/persistence/trunk/tests/DbAuth.py#L14 daf/persistence/trunk/tests/DbAuth.py] || 14 || pol = Policy("tests/testDbAuth.paf")
+|| [source:/DMS/pex/harness/trunk/tests/testEventStage.py#L16 pex/harness/trunk/tests/testEventStage.py] || 16 || stage = EventStage(0, Policy())
+|| [source:/DMS/pex/harness/trunk/tests/testEventStage.py#L30 pex/harness/trunk/tests/testEventStage.py] || 30 || pol = Policy()
+|| [source:/DMS/pex/harness/trunk/tests/testEventStage.py#L38 pex/harness/trunk/tests/testEventStage.py] || 38 || pol = Policy()
+|| [source:/DMS/pex/harness/trunk/tests/testEventStage.py#L45 pex/harness/trunk/tests/testEventStage.py] || 45 || pol = Policy()
+|| [source:/DMS/meas/pipeline/trunk/python/lsst/meas/pipeline/SourceClassificationStage.py#L67 meas/pipeline/trunk/python/lsst/meas/pipeline/SourceClassificationStage.py] || 67 || subpolicy = policy.getPolicy("parameter") if policy.exists("parameter") else Policy()
+
+`find . "(" -name "*.h" -o -name "*.py" -o -name "*.cpp" -o -name "*.cc" ")" -wholename "*trunk*" -print | xargs grep -Hn "\.Policy(" | grep -v "pex/policy/trunk"`
+
+|| '''file''' || '''#''' || '''line''' ||
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/run_dc3_pipelines.py#L242 ctrl/dc3pipe/trunk/bin/run_dc3_pipelines.py] || 242 || master_paf = policy.Policy(file_name)
+|| [source:/DMS/ctrl/dc3pipe/trunk/bin/run_dc3_pipelines.py#L273 ctrl/dc3pipe/trunk/bin/run_dc3_pipelines.py] || 273 || master_paf = policy.Policy(file_name)
+|| [source:/DMS/ctrl/events/trunk/tests/EventSystem_3.py#L16 ctrl/events/trunk/tests/EventSystem_3.py] || 16 || p = policy.Policy()
+|| [source:/DMS/ctrl/events/trunk/tests/Events_4.py#L29 ctrl/events/trunk/tests/Events_4.py] || 29 || p = policy.Policy()
+|| [source:/DMS/ctrl/mospipe/trunk/bin/run_dc3_pipelines.py#L242 ctrl/mospipe/trunk/bin/run_dc3_pipelines.py] || 242 || master_paf = policy.Policy(file_name)
+|| [source:/DMS/ctrl/mospipe/trunk/bin/run_dc3_pipelines.py#L273 ctrl/mospipe/trunk/bin/run_dc3_pipelines.py] || 273 || master_paf = policy.Policy(file_name)
+|| [source:/DMS/ctrl/orca/trunk/tests/Provenance_1.py#L95 ctrl/orca/trunk/tests/Provenance_1.py] || 95 || pol = pexPolicy.Policy(p)
+|| [source:/DMS/ap/trunk/tests/ResultsTest.py#L102 ap/trunk/tests/ResultsTest.py] || 102 || pol  = policy.Policy()
+|| [source:/DMS/ap/trunk/tests/ResultsTest.py#L163 ap/trunk/tests/ResultsTest.py] || 163 || pol  = policy.Policy()
+|| [source:/DMS/afw/trunk/tests/Source_2.py#L121 afw/trunk/tests/Source_2.py] || 121 || pol  = dafPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L56 afw/trunk/tests/KernelIO_1.py] || 56 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L95 afw/trunk/tests/KernelIO_1.py] || 95 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L140 afw/trunk/tests/KernelIO_1.py] || 140 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L181 afw/trunk/tests/KernelIO_1.py] || 181 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L232 afw/trunk/tests/KernelIO_1.py] || 232 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L282 afw/trunk/tests/KernelIO_1.py] || 282 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/KernelIO_1.py#L352 afw/trunk/tests/KernelIO_1.py] || 352 || pol = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/MaskedImagePersistence_1.py#L34 afw/trunk/tests/MaskedImagePersistence_1.py] || 34 || policy = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/Source_1.py#L122 afw/trunk/tests/Source_1.py] || 122 || pol  = dafPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/ImagePersistence_1.py#L43 afw/trunk/tests/ImagePersistence_1.py] || 43 || policy = pexPolicy.Policy()
+|| [source:/DMS/afw/trunk/tests/Random_1.py#L63 afw/trunk/tests/Random_1.py] || 63 || pol = pexPolicy.Policy()
+|| [source:/DMS/coadd/kaiser/trunk/examples/makeBlurredCoadd.py#L71 coadd/kaiser/trunk/examples/makeBlurredCoadd.py] || 71 || pol = pexPolicy.Policy()
+|| [source:/DMS/sdqa/trunk/tests/SdqaRatingFormatter_1.py#L214 sdqa/trunk/tests/SdqaRatingFormatter_1.py] || 214 || pers = dafPers.Persistence.getPersistence(dafPolicy.Policy())
+|| [source:/DMS/ip/diffim/trunk/tests/StageTest.py#L30 ip/diffim/trunk/tests/StageTest.py] || 30 || self.policy = pexPolicy.Policy()
+|| [source:/DMS/ip/diffim/trunk/tests/StageTest.py#L41 ip/diffim/trunk/tests/StageTest.py] || 41 || diffimPolicy = pexPolicy.Policy(diffimPolicyFile)
+|| [source:/DMS/ip/isr/trunk/python/lsst/ip/isr/calibDatabase.py#L332 ip/isr/trunk/python/lsst/ip/isr/calibDatabase.py] || 332 || self.calibPolicy = pexPolicy.Policy(self.calibDatabasePaf)
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTestSim.py#L48 ip/isr/trunk/tests/IsrStageTestSim.py] || 48 || self.policy = pexPolicy.Policy()
+|| [source:/DMS/ip/isr/trunk/tests/Linearization.py#L41 ip/isr/trunk/tests/Linearization.py] || 41 || lookupPolicy = pexPolicy.Policy()
+|| [source:/DMS/ip/isr/trunk/tests/Linearization.py#L81 ip/isr/trunk/tests/Linearization.py] || 81 || lookupPolicy = pexPolicy.Policy()
+|| [source:/DMS/ip/isr/trunk/tests/IsrStageTest.py#L50 ip/isr/trunk/tests/IsrStageTest.py] || 50 || self.policy = pexPolicy.Policy()
+|| [source:/DMS/mops/nightmops/trunk/tests/MovingObjectPrediction_1.py#L107 mops/nightmops/trunk/tests/MovingObjectPrediction_1.py] || 107 || pol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_2.py#L18 daf/persistence/trunk/tests/Persistence_2.py] || 18 || pol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_2.py#L46 daf/persistence/trunk/tests/Persistence_2.py] || 46 || pol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_2.py#L47 daf/persistence/trunk/tests/Persistence_2.py] || 47 || itemPol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_2.py#L77 daf/persistence/trunk/tests/Persistence_2.py] || 77 || pol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_2.py#L78 daf/persistence/trunk/tests/Persistence_2.py] || 78 || itemPol = pexPolicy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/DbStorage_1.py#L17 daf/persistence/trunk/tests/DbStorage_1.py] || 17 || policy = lsst.pex.policy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/Persistence_1.py#L8 daf/persistence/trunk/tests/Persistence_1.py] || 8 || pol = lsst.pex.policy.Policy()
+|| [source:/DMS/daf/persistence/trunk/tests/DbStorage_2.py#L17 daf/persistence/trunk/tests/DbStorage_2.py] || 17 || policy = lsst.pex.policy.Policy()
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/IOStage.py#L100 pex/harness/trunk/python/lsst/pex/harness/IOStage.py] || 100 || persistencePolicy = lsst.pex.policy.Policy( \
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/IOStage.py#L103 pex/harness/trunk/python/lsst/pex/harness/IOStage.py] || 103 || persistencePolicy = lsst.pex.policy.Policy()
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/IOStage.py#L237 pex/harness/trunk/python/lsst/pex/harness/IOStage.py] || 237 || persistencePolicy = lsst.pex.policy.Policy( \
+|| [source:/DMS/pex/harness/trunk/python/lsst/pex/harness/IOStage.py#L240 pex/harness/trunk/python/lsst/pex/harness/IOStage.py] || 240 || persistencePolicy = lsst.pex.policy.Policy()
+|| [source:/DMS/meas/pipeline/trunk/tests/DetectTest.py#L45 meas/pipeline/trunk/tests/DetectTest.py] || 45 || stagePolicy = policy.Policy(policyFile)
+|| [source:/DMS/meas/pipeline/trunk/tests/AddDetectTest.py#L29 meas/pipeline/trunk/tests/AddDetectTest.py] || 29 || self.policy1 = policy.Policy("tests/AddDetectTest1.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/AddDetectTest.py#L31 meas/pipeline/trunk/tests/AddDetectTest.py] || 31 || self.policy2 = policy.Policy("tests/AddDetectTest2.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L44 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 44 || detectPolicy = policy.Policy(policyFile)
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L48 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 48 || measurePolicy = policy.Policy(policyFile)
+|| [source:/DMS/meas/pipeline/trunk/tests/PsfDeterminationTest.py#L52 meas/pipeline/trunk/tests/PsfDeterminationTest.py] || 52 || psfPolicy = policy.Policy(policyFile)
+|| [source:/DMS/meas/pipeline/trunk/tests/SourceClassificationStageTest.py#L16 meas/pipeline/trunk/tests/SourceClassificationStageTest.py] || 16 || self._policy = policy.Policy(os.path.join(os.environ["MEAS_PIPELINE_DIR"],
+|| [source:/DMS/meas/pipeline/trunk/tests/MeasureTest.py#L30 meas/pipeline/trunk/tests/MeasureTest.py] || 30 || detectPolicy1 = policy.Policy("tests/MeasureTestDetect.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/MeasureTest.py#L31 meas/pipeline/trunk/tests/MeasureTest.py] || 31 || detectPolicy2 = policy.Policy("tests/AddDetectTest2.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/MeasureTest.py#L32 meas/pipeline/trunk/tests/MeasureTest.py] || 32 || measPolicy1 = policy.Policy("tests/MeasureTest1.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/MeasureTest.py#L33 meas/pipeline/trunk/tests/MeasureTest.py] || 33 || measPolicy2 = policy.Policy("tests/MeasureTest2.paf")
+|| [source:/DMS/meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py#L30 meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py] || 30 || dataPolicy1 = policy.Policy()
+|| [source:/DMS/meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py#L33 meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py] || 33 || dataPolicy2 = policy.Policy()
+|| [source:/DMS/meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py#L36 meas/pipeline/trunk/tests/SourceToDiaSourceStageTest.py] || 36 || stagePolicy = policy.Policy()
+|| [source:/DMS/meas/algorithms/trunk/python/lsst/meas/algorithms/Psf.py#L91 meas/algorithms/trunk/python/lsst/meas/algorithms/Psf.py] || 91 || psfImagePolicy = policy.Policy()
+|| [source:/DMS/meas/algorithms/trunk/tests/Measure_1.py#L114 meas/algorithms/trunk/tests/Measure_1.py] || 114 || moPolicy = policy.Policy()
+|| [source:/DMS/meas/algorithms/trunk/tests/PSFIO.py#L45 meas/algorithms/trunk/tests/PSFIO.py] || 45 || pol = policy.Policy()
+|| [source:/DMS/meas/algorithms/trunk/tests/PSF.py#L216 meas/algorithms/trunk/tests/PSF.py] || 216 || moPolicy = policy.Policy()
+|| [source:/DMS/meas/algorithms/trunk/tests/PSF.py#L530 meas/algorithms/trunk/tests/PSF.py] || 530 || moPolicy = policy.Policy()

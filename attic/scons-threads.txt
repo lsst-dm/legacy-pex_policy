@@ -1,0 +1,37 @@
+One thread (default):
+  real	0m40.952s
+  user	0m37.879s
+  sys	0m2.724s
+
+Two threads (-j 2):
+  real	0m22.529s
+  user	0m37.723s
+  sys	0m2.807s
+
+Three threads (-j 3):
+  real	0m18.012s
+  user	0m40.337s
+  sys	0m3.029s
+
+Four threads (-j 4):
+  real	0m18.012s
+  user	0m40.337s
+  sys	0m3.029s
+
+  real	0m17.224s
+  user	0m40.116s
+  sys	0m2.933s
+
+  real	0m17.187s
+  user	0m40.105s
+  sys	0m3.009s
+
+Six threads (-j 8):
+  real	0m16.744s
+  user	0m48.754s
+  sys	0m3.524s
+
+Eight threads (-j 8):
+  real	0m17.076s
+  user	0m54.900s
+  sys	0m3.777s

@@ -1,0 +1,19 @@
+target: lsst.meas.pipeline.BackgroundEstimationStage
+
+definitions: {
+    #input clipboard keys
+    inputKeys: {
+        type: "policy"
+        dictionary: {
+            definitions: {
+                exposure: {
+                    type: "string"
+                    description: "specify the clipboard key of the exposure to detect on."
+                    maxOccurs: 1
+                    default: "calibratedExposure"
+                }
+            }
+        }
+        maxOccurs: 1
+    }
+}

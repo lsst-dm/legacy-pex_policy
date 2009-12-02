@@ -101,6 +101,10 @@ class PolicyTestCase(unittest.TestCase):
         p = None
         self.assertEquals(pp.getString("transmitter.serializationFormat"), "deluxe")
 
+    def testSetNothing(self):
+        p = Policy()
+        p.set("foo", None)
+        self.assertEquals(p.get("foo"), None)
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

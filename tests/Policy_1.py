@@ -103,8 +103,11 @@ class PolicyTestCase(unittest.TestCase):
 
     def testSetNothing(self):
         p = Policy()
-        p.set("foo", None)
-        self.assertEquals(p.get("foo"), None)
+        try:
+            p.set("foo", None)
+            self.assert_(False, "Setting value to None succeeded.")
+        except RuntimeError, e:
+            self.assertFalse(p.exists("foo"))
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

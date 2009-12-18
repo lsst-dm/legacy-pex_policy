@@ -655,7 +655,7 @@ public:
      *                    the value type does not match the definition 
      *                    associated with the name. 
      */
-    template <class T> void set(const std::string& name, const T& value);
+    template <typename T> void setValue(const std::string& name, const T& value);
     void set(const std::string& name, const Ptr& value);      // inlined below
     void set(const std::string& name, const FilePtr& value);  // inlined below
     void set(const std::string& name, bool value);            // inlined below
@@ -692,7 +692,7 @@ public:
      *                    associated with the name. 
      */
     // avoid name confusion with appended T
-    template <class T> void addT(const std::string& name, const T& value);
+    template <class T> void addValue(const std::string& name, const T& value);
     void add(const std::string& name, const Ptr& value);      // inlined below
     void add(const std::string& name, const FilePtr& value);  // inlined below
     void add(const std::string& name, bool value);            // inlined below
@@ -1116,10 +1116,10 @@ template <class T> std::vector<T> Policy::getValueArray(const std::string& name)
 template <class T> Policy::ValueType Policy::getValueType() {
     throw LSST_EXCEPT(TypeError, "unknown", "not implemented for this type");
 }
-template <class T> void Policy::set(const std::string& name, const T& value) {
+template <class T> void Policy::setValue(const std::string& name, const T& value) {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
-template <class T> void Policy::addT(const std::string& name, const T& value) {
+template <class T> void Policy::addValue(const std::string& name, const T& value) {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
 

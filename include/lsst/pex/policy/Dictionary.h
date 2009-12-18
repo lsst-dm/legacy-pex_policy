@@ -920,7 +920,7 @@ void Definition::setDefaultIn(Policy& policy, const std::string& withName,
 	    for (typename std::vector<T>::const_iterator i = defs.begin();
 		 i != defs.end();
 		 ++i)
-		policy.addT<T>(withName, *i);
+		policy.addValue<T>(withName, *i);
 	}
     }
 

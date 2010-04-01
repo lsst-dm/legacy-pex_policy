@@ -1,10 +1,8 @@
-#<?cfg paf dictionary ?>
+#<?cfg paf dictionary ?>  
 target: types
 definitions: {
     bool_set_count: {
         type: bool
-        description: "a boolean with both a max allowed 
-                      and a list of permitted values"
         maxOccurs: 1
         allowed: { value: true }
         default: true
@@ -22,12 +20,10 @@ definitions: {
 
     deep: {
         type: Policy
-        description: "a simple sub-policy"
         dictionary: {
             definitions: {
                 sub_double: {
                     type: double
-                    description: "a double with default value 1"
                     default: 1.
                 }
             }
@@ -39,8 +35,8 @@ definitions: {
         dictionaryFile: defaults_dictionary_indirect.paf
     }
 
-    # a value will need to be supplied here
     required: {
         minOccurs: 1
+	default: foo
     }
 }

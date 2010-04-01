@@ -467,30 +467,30 @@ template <> Policy::ValueType Policy::getValueType<Policy::FilePtr>() { return F
 template <> Policy::ValueType Policy::getValueType<Policy::Ptr>() { return POLICY; }
 template <> Policy::ValueType Policy::getValueType<Policy::ConstPtr>() { return POLICY; }
 
-template <> void Policy::set(const string& name, const bool& value) {
+template <> void Policy::setValue(const string& name, const bool& value) {
     set(name, value); }
-template <> void Policy::set(const string& name, const int& value) {
+template <> void Policy::setValue(const string& name, const int& value) {
     set(name, value); }
-template <> void Policy::set(const string& name, const double& value) {
+template <> void Policy::setValue(const string& name, const double& value) {
     set(name, value); }
-template <> void Policy::set(const string& name, const string& value) {
+template <> void Policy::setValue(const string& name, const string& value) {
     set(name, value); }
-template <> void Policy::set(const string& name, const Ptr& value) {
+template <> void Policy::setValue(const string& name, const Ptr& value) {
     set(name, value); }
-template <> void Policy::set(const string& name, const FilePtr& value) {
+template <> void Policy::setValue(const string& name, const FilePtr& value) {
     set(name, value); }
 
-template <> void Policy::addT(const string& name, const bool& value) {
+template <> void Policy::addValue(const string& name, const bool& value) {
     add(name, value); }
-template <> void Policy::addT(const string& name, const int& value) {
+template <> void Policy::addValue(const string& name, const int& value) {
     add(name, value); }
-template <> void Policy::addT(const string& name, const double& value) {
+template <> void Policy::addValue(const string& name, const double& value) {
     add(name, value); }
-template <> void Policy::addT(const string& name, const string& value) {
+template <> void Policy::addValue(const string& name, const string& value) {
     add(name, value); }
-template <> void Policy::addT(const string& name, const Ptr& value) {
+template <> void Policy::addValue(const string& name, const Ptr& value) {
     add(name, value); }
-template <> void Policy::addT(const string& name, const FilePtr& value) {
+template <> void Policy::addValue(const string& name, const FilePtr& value) {
     add(name, value); }
 
 Policy::ConstPolicyPtrArray Policy::getConstPolicyArray(const string& name) const {
@@ -710,12 +710,24 @@ int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation,
         }
     }
 
-    // if defaultPol is a dictionary, validate after all defaults are added
-    if (defaultPol.isDictionary()) {
-        Dictionary d(defaultPol);
-        if (keepForValidation) setDictionary(d);
-        d.validate(*this, errs);
+    // if a dictionary is available, validate after all defaults are added
+    // propagate dictionary?  If so, look for one and use it to validate
+    if (keepForValidation) {
+	if (defaultPol.isDictionary())
+	    setDictionary(Dictionary(defaultPol));
+	else if (defaultPol.canValidate())
+	    setDictionary(*defaultPol.getDictionary());
+	// if we couldn't find a dictionary, don't complain -- the API should
+	// work with default values even if defaultPol is a Policy without an
+	// attached Dictionary
+	if (canValidate())
+	    getDictionary()->validate(*this, errs);
     }
+    // don't keep a dictionary around, but validate anyway only if defaultPol is
+    // a Dictionary (if keepForValidation is false, there is a possibility that
+    // we don't want to use the attached Dictionary for validation)
+    else if (defaultPol.isDictionary())
+	Dictionary(defaultPol).validate(*this, errs);
 
     return added;
 }

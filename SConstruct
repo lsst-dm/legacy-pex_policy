@@ -38,6 +38,9 @@ env['IgnoreFiles'] = r"(~$|\.pyc$|^\.svn$|\.o$)"
 Alias("install", [env.Install(env['prefix'], "python"),
                   env.Install(env['prefix'], "include"),
                   env.Install(env['prefix'], "lib"),
+                  env.Install(env['prefix'], "tests"),
+                  env.Install(env['prefix'], "examples"),
+                  env.Install(env['prefix'], "bin"),
                   env.InstallAs(os.path.join(env['prefix'], "doc", "doxygen"),
                                 os.path.join("doc", "htmlDir")),
                   env.InstallEups(env['prefix'] + "/ups", glob.glob("ups/*.table"))])

@@ -2,7 +2,7 @@
 import unittest
 
 import lsst.utils.tests as tests
-from lsst.pex.policy import Policy
+from lsst.pex.policy import Policy, NameNotFound
 from lsst.pex.exceptions import LsstCppException
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -83,6 +83,23 @@ class PolicyTestCase(unittest.TestCase):
 
         # test shallow & deep copies
 
+        # test raise NameNotFound if not present
+        try:
+            p.get("nonexistent")
+            self.fail() # should never reach here
+        except LsstCppException, e:
+            self.assert_(isinstance(e.args[0], NameNotFound))
+        try:
+            p.getArray("nonexistent")
+            self.fail()
+        except LsstCppException, e:
+            self.assert_(isinstance(e.args[0], NameNotFound))
+        try:
+            p.getDouble("nonexistent")
+            self.fail()
+        except LsstCppException, e:
+            self.assert_(isinstance(e.args[0], NameNotFound))
+
     def testSimpleLoad(self):
 #        n = mwid.Citizen_census(0)
         p = Policy.createPolicy("examples/EventTransmitter_policy.paf")
@@ -101,6 +118,13 @@ class PolicyTestCase(unittest.TestCase):
         p = None
         self.assertEquals(pp.getString("transmitter.serializationFormat"), "deluxe")
 
+    def testSetNothing(self):
+        p = Policy()
+        try:
+            p.set("foo", None)
+            self.assert_(False, "Setting value to None succeeded.")
+        except RuntimeError:
+            self.assertFalse(p.exists("foo"))
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

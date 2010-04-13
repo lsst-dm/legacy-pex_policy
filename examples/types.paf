@@ -1,4 +1,4 @@
-#<?cfg paf dictionary ?>
+#<?cfg paf policy ?>
 #
 # This file demonstrates the variations of parsing different types
 #
@@ -46,6 +46,18 @@ str : 'quoted " words'
 str : "a very long, multi-line 
         description"
 str : "happy" "birthday"
+
+empty: "
+       description
+       "
+empty: " 
+       
+       "
+empty: '
+
+       '
+empty: ' '
+empty: ""
 
 file : @EventTransmitter_policy.paf
 file : @CacheManager_dict.paf

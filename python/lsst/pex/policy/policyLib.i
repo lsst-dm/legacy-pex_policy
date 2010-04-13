@@ -23,6 +23,9 @@ Access to the policy classes from the pex module
 #include "lsst/pex/policy/Dictionary.h"
 #include "lsst/pex/policy/PolicyFile.h"
 #include "lsst/pex/policy/DefaultPolicyFile.h"
+#include "lsst/pex/policy/PolicyString.h"
+#include "lsst/pex/policy/PolicyStreamDestination.h"
+#include "lsst/pex/policy/PolicyStringDestination.h"
 #include "lsst/pex/policy/paf/PAFWriter.h"
 #include <sstream>
 
@@ -43,44 +46,44 @@ namespace boost { namespace filesystem { } }
 %import "lsst/daf/base/baseLib.i"
 %import "lsst/pex/exceptions/exceptionsLib.i"    // for Exceptions
 
-%typemap(out) std::vector<double,std::allocator<double > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<double,std::allocator<double > > {
+    int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        PyList_SetItem($result,i,PyFloat_FromDouble((*$1)[i]));
+        PyList_SetItem($result,i,PyFloat_FromDouble(($1)[i]));
     }
 }
 
-%typemap(out) std::vector<int,std::allocator<int > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<int,std::allocator<int > > {
+    int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        PyList_SetItem($result,i,PyInt_FromLong((*$1)[i]));
+        PyList_SetItem($result,i,PyInt_FromLong(($1)[i]));
     }
 }
 
-%typemap(out) std::vector<boost::shared_ptr<std::string > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<std::string > {
+    int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        PyList_SetItem($result,i,PyString_FromString((*$1)[i]->c_str()));
+        PyList_SetItem($result,i,PyString_FromString(($1)[i].c_str()));
     }
 }
 
-%typemap(out) std::vector<bool,std::allocator<bool > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<bool,std::allocator<bool > > {
+    int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        PyList_SetItem($result,i, ( ((*$1)[i]) ? Py_True : Py_False ) );
+        PyList_SetItem($result,i, ( (($1)[i]) ? Py_True : Py_False ) );
     }
 }
 
-%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::Policy > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::Policy > > {
+    int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
         boost::shared_ptr<lsst::pex::policy::Policy> * smartresult =
-            new boost::shared_ptr<lsst::pex::policy::Policy>((*$1)[i]);
+            new boost::shared_ptr<lsst::pex::policy::Policy>(($1)[i]);
         PyObject * obj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult),
             SWIGTYPE_p_boost__shared_ptrT_lsst__pex__policy__Policy_t,
             SWIG_POINTER_OWN);
@@ -88,12 +91,12 @@ namespace boost { namespace filesystem { } }
     }
 }
 
-%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::PolicyFile > >& {
-    int len = (*$1).size();
+%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::PolicyFile > > {
+    int len = (*(&$1)).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
         boost::shared_ptr<lsst::pex::policy::PolicyFile> * smartresult =
-            new boost::shared_ptr<lsst::pex::policy::PolicyFile>((*$1)[i]);
+            new boost::shared_ptr<lsst::pex::policy::PolicyFile>((*(&$1))[i]);
         PyObject * obj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult),
             SWIGTYPE_p_boost__shared_ptrT_lsst__pex__policy__PolicyFile_t,
             SWIG_POINTER_OWN);
@@ -154,8 +157,13 @@ SWIG_SHARED_PTR(Definition, lsst::pex::policy::Definition)
 SWIG_SHARED_PTR(PolicySource, lsst::pex::policy::PolicySource)
 SWIG_SHARED_PTR_DERIVED(PolicyFile, lsst::pex::policy::PolicySource, lsst::pex::policy::PolicyFile)
 SWIG_SHARED_PTR_DERIVED(DefaultPolicyFile, lsst::pex::policy::PolicyFile, lsst::pex::policy::DefaultPolicyFile)
+SWIG_SHARED_PTR_DERIVED(PolicyString, lsst::pex::policy::PolicySource, lsst::pex::policy::PolicyString)
+SWIG_SHARED_PTR(PolicyDestination, lsst::pex::policy::PolicyDestination)
+SWIG_SHARED_PTR_DERIVED(PolicyStreamDestination, lsst::pex::policy::PolicyDestination, lsst::pex::policy::PolicyStreamDestination)
+SWIG_SHARED_PTR_DERIVED(PolicyStringDestination, lsst::pex::policy::PolicyStreamDestination, lsst::pex::policy::PolicyStringDestination)
 
 %newobject lsst::pex::policy::Policy::createPolicy;
+%newobject lsst::pex::policy::Dictionary::makeDef;
 %feature("notabstract") lsst::pex::policy::paf::PAFWriter;
 
 %ignore lsst::pex::policy::Policy::Policy(const Policy& pol);
@@ -198,6 +206,8 @@ def _Policy_get(p, name):
         return p.getString(name)
     elif (type == p.POLICY):
         return p.getPolicy(name)
+    elif (type == p.FILE):
+        return p.getFile(name)
 
 def _Policy_getArray(p, name):
     type = p.getValueType(name);
@@ -215,6 +225,8 @@ def _Policy_getArray(p, name):
         return p.getStringArray(name)
     elif (type == p.POLICY):
         return p.getPolicyArray(name)
+    elif (type == p.FILE):
+        return p.getFileArray(name)
 
 Policy.get = _Policy_get
 Policy.getArray = _Policy_getArray
@@ -240,7 +252,16 @@ Policy.add = _Policy_add
 %}
 
 %ignore lsst::pex::policy::PolicySource::defaultFormats;
+%ignore lsst::pex::policy::PolicyFile::SPACE_RE;
+%ignore lsst::pex::policy::PolicyFile::COMMENT;
+%ignore lsst::pex::policy::PolicyFile::CONTENTID;
+%ignore lsst::pex::policy::PolicyString::SPACE_RE;
+%ignore lsst::pex::policy::PolicyString::COMMENT;
+%ignore lsst::pex::policy::PolicyString::CONTENTID;
 %include "lsst/pex/policy/PolicySource.h"
 %include "lsst/pex/policy/PolicyFile.h"
 %include "lsst/pex/policy/DefaultPolicyFile.h"
+%include "lsst/pex/policy/PolicyString.h"
+%include "lsst/pex/policy/PolicyStreamDestination.h"
+%include "lsst/pex/policy/PolicyStringDestination.h"
 

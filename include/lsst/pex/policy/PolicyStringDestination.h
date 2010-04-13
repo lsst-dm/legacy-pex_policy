@@ -46,7 +46,11 @@ public:
      * return the data written so far as a string
      */
     std::string getData() {
-        return _sstrm->str();
+        if (_sstrm) {
+            return _sstrm->str();
+        } else {
+            return "";
+        }
     }
 
 private:

@@ -136,7 +136,7 @@ Policy::Policy(bool validate, const Dictionary& dict,
 Policy::Policy(const Policy& pol) 
     : Citizen(typeid(this)), Persistable(), _data() 
 {
-    _data = pol._data->deepCopy();
+    _data = pol._data.get() ? pol._data->deepCopy() : pol._data;
 }
 
 /*
@@ -366,7 +366,7 @@ template <class T> void Policy::_validate(const std::string& name, const T& valu
         try {
             scoped_ptr<Definition> def(_dictionary->makeDef(name));
             def->validateBasic(name, value, curCount);
-        } catch(NameNotFound& e) {
+        } catch(NameNotFound&) {
             ValidationError ve(LSST_EXCEPT_HERE);
             ve.addError(name, ValidationError::UNKNOWN_NAME);
             throw ve;
@@ -492,6 +492,13 @@ template <> void Policy::addValue(const string& name, const Ptr& value) {
     add(name, value); }
 template <> void Policy::addValue(const string& name, const FilePtr& value) {
     add(name, value); }
+
+/*
+ * Explicit instantiations (otherwise only those types whose add() method are called in this file
+ * are instantiated)
+ */
+template void Policy::_validate(const std::string&, std::string const&, int);
+template void Policy::_validate(const std::string&, Policy::Ptr const&, int);
 
 Policy::ConstPolicyPtrArray Policy::getConstPolicyArray(const string& name) const {
     ConstPolicyPtrArray out;

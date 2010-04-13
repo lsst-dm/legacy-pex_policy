@@ -1,5 +1,8 @@
 # -*- python -*-
+import re
 Import("env")
 
 env.CheckSwig("python", ilang="c++", includedProducts="utils daf_base pex_exceptions")
-env.LoadableModuleIncomplete("_policyLib", Split("policyLib.i"), LIBS=env.libs["pex_policy"])
+env.LoadableModuleIncomplete("_policyLib", Split("policyLib.i"),
+                             CCFLAGS=re.sub("-Wall", "", " ".join(env['CCFLAGS'])),
+                             LIBS=env.libs["pex_policy"])

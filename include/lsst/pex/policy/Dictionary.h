@@ -250,7 +250,7 @@ public:
      * @param paramName   the name of the parameter being defined.
      */
     Definition(const std::string& paramName = "")
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+        : dafBase::Citizen(typeid(this)), _type(Policy::UNDETERMINED), 
 	_name(paramName), _policy(), _wildcard(false)
     {
         _policy.reset(new Policy());
@@ -262,7 +262,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const std::string& paramName, const Policy::Ptr& defn) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+        : dafBase::Citizen(typeid(this)), _type(Policy::UNDETERMINED), 
           _name(paramName), _policy(defn), _wildcard(false)
     { }
 
@@ -271,7 +271,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const Policy::Ptr& defn) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+        : dafBase::Citizen(typeid(this)), _type(Policy::UNDETERMINED), 
           _name(), _policy(defn), _wildcard(false)
     { }
 
@@ -279,7 +279,7 @@ public:
      * create a copy of a definition
      */
     Definition(const Definition& that) 
-        : dafBase::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+        : dafBase::Citizen(typeid(this)), _type(Policy::UNDETERMINED), 
           _name(that._name), _policy(that._policy), _wildcard(false)
     { }
 
@@ -325,9 +325,9 @@ public:
      * Was this definition created from a wildcard "childDefinition" definition
      * in a Dictionary?  Default false.
      */
-    const bool isChildDefinition() const { return _wildcard; }
+    bool isChildDefinition() const { return _wildcard; }
     void setChildDefinition(bool wildcard) { _wildcard = wildcard; }
-    const bool isWildcard() const { return _wildcard; }
+    bool isWildcard() const { return _wildcard; }
     void setWildcard(bool wildcard) { _wildcard = wildcard; }
     //@}
 
@@ -377,19 +377,19 @@ public:
      * Return the semantic definition for the parameter, empty string if none is
      * specified, or throw a TypeError if it is the wrong type.
      */
-    const std::string getDescription() const;
+    std::string getDescription() const;
 
     /**
      * return the maximum number of occurrences allowed for this parameter, 
      * or -1 if there is no limit.
      */
-    const int getMaxOccurs() const;
+    int getMaxOccurs() const;
 
     /**
      * return the minimum number of occurrences allowed for this parameter.
      * Zero is returned if a minimum is not specified.
      */
-    const int getMinOccurs() const;
+    int getMinOccurs() const;
 
     /**
      * Insert the default value into the given policy

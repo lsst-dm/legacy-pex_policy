@@ -125,7 +125,7 @@ Policy::ValueType Definition::_determineType() const {
  * Return the semantic definition for the parameter, empty string if none is
  * specified, or throw a TypeError if it is the wrong type.
  */
-const string Definition::getDescription() const {
+string Definition::getDescription() const {
     if (_policy->exists(Dictionary::KW_DESCRIPTION)) 
         return _policy->getString(Dictionary::KW_DESCRIPTION);
     else return "";
@@ -135,7 +135,7 @@ const string Definition::getDescription() const {
  * return the maximum number of occurrences allowed for this parameter, 
  * or -1 if there is no limit.
  */
-const int Definition::getMaxOccurs() const {
+int Definition::getMaxOccurs() const {
     try {  return _policy->getInt(Dictionary::KW_MAX_OCCUR);  }
     catch (NameNotFound& ex) {  return -1;  }
 }
@@ -144,7 +144,7 @@ const int Definition::getMaxOccurs() const {
  * return the minimum number of occurrences allowed for this parameter.
  * Zero is returned if a minimum is not specified.
  */
-const int Definition::getMinOccurs() const {
+int Definition::getMinOccurs() const {
     try {  return _policy->getInt(Dictionary::KW_MIN_OCCUR);  }
     catch (NameNotFound& ex) {  return 0;  }
 }

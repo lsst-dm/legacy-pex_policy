@@ -423,7 +423,8 @@ public:
      * @param name   the (possibly) hierarchical name of the property of 
      *                  interest.
      */
-    bool exists(const std::string& name) const;              // inlined below
+    inline bool exists(const std::string& name) const; // icc doesn't like only the implementation
+                                                       // being declared inline
 
     /**
      * return true if the value pointed to by the given name is a boolean
@@ -790,7 +791,9 @@ public:
      * return the internal policy data as a PropertySet pointer.  All
      * sub-policy data will appear as PropertySets.
      */
-    dafBase::PropertySet::Ptr asPropertySet();             // inlined below
+    inline dafBase::PropertySet::Ptr asPropertySet();             // icc doesn't like only the implementation
+                                                                  // being declared inline
+
 
 protected:
     /**
@@ -863,7 +866,7 @@ inline int Policy::fileNames(std::list<std::string>& names, bool topLevelOnly,
     return _names(names, topLevelOnly, append, 2);
 }
 
-inline Policy::StringArray Policy::names(bool topLevelOnly) const { 
+inline Policy::StringArray Policy::names(bool) const { 
     return _data->names(); 
 }
 inline Policy::StringArray Policy::paramNames(bool topLevelOnly) const {
@@ -950,7 +953,7 @@ inline bool Policy::isFile(const std::string& name) const {
 inline const std::type_info& Policy::getTypeInfo(const std::string& name) const
 {
     try {  return _data->typeOf(name); }
-    catch (pexExcept::NotFoundException& e) {
+    catch (pexExcept::NotFoundException&) {
         throw LSST_EXCEPT(NameNotFound, name);
     }
 }
@@ -1108,20 +1111,55 @@ inline dafBase::PropertySet::Ptr Policy::asPropertySet() { return _data; }
 template <typename T> T Policy::getValue(const std::string& name) const {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
+template<> bool Policy::getValue<bool> (const std::string& name) const;
+template<> int Policy::getValue<int> (const std::string& name) const;
+template<> double Policy::getValue <double> (const std::string& name) const;
+template<> std::string Policy::getValue<std::string> (const std::string& name) const;
+template<> Policy::FilePtr Policy::getValue<Policy::FilePtr> (const std::string& name) const;
+template<> Policy::ConstPtr Policy::getValue<Policy::ConstPtr> (const std::string& name) const;
 
 template <typename T> std::vector<T> Policy::getValueArray(const std::string& name) const {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
+template<> std::vector<bool> Policy::getValueArray(const std::string& name) const;
+template<> std::vector<int> Policy::getValueArray(const std::string& name) const;
+template<> std::vector<double> Policy::getValueArray(const std::string& name) const;
+template<> std::vector<std::string> Policy::getValueArray(const std::string& name) const;
+template<> Policy::FilePtrArray Policy::getValueArray(const std::string& name) const;
+template<> Policy::PolicyPtrArray Policy::getValueArray(const std::string& name) const;
+template<> Policy::ConstPolicyPtrArray Policy::getValueArray(const std::string& name) const;
 
 template <typename T> Policy::ValueType Policy::getValueType() {
     throw LSST_EXCEPT(TypeError, "unknown", "not implemented for this type");
 }
+template<> Policy::ValueType Policy::getValueType<bool>();
+template<> Policy::ValueType Policy::getValueType<int>();
+template<> Policy::ValueType Policy::getValueType<double>();
+template<> Policy::ValueType Policy::getValueType<std::string>();
+template<> Policy::ValueType Policy::getValueType<Policy>();
+template<> Policy::ValueType Policy::getValueType<Policy::FilePtr>();
+template<> Policy::ValueType Policy::getValueType<Policy::Ptr>();
+template<> Policy::ValueType Policy::getValueType<Policy::ConstPtr>();
+
 template <typename T> void Policy::setValue(const std::string& name, const T& value) {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
+template<> void Policy::setValue(const std::string& name, const bool& value);
+template<> void Policy::setValue(const std::string& name, const int& value);
+template<> void Policy::setValue(const std::string& name, const double& value);
+template<> void Policy::setValue(const std::string& name, const std::string& value);
+template<> void Policy::setValue(const std::string& name, const Ptr& value);
+template<> void Policy::setValue(const std::string& name, const FilePtr& value);
+
 template <typename T> void Policy::addValue(const std::string& name, const T& value) {
     throw LSST_EXCEPT(TypeError, name, "not implemented for this type");
 }
+template<> void Policy::addValue(const std::string& name, const bool& value);
+template<> void Policy::addValue(const std::string& name, const int& value);
+template<> void Policy::addValue(const std::string& name, const double& value);
+template<> void Policy::addValue(const std::string& name, const std::string& value);
+template<> void Policy::addValue(const std::string& name, const Ptr& value);
+template<> void Policy::addValue(const std::string& name, const FilePtr& value);
 
 }}}  // end namespace lsst::pex::policy
 

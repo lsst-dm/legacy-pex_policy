@@ -137,7 +137,7 @@ string Definition::getDescription() const {
  */
 int Definition::getMaxOccurs() const {
     try {  return _policy->getInt(Dictionary::KW_MAX_OCCUR);  }
-    catch (NameNotFound& ex) {  return -1;  }
+    catch (NameNotFound&) {  return -1;  }
 }
 
 /**
@@ -146,7 +146,7 @@ int Definition::getMaxOccurs() const {
  */
 int Definition::getMinOccurs() const {
     try {  return _policy->getInt(Dictionary::KW_MIN_OCCUR);  }
-    catch (NameNotFound& ex) {  return 0;  }
+    catch (NameNotFound&) {  return 0;  }
 }
 
 
@@ -273,9 +273,9 @@ void Definition::validateCount(const string& name, int count,
  * failes validation tests.  In other words, any values of min or max for these
  * types will cause a failure.
  */
-bool operator<(const Policy& a, const Policy& b) { return true; }
-bool operator<(const Policy::ConstPtr& a, const Policy::ConstPtr& b) { return true; }
-bool operator<(const Policy::FilePtr& a, const Policy::FilePtr& b) { return true; }
+bool operator<(const Policy&, const Policy&) { return true; }
+bool operator<(const Policy::ConstPtr&, const Policy::ConstPtr&) { return true; }
+bool operator<(const Policy::FilePtr&, const Policy::FilePtr&) { return true; }
 
 void Definition::validateRecurse(const string& name,
                                  Policy::ConstPolicyPtrArray value,
@@ -366,7 +366,7 @@ void Definition::validateBasic(const string& name, const T& value,
                 try {
                     min = a->getValue<T>(Dictionary::KW_MIN);
                     minFound = true; // after min assign, in case of exceptions
-                } catch(TypeError& e) {
+                } catch(TypeError&) {
                     throw LSST_EXCEPT
                         (DictionaryError, 
                          string("Wrong type for ") + getPrefix() + name 
@@ -386,7 +386,7 @@ void Definition::validateBasic(const string& name, const T& value,
                 try {
                     max = a->getValue<T>(Dictionary::KW_MAX);
                     maxFound = true; // after max assign, in case of exceptions
-                } catch(TypeError& e) {
+                } catch(TypeError&) {
                     throw LSST_EXCEPT
                         (DictionaryError, 
                          string("Wrong type for ") + getPrefix() + name 
@@ -395,9 +395,9 @@ void Definition::validateBasic(const string& name, const T& value,
                 }
             }
             if (a->exists(Dictionary::KW_VALUE)) {
-                const T& value = a->getValue<T>(Dictionary::KW_VALUE);
+                const T& val = a->getValue<T>(Dictionary::KW_VALUE);
                 
-                allvals.insert(value);
+                allvals.insert(val);
                 // allvals.insert(a->getValue<T>(Dictionary::KW_VALUE));
                 vector<T> values = a->getValueArray<T>(Dictionary::KW_VALUE);
                 for (typename vector<T>::const_iterator vi = values.begin();
@@ -729,7 +729,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
             scoped_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
         }
-        catch (NameNotFound& e) {
+        catch (NameNotFound&) {
             use->addError(getPrefix() + *i, ValidationError::UNKNOWN_NAME);
         }
     }

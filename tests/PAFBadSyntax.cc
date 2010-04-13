@@ -26,29 +26,29 @@ int main(int argc, char** argv) {
         Policy p = Policy("tests/PAFBadSyntax_1.paf");
         throw runtime_error("Failed to detect bad PAF syntax (comma delimiters)");
     }
-    catch (lsst::pex::policy::FormatSyntaxError e) {   }
+    catch (lsst::pex::policy::FormatSyntaxError) {   }
 
     try {
         Policy p = Policy("tests/PAFBadSyntax_2.paf");
         throw runtime_error("Failed to detect bad PAF syntax (parameter w/spaces)");
     }
-    catch (lsst::pex::policy::FormatSyntaxError e) {   }
+    catch (lsst::pex::policy::FormatSyntaxError) {   }
 
     try {
         Policy p = Policy("tests/PAFBadSyntax_3.paf");
         throw runtime_error("Failed to detect bad PAF syntax (bad sub-policy)");
     }
-    catch (lsst::pex::policy::FormatSyntaxError e) {   }
+    catch (lsst::pex::policy::FormatSyntaxError) {   }
 
     try {
         Policy p = Policy("tests/PAFBadSyntax_4.paf");
         throw runtime_error("Failed to detect bad PAF syntax (mixed types)");
     }
-    catch (lsst::pex::policy::FormatSyntaxError e) {   }
+    catch (lsst::pex::policy::FormatSyntaxError) {   }
 
     try {
         Policy p = Policy("tests/PAFBadSyntax_4.paf");
         throw runtime_error("Failed to detect bad PAF syntax (bad sub-policy)");
     }
-    catch (lsst::pex::policy::FormatSyntaxError e) {   }
+    catch (lsst::pex::policy::FormatSyntaxError) {   }
 }

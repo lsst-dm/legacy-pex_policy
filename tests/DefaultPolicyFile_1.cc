@@ -52,7 +52,7 @@ int main() {
         ipath = DefaultPolicyFile::installPathFor("pex_goober");
         Assert(false, "Ignored undefined product name (pex_goober)");
     }
-    catch (lsst::pex::exceptions::NotFoundException ex) {
+    catch (lsst::pex::exceptions::NotFoundException) {
         cout << "Detected missing product" << endl;
     }
 

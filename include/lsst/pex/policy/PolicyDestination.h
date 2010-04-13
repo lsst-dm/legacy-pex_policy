@@ -49,7 +49,7 @@ protected:
     /**
      * create a copy of this destination
      */
-    PolicyDestination(const PolicyDestination& that) 
+    PolicyDestination(const PolicyDestination& ) 
         : dafBase::Citizen(typeid(this)) { }
 
 };

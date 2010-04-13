@@ -13,7 +13,6 @@ namespace pex {
 namespace policy {
 
 using lsst::pex::policy::paf::PAFParserFactory;
-using lsst::pex::policy::PolicyParserFactory;
 
 void SupportedFormats::initDefaultFormats(SupportedFormats& sf) { 
     sf.registerFormat(PolicyParserFactory::Ptr(new PAFParserFactory()));

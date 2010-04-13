@@ -2,12 +2,12 @@
 """
 Comprehensive tests reading and retrieving data of all types
 """
-import pdb                              # we may want to say pdb.set_trace()
 import os
 import sys
 import unittest
 import time
 
+import lsst.utils.tests as utilsTests
 from lsst.pex.policy import Policy, PolicyStringDestination, PAFWriter
 
 class PolicyOutStringTestCase(unittest.TestCase):
@@ -18,7 +18,7 @@ class PolicyOutStringTestCase(unittest.TestCase):
         self.policy.set("name", "ray")
 
     def tearDown(self):
-        pass
+        del self.policy
 
     def testDest(self):
         dest = PolicyStringDestination("#<?cfg paf policy ?>")
@@ -30,10 +30,19 @@ class PolicyOutStringTestCase(unittest.TestCase):
         out = writer.toString();
         self.assert_(out.startswith("#<?cfg paf policy ?>"))
 
-__all__ = "PolicyOutStringTestCase".split()        
+def suite():
+    """Returns a suite containing all the test cases in this module."""
+
+    utilsTests.init()
+
+    suites = []
+    suites += unittest.makeSuite(PolicyOutStringTestCase)
+    suites += unittest.makeSuite(utilsTests.MemoryTestCase)
+    return unittest.TestSuite(suites)
+
+def run(shouldExit=False):
+    """Run the tests"""
+    utilsTests.run(suite(), shouldExit)
 
 if __name__ == "__main__":
-    unittest.main()
-
-
-        
+    run(True)

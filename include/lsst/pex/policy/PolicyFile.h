@@ -149,7 +149,7 @@ public:
     /**
      * return the file path as a string
      */
-    const std::string getPath() const { return _file.string(); }
+    virtual const std::string getPath() const { return _file.string(); }
 
     /**
      * return true if the file exists.  

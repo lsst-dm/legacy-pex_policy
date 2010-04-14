@@ -23,6 +23,7 @@ Access to the policy classes from the pex module
 #include "lsst/pex/policy/Dictionary.h"
 #include "lsst/pex/policy/PolicyFile.h"
 #include "lsst/pex/policy/DefaultPolicyFile.h"
+#include "lsst/pex/policy/UrnPolicyFile.h"
 #include "lsst/pex/policy/paf/PAFWriter.h"
 #include <sstream>
 
@@ -154,6 +155,7 @@ SWIG_SHARED_PTR(Definition, lsst::pex::policy::Definition)
 SWIG_SHARED_PTR(PolicySource, lsst::pex::policy::PolicySource)
 SWIG_SHARED_PTR_DERIVED(PolicyFile, lsst::pex::policy::PolicySource, lsst::pex::policy::PolicyFile)
 SWIG_SHARED_PTR_DERIVED(DefaultPolicyFile, lsst::pex::policy::PolicyFile, lsst::pex::policy::DefaultPolicyFile)
+SWIG_SHARED_PTR_DERIVED(UrnPolicyFile, lsst::pex::policy::PolicyFile, lsst::pex::policy::UrnPolicyFile)
 
 %newobject lsst::pex::policy::Policy::createPolicy;
 %feature("notabstract") lsst::pex::policy::paf::PAFWriter;
@@ -163,6 +165,10 @@ SWIG_SHARED_PTR_DERIVED(DefaultPolicyFile, lsst::pex::policy::PolicyFile, lsst::
 %include "lsst/pex/policy/Policy.h"
 %include "lsst/pex/policy/Dictionary.h"
 %include "lsst/pex/policy/PolicyWriter.h"
+%include "lsst/pex/policy/PolicySource.h"
+%include "lsst/pex/policy/PolicyFile.h"
+%include "lsst/pex/policy/DefaultPolicyFile.h"
+%include "lsst/pex/policy/UrnPolicyFile.h"
 %include "lsst/pex/policy/paf/PAFWriter.h"
 %include "lsst/pex/policy/exceptions.h"
 %include "lsst/pex/policy/parserexceptions.h"
@@ -247,4 +253,4 @@ Policy.add = _Policy_add
 %include "lsst/pex/policy/PolicySource.h"
 %include "lsst/pex/policy/PolicyFile.h"
 %include "lsst/pex/policy/DefaultPolicyFile.h"
-
+%include "lsst/pex/policy/UrnPolicyFile.h"

@@ -93,7 +93,7 @@ public:
      * @exception IOError   if an I/O error occurs while reading from the 
      *                       source stream.
      */
-    virtual void load(Policy& policy) = 0;
+    virtual void load(Policy& policy) const = 0;
 
 //     /**
 //      * returns true if the given string containing a content identifier

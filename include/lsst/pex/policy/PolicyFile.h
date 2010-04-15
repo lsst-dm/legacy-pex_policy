@@ -149,7 +149,7 @@ public:
     /**
      * return the file path as a string
      */
-    virtual const std::string getPath() const { return _file.string(); }
+    const std::string getPath() const { return _file.string(); }
 
     /**
      * return true if the file exists.  
@@ -178,10 +178,7 @@ public:
      * @exception IOError   if an I/O error occurs while reading from the 
      *                       source stream.
      */
-    virtual void load(Policy& policy);
-    void load(Policy& policy) const { 
-        const_cast<PolicyFile*>(this)->load(policy);
-    }
+    virtual void load(Policy& policy) const;
     //@}
 
     static const std::string EXT_PAF;   //! the PAF file extension, ".paf"

@@ -10,6 +10,9 @@ from lsst.pex.exceptions import LsstCppException
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+# TODO: test cross-package loading more thoroughly -- mix up the packages and
+# repositories in a deeply nested and linked policy file.
+
 class UrnPolicyFileTestCase(unittest.TestCase):
     def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """

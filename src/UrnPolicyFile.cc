@@ -6,7 +6,6 @@
 
 #include <string>
 #include <vector>
-// #include <iostream> // TODO: remove after debugged
 
 namespace lsst {
 namespace pex {
@@ -59,11 +58,6 @@ void splitAndValidate(const string& urn, vector<string>& a) {
 	    stripped = stripped.substr(i + 1);
 	}
     }
-
-//    cout << "---- split \"" << urn << "\": [";
-//    for (vector<string>::const_iterator i = a.begin(); i != a.end(); ++i)
-//	cout << " \"" << *i << "\",";
-//    cout << " ]" << endl;
 
     // validate
     // - min size is 2 -- product:file

@@ -86,6 +86,7 @@ public:
      */
     virtual const std::string& getFormatName() = 0;
 
+    //@{
     /**
      * load the data from this Policy source into a Policy object
      * @param policy    the policy object to load the data into
@@ -94,6 +95,8 @@ public:
      *                       source stream.
      */
     virtual void load(Policy& policy) const = 0;
+    virtual void load(Policy& policy) = 0;
+    //@}
 
 //     /**
 //      * returns true if the given string containing a content identifier

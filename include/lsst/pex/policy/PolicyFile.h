@@ -179,6 +179,9 @@ public:
      *                       source stream.
      */
     virtual void load(Policy& policy) const;
+    virtual void load(Policy& policy) {
+	((const PolicyFile*) this)->load(policy); // delegate to const version
+    }
     //@}
 
     static const std::string EXT_PAF;   //! the PAF file extension, ".paf"

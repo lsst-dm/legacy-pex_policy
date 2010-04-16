@@ -192,18 +192,19 @@ public:
 
     //@{
     /**
-     * Create a Policy from a named file
-     * @param filePath   the file name, which can be a file path
+     * Create a Policy from a named file or URN.  For the format of the URN, see
+     * UrnPolicyFile.
+     * @param pathOrUrn   can be a local file name, file path, or URN.
      */
-    explicit Policy(const std::string& filePath);
-    explicit Policy(const char *filePath);
+    explicit Policy(const std::string& pathOrUrn);
+    explicit Policy(const char *pathOrUrn);
     //@}
 
     /**
-     * Create a Policy from a named file
-     * @param file       the file name, represented as a PolicyFile
+     * Create a Policy from a PolicySource (usually, a PolicyFile)
+     * @param source
      */
-    explicit Policy(const PolicyFile& file);
+    explicit Policy(const PolicySource& source);
 
     /**
      * Create a default Policy from a Dictionary.  If the Dictionary references
@@ -284,6 +285,13 @@ public:
     static Policy *createPolicy(const std::string& input, const char *repos, 
                                 bool validate=true);
     //@}
+
+    /**
+     * Create a PolicyFile or UrnPolicyFile from `pathOrUrn`.
+     * @param pathOrUrn if this looks like a Policy URN, create a UrnPolicyFile;
+     *                  otherwise, create a plain PolicyFile.
+     */
+    static FilePtr createPolicyFile(const std::string& pathOrUrn);
 
     /**
      * A template-ized way to get the ValueType. General case is disallowed, but

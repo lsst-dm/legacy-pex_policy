@@ -73,8 +73,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
 
     def testIndirect(self):
         urn = "@urn:eupspkg:pex_policy:tests/urn:indirect_parent_good.paf"
-        p = Policy()
-        UrnPolicyFile(urn).load(p)
+        p = Policy(urn)
         self.assert_(p.get("urn_full.name") == "Simple Policy")
         self.assert_(p.get("urn_brief.name") == "Simple Policy")
         self.assert_(p.get("urn_mixed_case.name") == "Simple Policy")
@@ -83,6 +82,17 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         p = Policy()
         UrnPolicyFile("pex_policy:tests/urn:level_1.paf").load(p)
         self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
+
+        p = Policy("@pex_policy:tests/urn:level_1.paf")
+        self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
+
+        self.assertRaiseLCE("BadNameError", "Wrong number of terms",
+                            Policy, "URN too short",
+                            "urn:eupspkg:foo.paf")
+
+        self.assertRaiseLCE("BadNameError", "Wrong number of terms",
+                            Policy, "URN too short",
+                            "@foo.paf")
 
     def testTypos(self):
         base = "pex_policy:tests/urn:indirect_parent_typo_"

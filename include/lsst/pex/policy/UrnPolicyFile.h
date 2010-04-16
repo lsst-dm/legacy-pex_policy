@@ -86,6 +86,21 @@ public:
      */
     static std::string reposFromUrn(const std::string& urn);
 
+    //@{
+    /**
+     * The prefix that a Policy URN starts with.  May be abbreviated as "@".
+     */
+    static const std::string URN_PREFIX; // "urn:eupspkg:";
+    static const std::string URN_PREFIX_ABBREV; // "@";
+    //@}
+
+
+    /**
+     * Does `s` look like a URN?  That is, does it start with URN_PREFIX or
+     * URN_PREFIX_ABBREV?
+     */
+    static bool looksLikeUrn(const std::string& s);
+
 private:
     const std::string _urn;
 };

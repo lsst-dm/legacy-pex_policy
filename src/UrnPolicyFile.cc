@@ -15,24 +15,26 @@ namespace policy {
 
 using namespace std;
 
+const string UrnPolicyFile::URN_PREFIX("urn:eupspkg:");
+const string UrnPolicyFile::URN_PREFIX_ABBREV("@");
+
 /**
- * Remove @urn:eupspkg:, @, @@.  That is,
- * @urn:eupspkg:product:repos:path/to/file.paf,
- * @@product:repos:path/to/file.paf, and @product:repos:path/to/file.paf all
- * become product:repos:path/to/file.paf.
+ * Remove [@+][urn:eupspkg:].  That is,
+ * "@urn:eupspkg:product:repos:file.paf", "urn:eupspkg:product:repos:file.paf",
+ * "@@product:repos:file.paf", and "@product:repos:file.paf" all return the same
+ * thing, "product:repos:file.paf".
  *
  * Note: pass urn by value because we're going to modify it anyway.
  */
 string stripPrefixes(string urn) {
-    static string URN_START("urn:eupspkg:");
     // strip @'s
-    while (urn.length() > 0 && urn[0] == '@')
-	urn = urn.substr(1);
+    while (urn.length() > 0 && urn.find(UrnPolicyFile::URN_PREFIX_ABBREV) == 0)
+	urn = urn.substr(UrnPolicyFile::URN_PREFIX_ABBREV.length());
     // strip urn:eupspkg:
     string lowered(urn);
     transform(lowered.begin(), lowered.end(), lowered.begin(), ::tolower);
-    if (lowered.find(URN_START) == 0)
-	urn = urn.substr(URN_START.length());
+    if (lowered.find(UrnPolicyFile::URN_PREFIX) == 0)
+	urn = urn.substr(UrnPolicyFile::URN_PREFIX.length());
     return urn;
 }
 
@@ -107,6 +109,15 @@ string UrnPolicyFile::reposFromUrn(const string& urn) {
     splitAndValidate(urn, split);
     if (split.size() == 3) return split[1];
     else return "";
+}
+
+/**
+ * Does `s` look like a URN?  That is, does it start with URN_PREFIX or
+ * URN_PREFIX_ABBREV and have at least one colon after the prefix?
+ */
+bool UrnPolicyFile::looksLikeUrn(const string& s) {
+    const string& stripped = stripPrefixes(s);
+    return s.length() != stripped.length() && s.find(":") >= 0;
 }
 
 //@endcond

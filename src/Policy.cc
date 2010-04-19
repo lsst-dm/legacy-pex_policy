@@ -66,7 +66,7 @@ Policy::Policy(const PolicySource& source)
 Policy::Policy(const string& pathOrUrn) 
     : Citizen(typeid(this)), Persistable(), _data(new PropertySet()) 
 {
-    createPolicyFile(pathOrUrn)->load(*this);
+    createPolicyFile(pathOrUrn, true)->load(*this);
 }
 
 /*
@@ -75,16 +75,18 @@ Policy::Policy(const string& pathOrUrn)
 Policy::Policy(const char *pathOrUrn)
     : Citizen(typeid(this)), Persistable(), _data(new PropertySet()) 
 {
-    createPolicyFile(pathOrUrn)->load(*this);
+    createPolicyFile(pathOrUrn, true)->load(*this);
 }
 
 /**
  * Create a PolicyFile or UrnPolicyFile from `pathOrUrn`.
  * @param pathOrUrn if this looks like a Policy URN, create a UrnPolicyFile;
  *                  otherwise, create a plain PolicyFile.
+ * @param strict if false, "@" will be accepted as a substitute for
+ *               "urn:eupspkg:"; if true, urn:eupspkg must be present in a URN.
  */
-Policy::FilePtr Policy::createPolicyFile(const string& pathOrUrn) {
-    if (UrnPolicyFile::looksLikeUrn(pathOrUrn))
+Policy::FilePtr Policy::createPolicyFile(const string& pathOrUrn, bool strict) {
+    if (UrnPolicyFile::looksLikeUrn(pathOrUrn, strict))
 	// return make_shared<PolicyFile>(new UrnPolicyFile(pathOrUrn));
 	return Policy::FilePtr(new UrnPolicyFile(pathOrUrn));
     else
@@ -188,8 +190,16 @@ Policy* Policy::_createPolicy(const string& input, bool doIncludes,
         fs::path filepath(input);
         if (filepath.has_parent_path()) repos = filepath.parent_path();
     }
-    FilePtr file = createPolicyFile(input);
-    return _createPolicy(*file, doIncludes, repos, validate);
+    PolicyFile file(input);
+    return _createPolicy(file, doIncludes, repos, validate);
+}
+
+Policy* Policy::createPolicyFromUrn(const std::string& urn, bool validate)
+{
+    // Note: Don't request doIncludes because UrnPolicyFile will load the whole
+    // thing anyway.
+    UrnPolicyFile upf(urn, true, true);
+    return _createPolicy(upf, true, fs::path(), false);
 }
 
 /*

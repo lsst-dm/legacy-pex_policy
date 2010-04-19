@@ -83,16 +83,29 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         UrnPolicyFile("pex_policy:tests/urn:level_1.paf").load(p)
         self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
 
-        p = Policy("@pex_policy:tests/urn:level_1.paf")
+    def testLoading(self):
+        p = Policy("urn:eupspkg:pex_policy:tests/urn:level_1.paf")
         self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
 
         self.assertRaiseLCE("BadNameError", "Wrong number of terms",
                             Policy, "URN too short",
                             "urn:eupspkg:foo.paf")
+        self.assertRaiseLCE("IoErrorException", "failure opening Policy file",
+                            Policy, "URN abbrev '@' not allowed in constructor",
+                            "@pex_policy:tests/urn:level_1.paf")
 
-        self.assertRaiseLCE("BadNameError", "Wrong number of terms",
-                            Policy, "URN too short",
-                            "@foo.paf")
+        urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_good.paf"
+        self.assertRaiseLCE("IoErrorException", "/./defaults_dictionary_indirect",
+                            Policy.createPolicyFromUrn, 
+                            "doesn't support loading undecorated DictionaryFile",
+                            urn)
+        urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_partial.paf"
+        p = Policy.createPolicyFromUrn(urn)
+        # make sure all reference types worked
+        # self.assert_(p.get("indirect.string_type") == "foo")
+        # self.assert_(p.get("indirect2.string_type") == "foo")
+        self.assert_(p.get("indirect3.string_type") == "foo")
+        self.assert_(p.get("indirect4.string_type") == "foo")
 
     def testTypos(self):
         base = "pex_policy:tests/urn:indirect_parent_typo_"

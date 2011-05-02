@@ -29,6 +29,7 @@ public:
      * provided, it will write policy data to an internal string stream; 
      * toString() can be used to retrieve the results.  
      * @param out     the output stream to write data to
+     * @bpdox{ignore}
      */
     PolicyWriter(std::ostream *out = 0);
 

@@ -1,6 +1,3 @@
-/**
- * \file exceptions.cc
- */
 #include "lsst/pex/policy/exceptions.h"
 
 POL_EXCEPT_VIRTFUNCS(lsst::pex::policy::BadNameError)

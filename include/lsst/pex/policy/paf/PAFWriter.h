@@ -46,7 +46,7 @@ public:
      * @param file     the output file
      */
     explicit PAFWriter(const std::string& file) 
-        : pexPolicy::PolicyWriter(file), _indent() { }
+        : pexPolicy::PolicyWriter(file), _indent() { } ///< @bpdox{label:string}
     explicit PAFWriter(const char *file) 
         : pexPolicy::PolicyWriter(file), _indent() { }
     //@}

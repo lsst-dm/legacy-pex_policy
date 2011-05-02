@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 /**
- * @file PolicyStringDestination.h
+ * @file PolicyStreamDestination.h
  * 
  * @ingroup pex
- * @brief definition of the PolicyStringDestination class
+ * @brief definition of the PolicyStreamDestination class
  * @author Ray Plante
  * 
  */

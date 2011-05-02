@@ -396,6 +396,7 @@ public:
      * @param policy  the policy object update
      * @param errs  a validation error to add complaints to, if there are any.
      * @exception ValidationError if the value does not conform to this definition.
+     * @bpdox{label:no_name}
      */
     void setDefaultIn(Policy& policy, ValidationError* errs=0) const {
         setDefaultIn(policy, _name, errs);
@@ -405,16 +406,19 @@ public:
      * @copydoc setDefaultIn(Policy&) const
      * @param withName  the name to look for the value under.  If not given
      *                    the name set in this definition will be used.
+     * @bpdox{label:with_name}
      */
     void setDefaultIn(Policy& policy, const std::string& withName,
 		      ValidationError* errs=0) const;
 
+#ifndef DOXYGEN // Doxygen bug #318061 confuses this overload with the previous one.
     /**
      * @copydoc setDefaultIn(Policy&) const
      */
     template <typename T> void setDefaultIn(Policy& policy,
 					    const std::string& withName,
 					    ValidationError* errs=0) const;
+#endif
 
     /**
      * confirm that a Policy parameter conforms to this definition.  
@@ -428,6 +432,7 @@ public:
      *                 into. 
      * @exception ValidationError   if errs is not provided and the value 
      *                 does not conform.  
+     * @bpdox{label:with_name}
      */
     void validate(const Policy& policy, const std::string& name, 
                   ValidationError *errs=0) const;
@@ -443,6 +448,7 @@ public:
      *                  into. 
      * @exception ValidationError   if errs is not provided and the value 
      *                  does not conform.  
+     * @bpdox{label:no_name}
      */
     void validate(const Policy& policy, ValidationError *errs=0) const {
         validate(policy, _name, errs);
@@ -559,7 +565,7 @@ public:
 
     //@{
     /**
-     * Recursively validate \code value \endcode, using a sub-definition, if
+     * Recursively validate @c value, using a sub-definition, if
      * present in this Dictionary.
      * @param name  the name of the parameter being checked
      * @param value the value being checked against name's definition
@@ -769,7 +775,8 @@ public:
 
     /**
      * load the top-level parameter names defined in this Dictionary into 
-     * a given list.  
+     * a given list.
+     * @bpdox{ignore}
      */
     int definedNames(std::list<std::string>& names, bool append=false) const {
         return getDefinitions()->names(names, true, append); 
@@ -916,6 +923,7 @@ void Definition::validateBasic(const std::string& name, const std::vector<T>& va
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
+#ifndef DOXYGEN
 template <typename T>
 void Definition::setDefaultIn(Policy& policy, const std::string& withName,
 			      ValidationError *errs) const 
@@ -937,6 +945,7 @@ void Definition::setDefaultIn(Policy& policy, const std::string& withName,
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
+#endif
 
 }}}  // end namespace lsst::pex::policy
 

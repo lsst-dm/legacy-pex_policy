@@ -1,6 +1,6 @@
 // -*- lsst-c++ -*-
 /**
- * @file exceptions.h
+ * @file pex/policy/exceptions.h
  * @ingroup pex
  * @brief definition of Policy-specific exceptions classes
  * @author Ray Plante

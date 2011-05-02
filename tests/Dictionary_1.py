@@ -6,19 +6,18 @@ import eups
 import lsst.utils.tests as tests
 
 from lsst.pex.policy import Policy, Dictionary, PolicyFile, DefaultPolicyFile
-from lsst.pex.policy import ValidationError #, DictionaryError
-from lsst.pex.exceptions import LsstCppException
+from lsst.pex.policy import ValidationError, DictionaryError
+import lsst.pex.exceptions
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 class DictionaryTestCase(unittest.TestCase):
-    def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
+    def assertRaisesEx(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """
-        Expect callableObj(args, kwargs) to raise an LsstCppException that wraps
-        the class specified by excClass, and carrying a message that contains
-        excMsg.
+        Expect callableObj(*args, **kwargs) to raise an lsst.pex.exceptions.Exception 
+        subclass for that is an instance of excClass and contains the message excMsg.
 
-        excClass: the subclass of LsstCppException we expect to see
+        excClass: the subclass of lsst.pex.exceptions.Exception we expect to see
         excMsg: a substring of the message it should carry
         callableObj: the thing that, when called, should raise an exception
         failMsg: the assertion message if this fails
@@ -26,36 +25,21 @@ class DictionaryTestCase(unittest.TestCase):
         """
         try:
             callableObj(*args, **kwargs)
-        except LsstCppException, e:
-            self.assert_(isinstance(e, LsstCppException))
-            lce = "lsst.pex.exceptions.exceptionsLib.LsstCppException"
-            self.assert_(str(e.__class__).find(lce) > 0,
-                         failMsg + ": expected an " + lce + ", found a " 
-                         + str(e.__class__))
-            self.assert_(len(e.args) == 1)
-            nested = e.args[0] # the real exception that was thrown
-#            print "%%% wrapped exception is ", nested
-#            print "  % class is ", nested.__class__
-            self.assert_(str(nested.__class__).find(excClass) > 0,
-                         failMsg + ": expected a " + excClass + "; found a " 
-                         + str(nested.__class__))
+        except lsst.pex.exceptions.Exception, e:
+            self.assert_(isinstance(e, excClass),
+                         "%s: expected a %s; found a %s" % (failMsg, excClass, e.__class__)
+                         )
             self.assert_(str(e).find(excMsg) > 0, 
-                         failMsg + ": expected to see the message \"" + excMsg 
-                         + "\"; actual message was \"" + str(e) + "\".")
-#            print " -%%% e = ", e
-#            print "    % members of e: ", dir(e)
-#            print "    % members of len(e.args): ", len(e.args)
-#            print "    % members of e.args.args[0]: ", inspect.getmembers(e.args[0])
-#            print "    % inspect(e): ", inspect.getmembers(e)
+                         '%s: expected to see the message "%s"; actual message was "%s"' 
+                         % (failMsg, excMsg, e))
         else:
-            self.fail(failMsg + ": did not raise " + excClass)
+            self.fail("%s: did not raise %s" % (failMsg, excClass))
 
     def assertValidationError(self, errorCode, callableObj, field, value):
         try:
             callableObj(field, value)
-        except LsstCppException, e:
-            ve = e.args[0]
-            self.assert_(ve.getErrors(field) == errorCode)
+        except ValidationError, e:
+            self.assert_(e.getErrors(field) == errorCode)
 
     testDictDir = None
     def getTestDictionary(self, filename=None):
@@ -73,44 +57,44 @@ class DictionaryTestCase(unittest.TestCase):
 
     def testBadDictionary(self):
         d = Dictionary(self.getTestDictionary("dictionary_bad_policyfile.paf"))
-        self.assertRaiseLCE("DictionaryError", "Illegal type: \"PolicyFile\"",
+        self.assertRaisesEx(DictionaryError, "Illegal type: \"PolicyFile\"",
                             d.makeDef("file_type").getType,
                             "Dictionary specified PolicyFile type")
 
         d = Dictionary(self.getTestDictionary("dictionary_bad_unknown_type.paf"))
-        self.assertRaiseLCE("DictionaryError", "Unknown type: \"NotAType\"",
+        self.assertRaisesEx(DictionaryError, "Unknown type: \"NotAType\"",
                             d.makeDef("something").getType,
                             "Dictionary specifies unknown types")
 
         d = Dictionary(self.getTestDictionary("dictionary_bad_type_type.paf"))
-        self.assertRaiseLCE("DictionaryError", "Expected string",
+        self.assertRaisesEx(DictionaryError, "Expected string",
                             d.makeDef("something").getType,
                             "Expected string \"type\" type")
 
-        self.assertRaiseLCE("DictionaryError", "property found at bad: min_occurs",
+        self.assertRaisesEx(DictionaryError, "property found at bad: min_occurs",
                             Dictionary,
                             "Dictionary has mispelled keyword \"min_occurs\".",
                             self.getTestDictionary("dictionary_bad_keyword.paf"))
 
         dbmd = self.getTestDictionary("dictionary_bad_multiple_definitions.paf")
-        self.assertRaiseLCE("DictionaryError", "expected a single",
+        self.assertRaisesEx(DictionaryError, "expected a single",
                             Dictionary,
                             "Dictionary has two 'definitions' sections",
                             dbmd)
 
         p = Policy(self.getTestDictionary("values_policy_good_1.paf"))
         d = Dictionary(self.getTestDictionary("dictionary_bad_multiple_min.paf"))
-        self.assertRaiseLCE("DictionaryError", "Min value for int_ra", d.validate,
+        self.assertRaisesEx(DictionaryError, "Min value for int_ra", d.validate,
                             "Two mins specified.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_multiple_max.paf"))
-        self.assertRaiseLCE("DictionaryError", "Max value for int_ra", d.validate,
+        self.assertRaisesEx(DictionaryError, "Max value for int_ra", d.validate,
                             "Two maxes specified.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_min_wrong_type.paf"))
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaisesEx(DictionaryError,
                             "Wrong type for int_range_count_type min",
                             d.validate, "Wrong min type.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_max_wrong_type.paf"))
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaisesEx(DictionaryError,
                             "Wrong type for int_range_count_type max",
                             d.validate, "Wrong max type.", p)
 
@@ -324,19 +308,19 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve)
 
     def testNested(self):
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaisesEx(DictionaryError,
                             "policy_bad_subdef.dictionary is a string",
                             Dictionary, "Malformed subdictionary",
                             self.getTestDictionary("nested_dictionary_bad_1.paf"))
 
         p = Policy(self.getTestDictionary("nested_policy_good.paf"))
-        self.assertRaiseLCE("DictionaryError", "Unknown Dictionary property",
+        self.assertRaisesEx(DictionaryError, "Unknown Dictionary property",
                             Dictionary, "Malformed subdictionary",
                             self.getTestDictionary("nested_dictionary_bad_2.paf"))
 
         d = Dictionary(self.getTestDictionary("nested_dictionary_good.paf"))
         d.check()
-        self.assertRaiseLCE("LogicErrorException", "dictionaryFile needs to be loaded",
+        self.assertRaisesEx("LogicErrorException", "dictionaryFile needs to be loaded",
                             d.validate, "dictionaryFile not loaded", p)
         self.assert_(not d.hasSubDictionary("policy_1"))
         self.assert_(d.hasSubDictionary("policy_2"))
@@ -381,7 +365,7 @@ class DictionaryTestCase(unittest.TestCase):
         d = Dictionary(self.getTestDictionary("nested_dictionary_bad_child.paf"))
         d.loadPolicyFiles(self.getTestDictionary())
         # this should really be caught during loadPolicyFiles(), above
-        self.assertRaiseLCE("DictionaryError", "Unknown type: \"NotAType\"",
+        self.assertRaisesEx(DictionaryError, "Unknown type: \"NotAType\"",
                             d.makeDef("sub.something").getType,
                             "Loaded sub-dictionary specified a bogus type")
 
@@ -397,7 +381,7 @@ class DictionaryTestCase(unittest.TestCase):
 
         # multiple childDefs (DictionaryError)
         d = Dictionary(self.getTestDictionary("childdef_dictionary_bad_multiple.paf"))
-        self.assertRaiseLCE("DictionaryError", "Multiple childDef",
+        self.assertRaisesEx(DictionaryError, "Multiple childDef",
                             d.validate, "Dictionary specifies unknown types", p)
 
         # complex
@@ -433,7 +417,7 @@ class DictionaryTestCase(unittest.TestCase):
         try:
             p = Policy.createPolicy(self.getTestDictionary("defaults_dictionary_bad_1.paf"),
                                     "", True)
-        except LsstCppException, e:
+        except ValidationError, e:
             ve = e.args[0] # the real exception that was thrown
             self.assert_(ve.getErrors("double")
                          == ValidationError.WRONG_TYPE)
@@ -465,7 +449,7 @@ class DictionaryTestCase(unittest.TestCase):
         # add & set don't check against minOccurs, but validate() does
         try:
             p.validate()
-        except LsstCppException, e:
+        except ValidationError, e:
             self.assert_(e.args[0].getErrors("int_range_count")
                          == ValidationError.NOT_AN_ARRAY)
             self.assert_(e.args[0].getErrors("required")
@@ -504,7 +488,7 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
         try:
             p.validate()
-        except LsstCppException, e:
+        except ValidationError, e:
             ve = e.args[0]
             self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
             self.assert_(ve.getParamCount() == 1)
@@ -517,13 +501,13 @@ class DictionaryTestCase(unittest.TestCase):
         p.setDictionary(valuesDict)
         try:
             p.validate()
-        except LsstCppException, e:
+        except ValidationError, e:
             self.assert_(e.args[0].getErrors("bool_type")
                          == ValidationError.UNKNOWN_NAME)
         p.set("string_range_type", "moo")
         try:
             p.set("string_range_type", "victor")
-        except LsstCppException, e:
+        except ValidationError, e:
             self.assert_(e.args[0].getErrors("string_range_type")
                          == ValidationError.VALUE_OUT_OF_RANGE)
         p.setDictionary(oldD)
@@ -567,7 +551,7 @@ class DictionaryTestCase(unittest.TestCase):
         p = Policy(self.getTestDictionary("defaults_policy_partial.paf"))
         try:
             p.mergeDefaults(pd)
-        except LsstCppException, e:
+        except ValidationError, e:
             self.assert_(e.args[0].getErrors("required")
                          == ValidationError.MISSING_REQUIRED)
 
@@ -583,7 +567,7 @@ class DictionaryTestCase(unittest.TestCase):
         p.set("required", "foo")
         p.mergeDefaults(pd, False)
         # make sure validate() fails gracefully when no dictionary present
-        self.assertRaiseLCE("DictionaryError", "No dictionary",
+        self.assertRaisesEx(DictionaryError, "No dictionary",
                             p.validate, "No dictionary assigned")
         p.add("unknown", 0) # would be rejected if dictionary was kept
 
@@ -642,7 +626,7 @@ class DictionaryTestCase(unittest.TestCase):
         # which fails because there's only a definition for "empty_sub_no_default",
         # but it doesn't contain any sub-definitions
         # p.set("empty_sub_no_default.foo", "baz")
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaisesEx(DictionaryError,
                             "empty_sub_no_default.dictionary not found",
                             p.set, "Empty policy definition -- if this fails, "
                             "it means a known bug has been fixed.  That's good.",

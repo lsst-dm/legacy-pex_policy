@@ -186,7 +186,7 @@ public:
     static const char * const typeName[];
 
     /**
-     * Create an empty policy
+     * Create an empty policy.
      */
     Policy();
 
@@ -198,7 +198,7 @@ public:
      * @param pathOrUrn can be a local file name, file path, or URN.
      */
     explicit Policy(const std::string& pathOrUrn);
-    explicit Policy(const char *pathOrUrn);
+    explicit Policy(const char *pathOrUrn); ///< @bpdox{ignore}
     //@}
 
     /**
@@ -232,7 +232,7 @@ public:
     Policy(Policy& pol, bool deep=false);
 
     /**
-     * deep-copy a Policy.  
+     * deep-copy a Policy.  @bpdox{ignore}
      */
     Policy(const Policy& pol);
 
@@ -319,6 +319,7 @@ public:
      * specific types are implemented: bool, int, double, string, Policy,
      * FilePtr (aka shared_ptr<PolicyFile>), Ptr (aka shared_ptr<Policy>),
      * ConstPtr (aka shared_ptr<const Policy>).
+     * @bpdox{ignore}
      */
     template <typename T> static ValueType getValueType();
 
@@ -361,16 +362,16 @@ public:
      */
     int names(std::list<std::string>& names, 
               bool topLevelOnly=false, 
-              bool append=false) const;                      // inlined below
+              bool append=false) const;                      ///< @bpdox{ignore}
     int paramNames(std::list<std::string>& names, 
                    bool topLevelOnly=false, 
-                   bool append=false) const;                 // inlined below
+                   bool append=false) const;                 ///< @bpdox{ignore}
     int policyNames(std::list<std::string>& names, 
                     bool topLevelOnly=false, 
-                    bool append=false) const;                // inlined below
+                    bool append=false) const;                ///< @bpdox{ignore}
     int fileNames(std::list<std::string>& names, 
                   bool topLevelOnly=false, 
-                  bool append=false) const;                  // inlined below
+                  bool append=false) const;                  ///< @bpdox{ignore}
     //@}
 
     //@{
@@ -412,16 +413,16 @@ public:
 
     /**
      * Update this policy's dictionary that it uses to validate itself.  Note
-     * that this will *not* trigger validation -- you will need to call \code
-     * validate() \endcode afterwards.
+     * that this will *not* trigger validation -- you will need to call \c
+     * validate() afterwards.
      */
     void setDictionary(const Dictionary& dict);
 
     /**
-     * Validate this policy, using its stored dictionary.  If \code
-     * canValidate() \endcode is false, this will throw a LogicErrorException.
+     * Validate this policy, using its stored dictionary.  If \c canValidate()
+     * is false, this will throw a LogicErrorException.
      *
-     * If validation errors are found and \code err \endcode is null, a
+     * If validation errors are found and \c err is null, a
      * ValidationError will be thrown.
      *
      * @param errs if non-null, any validation errors will be stored here
@@ -540,7 +541,9 @@ public:
      * @exception TypeError     if the value associated the given name is not
      *                             a Policy type.  
      */
+    /// @bpdox{label:const}
     ConstPtr getPolicy(const std::string& name) const;       // inlined below
+    /// @bpdox{label:nonconst}
     Ptr getPolicy(const std::string& name);                  // inlined below
     //@}
 
@@ -624,8 +627,8 @@ public:
      * @exception TypeError     if the value associated the given name is not
      *                             a Policy type.  
      */
-    PolicyPtrArray getPolicyArray(const std::string& name) const;
-    ConstPolicyPtrArray getConstPolicyArray(const std::string& name) const;
+    PolicyPtrArray getPolicyArray(const std::string& name) const;  ///< @bpdox{label:nonconst}
+    ConstPolicyPtrArray getConstPolicyArray(const std::string& name) const;  ///< @bpdox{label:const}
     //@}
 
     /**
@@ -666,15 +669,15 @@ public:
      * particular, if the property previously pointed to an array of values,
      * all those values will be forgotten.
      *
-     * If this policy has a \code Dictionary \endcode (see \code canValidate()
-     * \endcode), this operation will be checked before it is performed, and if
-     * it would create an invalid state, it will not succeed, and a \code
-     * ValidationError \endcode will be thrown.  With the exception that the
+     * If this policy has a \c Dictionary (see \c canValidate()),
+     * this operation will be checked before it is performed, and if
+     * it would create an invalid state, it will not succeed, and a
+     * \c ValidationError will be thrown.  With the exception that the
      * minimum number of values (in the case of an array) will *not* be checked,
-     * in case this will be followed by \code add \endcode operations.
+     * in case this will be followed by \c add operations.
      *
-     * Note that \code set(const string&, const string&) \endcode and 
-     * \code set(const string&, const char *) \endcode are equivalent.
+     * Note that \c set(const string&, const string&) and 
+     * \c set(const string&, const char *) are equivalent.
      *
      * @param name       the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
@@ -685,6 +688,7 @@ public:
      *                    associated with the name. 
      */
     template <typename T> void setValue(const std::string& name, const T& value);
+    /// @bpdox{label:policy} @bpdox{ignore}
     void set(const std::string& name, const Ptr& value);      // inlined below
     void set(const std::string& name, const FilePtr& value);  // inlined below
     void set(const std::string& name, bool value);            // inlined below
@@ -701,15 +705,15 @@ public:
      * If a value was previously set using the set() function, that previous
      * value will be retained as the first value of the array.
      *
-     * If this policy has a \code Dictionary \endcode (see \code canValidate()
-     * \endcode), this operation will be checked before it is performed, and if
-     * it would create an invalid state, it will not succeed, and a \code
-     * ValidationError \endcode will be thrown.  With the exception that the
+     * If this policy has a \c Dictionary (see \c canValidate()),
+     * this operation will be checked before it is performed, and if
+     * it would create an invalid state, it will not succeed, and a
+     * \c ValidationError will be thrown.  With the exception that the
      * minimum number of values (in the case of an array) will *not* be checked,
-     * in case this is part of a sequence of \code add \endcode operations.
+     * in case this is part of a sequence of \c add operations.
      *
-     * Note that \code add(const string&, const string&) \endcode and 
-     * \code add(const string&, const char *) \endcode are equivalent.
+     * Note that \c add(const string&, const string&) and 
+     * \c add(const string&, const char *) are equivalent.
      * @param name       the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @param value      the value--int, double, string or Policy--to 
@@ -722,6 +726,7 @@ public:
      */
     // avoid name confusion with appended T
     template <typename T> void addValue(const std::string& name, const T& value);
+    /// @bpdox{label:policy} @bpdox{ignore}
     void add(const std::string& name, const Ptr& value);      // inlined below
     void add(const std::string& name, const FilePtr& value);  // inlined below
     void add(const std::string& name, bool value);            // inlined below

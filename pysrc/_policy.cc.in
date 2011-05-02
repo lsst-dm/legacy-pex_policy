@@ -1,6 +1,7 @@
 #include "boost/python.hpp"
 #include "boost/python/const_aware.hpp"
 #include "boost/python/to_python/copy_to_tuple.hpp"
+#include "boost/python/to_python/copy_to_list.hpp"
 #include "boost/python/from_python/container.hpp"
 #include "boost/python/from_python/filesystem.hpp"
 #include "boost/python/to_python/filesystem.hpp"
@@ -42,20 +43,6 @@ struct PyPolicy {
             bp::scope inWrapper(wrapper.main_class());
             %%auto_enum(Policy::ValueType)%%
                   .export_values();
-            bp::class_< Policy::BoolArray >("BoolArray")
-                .def(bp::indexing::vector_suite< Policy::BoolArray >());
-            bp::class_< Policy::IntArray >("IntArray")
-                .def(bp::indexing::vector_suite< Policy::IntArray >());
-            bp::class_< Policy::DoubleArray >("DoubleArray")
-                .def(bp::indexing::vector_suite< Policy::DoubleArray >());
-            bp::class_< Policy::StringArray >("StringArray")
-                .def(bp::indexing::vector_suite< Policy::StringArray >());
-            bp::class_< Policy::PolicyPtrArray >("PolicyPtrArray")
-                .def(bp::indexing::vector_suite< Policy::PolicyPtrArray, ptrVecMethods >());
-            bp::class_< Policy::ConstPolicyPtrArray >("ConstPolicyPtrArray")
-                .def(bp::indexing::vector_suite< Policy::ConstPolicyPtrArray, ptrVecMethods >());
-            bp::class_< Policy::FilePtrArray >("FilePtrArray")
-                .def(bp::indexing::vector_suite< Policy::FilePtrArray, ptrVecMethods >());
         }
         wrapper.main_class()
             .%%auto_init%%
@@ -114,27 +101,27 @@ struct PyPolicy {
             .%%auto_method(getInt)%%
             .%%auto_method(getDouble)%%
             .%%auto_method(getString)%%
-            .%%auto_method(getPolicyArray)%%
-            .%%auto_method(getConstPolicyArray)%%
-            .%%auto_method(getFileArray)%%
-            .%%auto_method(getBoolArray)%%
-            .%%auto_method(getIntArray)%%
-            .%%auto_method(getDoubleArray)%%
-            .%%auto_method(getStringArray)%%
+            .%%auto_method(getPolicyArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getConstPolicyArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getFileArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getBoolArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getIntArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getDoubleArray, bp::return_value_policy<bp::copy_to_list>())%%
+            .%%auto_method(getStringArray, bp::return_value_policy<bp::copy_to_list>())%%
             .def( // more from the same doxygen bug
                  "set",
                  (void (Policy::*)(const std::string &, const Policy::Ptr &))&Policy::set,
                  (bp::arg("name"), bp::arg("value")),
                  %%doc(Policy::set[policy])%%
             )
-            .%%auto_method(set)%%
+            .%%auto_method(set[file,string,double,int,bool])%%
             .def(
                  "add",
                  (void (Policy::*)(const std::string &, const Policy::Ptr &))&Policy::add,
                  (bp::arg("name"), bp::arg("value")),
                  %%doc(Policy::add[policy])%%
             )
-            .%%auto_method(add)%%
+            .%%auto_method(add[file,string,double,int,bool])%%
             .%%auto_method(remove)%%
             .%%auto_method(loadPolicyFiles)%%
             .def(
@@ -146,6 +133,8 @@ struct PyPolicy {
             .%%auto_method(asPropertySet)%%
             .def("_setBool", &Policy::setValue<bool>)
             .def("_addBool", &Policy::addValue<bool>)
+            .def("_setInt", &Policy::setValue<int>)
+            .def("_addInt", &Policy::addValue<int>)
             ;
     }
 
@@ -450,7 +439,7 @@ struct PyPAFWriter {
 
     static void declare() {
         auto wrapper = bp::make_const_aware(
-            %%auto_class<PAFWriter,noncopyable>%%
+            %%auto_class<PAFWriter,noncopyable>(bp::init<>())%%
         );
         wrapper.main_class()
             .%%auto_init[string]%%

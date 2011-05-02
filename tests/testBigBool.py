@@ -31,33 +31,39 @@ import sys
 import unittest
 import time
 
-from lsst.pex.policy import Policy, PolicyStringDestination
-from lsst.pex.policy.paf import PAFWriter
+from lsst.pex.policy import Policy
 
-class PolicyOutStringTestCase(unittest.TestCase):
+proddir = os.environ["PEX_POLICY_DIR"]
+
+class BigBoolTestCase(unittest.TestCase):
 
     def setUp(self):
         self.policy = Policy()
-        self.policy.set("answer", 42)
-        self.policy.set("name", "ray")
 
     def tearDown(self):
-        pass
+        del self.policy
+        
+    def testBigBoolArray(self):
+        biglen = 1000
+        self.policy.isBool("true")
+        for i in xrange(biglen):
+            self.policy.add("true", True)
 
-    def testDest(self):
-        dest = PolicyStringDestination("#<?cfg paf policy ?>")
-        self.assertEquals(dest.getData(), "#<?cfg paf policy ?>")
+        v = self.policy.getArray("true")
+        self.assertEquals(len(v), biglen,"wrong big number of values in array")
+        for i in xrange(biglen):
+            self.assert_(v[i], "big array with bad value")
 
-    def testWrite(self):
-        writer = PAFWriter()
-        writer.write(self.policy, True)
-        out = writer.toString();
-        self.assert_(out.startswith("#<?cfg paf policy ?>"))
+        del v
+        self.assert_(True, "Blew up True")
 
-__all__ = "PolicyOutStringTestCase".split()        
+        fd = open("/dev/null", "w")
+        print >> fd, "look: %s" % True
+        fd.close()
+
+        
+
+__all__ = "BigBoolTestCase".split()        
 
 if __name__ == "__main__":
     unittest.main()
-
-
-        

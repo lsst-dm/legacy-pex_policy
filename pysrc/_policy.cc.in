@@ -1,12 +1,4 @@
-#include "boost/python.hpp"
-#include "boost/python/const_aware.hpp"
-#include "boost/python/to_python/copy_to_tuple.hpp"
-#include "boost/python/to_python/copy_to_list.hpp"
-#include "boost/python/from_python/container.hpp"
-#include "boost/python/from_python/filesystem.hpp"
-#include "boost/python/to_python/filesystem.hpp"
-#include "indexing_suite/vector.hpp"
-#include "lsst/bputils/exceptions.h"
+#include "lsst/bputils.h"
 
 #include "lsst/pex/policy.h"
 #include "lsst/pex/policy/PolicyStreamDestination.h"
@@ -21,21 +13,7 @@ namespace {
 
 struct PyPolicy {
 
-    static bp::str getTypeInfo(Policy const & self, std::string const & name) {
-        return bp::str(self.getTypeInfo(name).name());
-    }
-
-    static bp::indexing::method_set_type const ptrVecMethods = 
-        bp::indexing::all_methods
-        & ~bp::indexing::method_sort 
-        & ~bp::indexing::method_contains 
-        & ~bp::indexing::method_count 
-        & ~bp::indexing::method_has_key
-        & ~bp::indexing::method_index
-        ;
-
     static void declare() {
-        bp::container_from_python_sequence< std::list<std::string> >();
         auto wrapper = bp::make_const_aware(
             %%auto_class<Policy>%%
         );
@@ -44,36 +22,14 @@ struct PyPolicy {
             %%auto_enum(Policy::ValueType)%%
                   .export_values();
         }
+        %%ignore_members(typeName, getTypeInfo, typeOf, mergeDefaults)%%;
+        %%ignore_members(getPolicy, set, add, setValue, addValue, getValue, getValueArray)%%;
         wrapper.main_class()
-            .%%auto_init%%
             .def(str(bp::self))
             ;
         wrapper
             .copy_method_to_proxy("__str__")
             .enable_shared_ptr()
-            .%%auto_method(createPolicy, bp::return_value_policy< bp::manage_new_object >())%%
-            .%%auto_method(createPolicyFromUrn, bp::return_value_policy< bp::manage_new_object >())%%
-            .%%auto_method(createPolicyFile)%%
-            .%%auto_method(getTypeByName)%%
-            .%%auto_method(nameCount)%%
-            .%%auto_method(names)%%
-            .%%auto_method(paramNames)%%
-            .%%auto_method(policyNames)%%
-            .%%auto_method(fileNames)%%
-            .%%auto_method(isDictionary)%%
-            .%%auto_method(canValidate)%%
-            .%%auto_method(getDictionary)%%
-            .%%auto_method(setDictionary)%%
-            .%%auto_method(validate)%%
-            .%%auto_method(valueCount)%%
-            .%%auto_method(isArray)%%
-            .%%auto_method(exists)%%
-            .%%auto_method(isBool)%%
-            .%%auto_method(isInt)%%
-            .%%auto_method(isDouble)%%
-            .%%auto_method(isString)%%
-            .%%auto_method(isPolicy)%%
-            .%%auto_method(isFile)%%
             .def(
                 "getTypeInfo", &getTypeInfo, bp::arg("name"),
                 %%doc(Policy::getTypeInfo)%%
@@ -82,8 +38,8 @@ struct PyPolicy {
                 "typeOf", &getTypeInfo, bp::arg("name"),
                 %%doc(Policy::typeOf)%%
             )
-            .%%auto_method(getValueType)%%
-            .%%auto_method(getTypeName)%%
+            .%%auto_method(createPolicy, bp::return_value_policy< bp::manage_new_object >())%%
+            .%%auto_method(createPolicyFromUrn, bp::return_value_policy< bp::manage_new_object >())%%
             .def( // these are manual because doxygen bug #648719 screws up the return type
                  "getPolicy",
                  (Policy::ConstPtr (Policy::*)(const std::string &) const)&Policy::getPolicy,
@@ -96,11 +52,6 @@ struct PyPolicy {
                  (bp::arg("name")),
                  %%doc(Policy::getPolicy[nonconst])%%
              )
-            .%%auto_method(getFile)%%
-            .%%auto_method(getBool)%%
-            .%%auto_method(getInt)%%
-            .%%auto_method(getDouble)%%
-            .%%auto_method(getString)%%
             .%%auto_method(getPolicyArray, bp::return_value_policy<bp::copy_to_list>())%%
             .%%auto_method(getConstPolicyArray, bp::return_value_policy<bp::copy_to_list>())%%
             .%%auto_method(getFileArray, bp::return_value_policy<bp::copy_to_list>())%%
@@ -122,20 +73,26 @@ struct PyPolicy {
                  %%doc(Policy::add[policy])%%
             )
             .%%auto_method(add[file,string,double,int,bool])%%
-            .%%auto_method(remove)%%
-            .%%auto_method(loadPolicyFiles)%%
             .def(
                 "mergeDefaults", &Policy::mergeDefaults,
                 (bp::arg("defaultPol"), bp::arg("keepForValidation")=true, bp::arg("errs")=bp::object())
             )
-            .%%auto_method(str)%%
-            .%%auto_method(toString)%%
-            .%%auto_method(asPropertySet)%%
             .def("_setBool", &Policy::setValue<bool>)
             .def("_addBool", &Policy::addValue<bool>)
             .def("_setInt", &Policy::setValue<int>)
             .def("_addInt", &Policy::addValue<int>)
+            .def("_typeName", &_typeName)
+            .staticmethod("_typeName")
+            .%%auto_members_regex(.*)%%
             ;
+    }
+
+    static char const * _typeName(Policy::ValueType v) {
+        return Policy::typeName[v];
+    }
+
+    static bp::str getTypeInfo(Policy const & self, std::string const & name) {
+        return bp::str(self.getTypeInfo(name).name());
     }
 
 };
@@ -153,16 +110,12 @@ struct PyValidationError {
             %%auto_enum(ValidationError::ErrorType)%%
                   .export_values();
         }
+        %%ignore_members(clone, getType)%%;
         wrapper
-            // Because actual exception type is a proxy, there's some extra 
-            // pure Python code to make this work as well (in __init__.py).
-            .%%auto_init%%
-            .%%auto_method(getParamCount)%%
+            // Because the actual exception type is a proxy, there's some extra 
+            // pure Python code to make constructors work (in __init__.py).
             .%%auto_method(getParamNames, bp::return_value_policy<bp::copy_to_tuple>())%%
-            .%%auto_method(getErrors)%%
-            .%%auto_method(addError)%%
-            .%%auto_method(describe)%%
-            .setattr("EMPTY", ValidationError::EMPTY)
+            .%%auto_members_regex(.*)%%
             ;
     }
 
@@ -177,31 +130,11 @@ struct PyDefinition {
         auto wrapper = bp::make_const_aware(
             %%auto_class<Definition>%%
         );
-        wrapper.main_class()
-            .%%auto_init%%
-            ;
+        %%ignore_members(setDefaultIn,validateBasic)%%;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(getName, bp::return_value_policy< bp::copy_const_reference >())%%
-            .%%auto_method(getPrefix)%%
-            .%%auto_method(setPrefix)%%
-            .%%auto_method(isChildDefinition)%%
-            .%%auto_method(setChildDefinition)%%
-            .%%auto_method(isWildcard)%%
-            .%%auto_method(setWildcard)%%
-            .%%auto_method(setName)%%
-            .%%auto_method(getData, bp::return_value_policy< bp::copy_const_reference >())%%
-            .%%auto_method(setData)%%
-            .%%auto_method(getType)%%
-            .%%auto_method(getTypeName)%%
-            .%%auto_method(getDefault)%%
-            .%%auto_method(getDescription)%%
-            .%%auto_method(getMaxOccurs)%%
-            .%%auto_method(getMinOccurs)%%
             .%%auto_method(setDefaultIn[no_name,with_name])%%
-            .%%auto_method(validate)%%
-            .%%auto_method(validateRecurse)%%
-            .%%auto_method(check)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
 
@@ -213,35 +146,10 @@ struct PyDictionary {
         auto wrapper = bp::make_const_aware(
             %%auto_class<Dictionary>%%
         );
-        wrapper.main_class()
-            .setattr("KW_DICT",        Dictionary::KW_DICT)
-            .setattr("KW_DICT_FILE",   Dictionary::KW_DICT_FILE)
-            .setattr("KW_TYPE",        Dictionary::KW_TYPE)
-            .setattr("KW_DESCRIPTION", Dictionary::KW_DESCRIPTION)
-            .setattr("KW_DEFAULT",     Dictionary::KW_DEFAULT)
-            .setattr("KW_DEFINITIONS", Dictionary::KW_DEFINITIONS)
-            .setattr("KW_CHILD_DEF",   Dictionary::KW_CHILD_DEF)
-            .setattr("KW_ALLOWED",     Dictionary::KW_ALLOWED)
-            .setattr("KW_MIN_OCCUR",   Dictionary::KW_MIN_OCCUR)
-            .setattr("KW_MAX_OCCUR",   Dictionary::KW_MAX_OCCUR)
-            .setattr("KW_MIN",         Dictionary::KW_MIN)
-            .setattr("KW_MAX",         Dictionary::KW_MAX)
-            .setattr("KW_VALUE",       Dictionary::KW_VALUE)
-            .%%auto_init%%
-            ;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(getDefinitions)%%
-            .%%auto_method(check)%%
-            .%%auto_method(definedNames)%%
-            .%%auto_method(getDef)%%
             .%%auto_method(makeDef, bp::return_value_policy< bp::manage_new_object >())%%
-            .%%auto_method(hasSubDictionary)%%
-            .%%auto_method(getSubDictionary)%%
-            .%%auto_method(validate)%%
-            .%%auto_method(loadPolicyFiles)%%
-            .%%auto_method(getPrefix)%%
-            .%%auto_method(setPrefix)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
 
@@ -253,23 +161,10 @@ struct PyPolicyWriter {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyWriter,noncopyable>%%
         );
+        %%ignore_members(PolicyWriter)%%;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(write)%%
-            .%%auto_method(writeBool)%%
-            .%%auto_method(writeInt)%%
-            .%%auto_method(writeDouble)%%
-            .%%auto_method(writeString)%%
-            .%%auto_method(writePolicy)%%
-            .%%auto_method(writeFile)%%
-            .%%auto_method(writeBools)%%
-            .%%auto_method(writeInts)%%
-            .%%auto_method(writeDoubles)%%
-            .%%auto_method(writeStrings)%%
-            .%%auto_method(writePolicies)%%
-            .%%auto_method(writeFiles)%%
-            .%%auto_method(close)%%
-            .%%auto_method(toString)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
 
@@ -281,10 +176,10 @@ struct PyPolicySource {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicySource,noncopyable>%%
         );
+        %%ignore_members(PolicySource)%%;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(getFormatName, bp::return_value_policy< bp::copy_const_reference>())%%
-            .%%auto_method(load)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
     
@@ -296,7 +191,9 @@ struct PyPolicyFile {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyFile>%%
         );
-        wrapper.main_class()
+        %%ignore_members(PolicyFile)%%;
+        wrapper
+            .enable_shared_ptr()
             // manually wrap two constructors - the others are equivalent or unusable from Python
             // (because SupportedFormats and PolicyParserFactory are not wrapped) 
             .def(
@@ -312,13 +209,7 @@ struct PyPolicyFile {
                     "Create a Policy file that points to a file with the given path."
                 )
             )
-            ;
-        wrapper
-            .enable_shared_ptr()
-            .%%auto_method(getPath)%%
-            .%%auto_method(exists)%%
-            .%%auto_method(getFormatName, bp::return_value_policy<bp::copy_const_reference>())%%
-            .%%auto_method(load)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
     
@@ -330,15 +221,10 @@ struct PyDefaultPolicyFile {
         auto wrapper = bp::make_const_aware(
             %%auto_class<DefaultPolicyFile>%%
         );
-        wrapper.main_class()
-            .%%auto_init%%
-            ;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(getInstallPath)%%
             .%%auto_method(getRepositoryPath, bp::return_value_policy<bp::copy_const_reference>())%%
-            .%%auto_method(installPathFor)%%
-            .%%auto_method(load)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
     
@@ -350,17 +236,9 @@ struct PyUrnPolicyFile {
         auto wrapper = bp::make_const_aware(
             %%auto_class<UrnPolicyFile>%%
         );
-        wrapper.main_class()
-            .%%auto_init%%
-            .setattr("URN_PREFIX", UrnPolicyFile::URN_PREFIX)
-            .setattr("URN_PREFIX_ABBREV", UrnPolicyFile::URN_PREFIX_ABBREV)
-            ;
         wrapper
             .enable_shared_ptr()
-            .%%auto_method(productNameFromUrn)%%
-            .%%auto_method(filePathFromUrn)%%
-            .%%auto_method(reposFromUrn)%%
-            .%%auto_method(looksLikeUrn)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
     
@@ -372,7 +250,9 @@ struct PyPolicyString {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyString>(bp::init<>("Create a null policy from an empty string."))%%
         );
-        wrapper.main_class()
+        %%ignore_members(PolicyString)%%;
+        wrapper
+            .enable_shared_ptr()
             // manually wrap one more constructor
             .def(
                 bp::init<std::string const &>(
@@ -380,11 +260,7 @@ struct PyPolicyString {
                     "Create a PolicyString that's wrapped around a given string."
                 )
             )
-            ;
-        wrapper
-            .enable_shared_ptr()
-            .%%auto_method(getData, bp::return_value_policy<bp::copy_const_reference>())%%
-            .%%auto_method(load)%%
+            .%%auto_members_regex(.*)%%
             ;
     }
     
@@ -396,7 +272,12 @@ struct PyPolicyDestination {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyDestination,noncopyable>%%
         );
-        wrapper.enable_shared_ptr();
+        %%ignore_members(PolicyDestination)%%;
+        wrapper
+            .enable_shared_ptr()
+            .%%auto_method(getOutputStream, bp::return_internal_reference<>())%%
+            ;
+        %%finish_class%%; // warns if we didn't wrap something, since we didn't use regex(.*)
     }
 
 };
@@ -407,8 +288,11 @@ struct PyPolicyStreamDestination {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyStreamDestination>%%
         );
-        // No constructors defined, because they take std::ostream and we can't make one from Python.
-        wrapper.enable_shared_ptr();
+        wrapper
+            .enable_shared_ptr()
+            .%%auto_init%%
+            ;
+        %%finish_class%%; // warns if we didn't wrap something, since we didn't use regex(.*)
     }
 
 };
@@ -419,13 +303,12 @@ struct PyPolicyStringDestination {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyStringDestination>%%
         );
-        wrapper.main_class()
-            .%%auto_init%%
-            ;
         wrapper
             .enable_shared_ptr()
+            .%%auto_init%%
             .%%auto_method(getData)%%
             ;
+        %%finish_class%%; // warns if we didn't wrap something, since we didn't use regex(.*)
     }
 
 };
@@ -441,11 +324,9 @@ struct PyPAFWriter {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PAFWriter,noncopyable>(bp::init<>())%%
         );
-        wrapper.main_class()
-            .%%auto_init[string]%%
-            ;
         wrapper // all member functions are implementations of virtuals wrapped in PolicyWriter
             .enable_shared_ptr()
+            .%%auto_members_regex(.*)%%
             ;
     }
 
@@ -457,8 +338,6 @@ struct PyPAFWriter {
 namespace {
 
 void declarePolicy() {
-    bp::filesystem_path_to_python();
-    bp::filesystem_path_from_python_str();
     bputils::declareException<BadNameError,pex::exceptions::RuntimeErrorException>("BadNameError");
     bputils::declareException<DictionaryError,pex::exceptions::DomainErrorException>("DictionaryError");
     bputils::declareException<NameNotFound,pex::exceptions::NotFoundException>("NameNotFound");
@@ -489,6 +368,7 @@ void declarePolicy() {
 }}} // namespace lsst::pex::policy
 
 BOOST_PYTHON_MODULE(_policy) {
+    lsst::bputils::registerConversions();
     bp::import("lsst.daf.base");
     lsst::pex::policy::declarePolicy();
 }

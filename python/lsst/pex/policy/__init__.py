@@ -32,6 +32,8 @@ lsst.bputils.rescope(_policy, globals(), ignore=("Policy", "ValidationError", "P
 @lsst.bputils.extend(_policy.Policy)
 class Policy:
     
+    typeName = dict((v, _policy.Policy._typeName(v)) for v in _policy.Policy.ValueType.names.itervalues())
+
     def get(p, name):
         type = p.getValueType(name);
         if (type == p.UNDEF):
@@ -101,6 +103,8 @@ class ValidationError:
             )
 
     ErrorType = _policy.LsstCppValidationError.ErrorType
+    EMPTY = _policy.LsstCppValidationError.EMPTY
+    getErrorMessageFor = _policy.LsstCppValidationError.getErrorMessageFor
 
 for name, value in ValidationError.ErrorType.names.iteritems():
     setattr(ValidationError, name, value)

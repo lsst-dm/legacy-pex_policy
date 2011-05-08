@@ -288,6 +288,7 @@ struct PyPolicyStreamDestination {
         auto wrapper = bp::make_const_aware(
             %%auto_class<PolicyStreamDestination>%%
         );
+        %%ignore_members(getOutputStream)%%; // wrapped in base class.
         wrapper
             .enable_shared_ptr()
             .%%auto_init%%

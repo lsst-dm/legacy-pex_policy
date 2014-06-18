@@ -52,9 +52,9 @@ class ValidationError;
 #define POL_GETSCALAR(name, type, vtype) \
     try { \
         return _data->get<type>(name); \
-    } catch (lsst::pex::exceptions::NotFoundException&) {   \
+    } catch (lsst::pex::exceptions::NotFoundError&) {   \
         throw LSST_EXCEPT(NameNotFound, name);  \
-    } catch (lsst::daf::base::TypeMismatchException&) { \
+    } catch (lsst::pex::exceptions::TypeError&) { \
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
     } catch (boost::bad_any_cast&) { \
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
@@ -63,9 +63,9 @@ class ValidationError;
 #define POL_GETLIST(name, type, vtype) \
     try { \
         return _data->getArray<type>(name); \
-    } catch (lsst::pex::exceptions::NotFoundException&) {   \
+    } catch (lsst::pex::exceptions::NotFoundError&) {   \
         throw LSST_EXCEPT(NameNotFound, name);  \
-    } catch (lsst::daf::base::TypeMismatchException&) { \
+    } catch (lsst::pex::exceptions::TypeError&) { \
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
     } catch (boost::bad_any_cast&) { \
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
@@ -230,7 +230,7 @@ public:
      * Create a default Policy from a Dictionary.  If the Dictionary references
      * files containing dictionaries for sub-Policies, an attempt is made to
      * open them and extract the default data, and if that attempt fails, an
-     * exception is thrown (probably an IoErrorException or ParseError).
+     * exception is thrown (probably an IoError or ParseError).
      *
      * @param validate    if true, a shallow copy of the Dictionary will be
      *                    held onto by this Policy and used to validate future
@@ -440,7 +440,7 @@ public:
 
     /**
      * Validate this policy, using its stored dictionary.  If \code
-     * canValidate() \endcode is false, this will throw a LogicErrorException.
+     * canValidate() \endcode is false, this will throw a LogicError.
      *
      * If validation errors are found and \code err \endcode is null, a
      * ValidationError will be thrown.
@@ -767,7 +767,7 @@ public:
      * error before the PolicyFile values themselves are erased.
      * @param strict      If true, throw an exception if an error occurs 
      *                    while reading and/or parsing the file (probably an
-     *                    IoErrorException or ParseError).  Otherwise, replace
+     *                    IoError or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
      *                    (that is, "{}").
      * @return            the number of files loaded
@@ -1003,7 +1003,7 @@ inline bool Policy::isFile(const std::string& name) const {
 inline const std::type_info& Policy::getTypeInfo(const std::string& name) const
 {
     try {  return _data->typeOf(name); }
-    catch (lsst::pex::exceptions::NotFoundException& e) {
+    catch (lsst::pex::exceptions::NotFoundError& e) {
         throw LSST_EXCEPT(NameNotFound, name);
     }
 }
@@ -1059,7 +1059,7 @@ inline void Policy::set(const std::string& name, const std::string& value) {
 }
 inline void Policy::set(const std::string& name, const char *value) { 
     if (value == NULL)
-        throw LSST_EXCEPT(lsst::pex::exceptions::InvalidParameterException,
+        throw LSST_EXCEPT(lsst::pex::exceptions::InvalidParameterError,
                           std::string("Attempted to assign NULL value to ")
                           + name + ".");
     _validate(name, std::string(value));
@@ -1068,7 +1068,7 @@ inline void Policy::set(const std::string& name, const char *value) {
 
 #define POL_ADD(name, value) \
     try {  _data->add(name, value);  } \
-    catch(lsst::daf::base::TypeMismatchException&) { \
+    catch(lsst::pex::exceptions::TypeError&) { \
         throw LSST_EXCEPT(TypeError, name, getTypeName(name));  \
     }
 

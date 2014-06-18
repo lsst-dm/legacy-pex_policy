@@ -98,7 +98,7 @@ const string& PolicyString::getFormatName() {
     std::istringstream is(_data);
     if (is.fail()) {
         PolStr_ERROR_MSG(msg, "failure opening input Policy string", _data);
-        throw LSST_EXCEPT(pexExcept::IoErrorException, msg.str());
+        throw LSST_EXCEPT(pexExcept::IoError, msg.str());
     }
 
     // skip over comments
@@ -111,7 +111,7 @@ const string& PolicyString::getFormatName() {
             
     if (is.fail()) {
         PolStr_ERROR_MSG(msg, "failure reading input Policy string", _data);
-        throw LSST_EXCEPT(pexExcept::IoErrorException, msg.str());
+        throw LSST_EXCEPT(pexExcept::IoError, msg.str());
     }
     if (is.eof() && 
         (regex_match(line, SPACE_RE) || 
@@ -137,7 +137,7 @@ void PolicyString::load(Policy& policy) {
         const string& fmtname = getFormatName();
         if (fmtname.empty()) {
             PolStr_ERROR_MSG(ms,"Unknown Policy format for string data",_data);
-            throw LSST_EXCEPT(pexExcept::IoErrorException, ms.str());
+            throw LSST_EXCEPT(pexExcept::IoError, ms.str());
         }
         pfactory = _formats->getFactory(fmtname);
     }
@@ -147,7 +147,7 @@ void PolicyString::load(Policy& policy) {
     std::istringstream is(_data);
     if (is.fail()) {
         PolStr_ERROR_MSG(msg, "failure opening Policy string", _data);
-        throw LSST_EXCEPT(pexExcept::IoErrorException, msg.str());
+        throw LSST_EXCEPT(pexExcept::IoError, msg.str());
     }
     parser->parse(is);
 }

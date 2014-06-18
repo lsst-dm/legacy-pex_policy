@@ -119,7 +119,7 @@ void PolicyWriter::write(const Policy& policy, bool doDecl) {
                 writeFiles(*ni, policy.getFileArray(*ni));
             }
             else {
-                throw LSST_EXCEPT(pexExcept::LogicErrorException, "Policy: unexpected type for name=" + *ni);
+                throw LSST_EXCEPT(pexExcept::LogicError, "Policy: unexpected type for name=" + *ni);
             }
         }
         catch (NameNotFound&) {

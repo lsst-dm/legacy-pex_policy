@@ -201,7 +201,7 @@ void Definition::setDefaultIn(Policy& policy, const string& withName,
         setDefaultIn<string>(policy, withName, errs);
     else if (type == Policy::POLICY)
         setDefaultIn<Policy::Ptr>(policy, withName, errs);
-    else throw LSST_EXCEPT(pexExcept::LogicErrorException,
+    else throw LSST_EXCEPT(pexExcept::LogicError,
                            string("Programmer Error: Unknown type for \"")
                            + getPrefix() + withName + "\": "
                            + Policy::typeName[getType()]);
@@ -258,7 +258,7 @@ void Definition::validate(const Policy& policy, const string& name,
         break;
 
     default:
-        throw LSST_EXCEPT(pexExcept::LogicErrorException,
+        throw LSST_EXCEPT(pexExcept::LogicError,
                           string("Unknown type for \"") + getPrefix() + name 
                           + "\": \"" + policy.getTypeName(name) + "\"");
     }
@@ -314,7 +314,7 @@ void Definition::validateRecurse(const string& name, const Policy& value,
 {
     if (!getType() == Policy::POLICY) // should have checked this at a higher level
         throw LSST_EXCEPT
-            (pexExcept::LogicErrorException, string("Wrong type: expected ") 
+            (pexExcept::LogicError, string("Wrong type: expected ") 
              + Policy::typeName[Policy::POLICY] + " for " + getPrefix() + name 
              + " but found " + getTypeName() + ". // recurse if we have a sub-definition");
     // recurse if we have a sub-definition
@@ -333,7 +333,7 @@ void Definition::validateRecurse(const string& name, const Policy& value,
     // is there an unresolved link here?
     else if (_policy->exists(Dictionary::KW_DICT_FILE)) {
         throw LSST_EXCEPT
-            (pexExcept::LogicErrorException, _prefix + name
+            (pexExcept::LogicError, _prefix + name
              + "." + Dictionary::KW_DICT_FILE + " needs to be loaded with "
              "Dictionary.loadPolicyFiles() before validating.");
     }
@@ -569,19 +569,19 @@ const regex Dictionary::FIELDSEP_RE("\\.");
  */
 Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath) 
                           + ": does not contain a Dictionary");
     check();
 }
 Dictionary::Dictionary(const string& filePath) : Policy(filePath) { 
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, string(filePath) 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath) 
                           + ": does not contain a Dictionary");
     check();
 }
 Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) { 
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, filePath.getPath() 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, filePath.getPath() 
                           + ": does not contain a Dictionary");
     check();
 }
@@ -643,7 +643,7 @@ Definition* Dictionary::makeDef(const string& name) const {
 Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
     string subname = string(KW_DEFINITIONS) + "." + name + ".dictionary";
     if (!exists(subname)) throw LSST_EXCEPT
-        (pexExcept::LogicErrorException,
+        (pexExcept::LogicError,
          string("sub-policy \"") + subname + "\" not found.");
     if (!isPolicy(subname)) throw LSST_EXCEPT
         (DictionaryError, subname + " is a " + getTypeName(subname) 

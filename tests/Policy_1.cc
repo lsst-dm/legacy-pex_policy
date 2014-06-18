@@ -69,7 +69,7 @@ int main() {
         p.set("foo", nothing);
         Assert(false, "no error when setting value to NULL");
     }
-    catch (lsst::pex::exceptions::InvalidParameterException e) { }
+    catch (lsst::pex::exceptions::InvalidParameterError e) { }
 
     p.set("doall", "true");
 

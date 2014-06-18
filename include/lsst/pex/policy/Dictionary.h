@@ -52,7 +52,7 @@ class PolicyFile;
  * Policy Dictionary.  Each error is represented by an enumeration constant
  * which maps to an error message.  
  */
-class ValidationError : public lsst::pex::exceptions::LogicErrorException {
+class ValidationError : public lsst::pex::exceptions::LogicError {
 public:
 
     /**
@@ -151,7 +151,7 @@ public:
      * create an empty ValidationError message
      */
     ValidationError(char const* ex_file, int ex_line, char const* ex_func) 
-	: lsst::pex::exceptions::LogicErrorException(ex_file, ex_line, ex_func,
+	: lsst::pex::exceptions::LogicError(ex_file, ex_line, ex_func,
 					             "Policy has unknown validation errors"), 
        _errors() 
     { }
@@ -163,18 +163,18 @@ public:
      * Copy constructor.
      */
     ValidationError(const ValidationError& that) 
-	: lsst::pex::exceptions::LogicErrorException(that), _errors(that._errors) 
+	: lsst::pex::exceptions::LogicError(that), _errors(that._errors) 
     { }
 
     ValidationError& operator=(const ValidationError& that) {
-	LogicErrorException::operator=(that);
+	LogicError::operator=(that);
 	_errors = that._errors;
 	return *this;
     }
 
 // Swig is having trouble with this macro
 //    ValidationError(POL_EARGS_TYPED) 
-//       : lsst::pex::exceptions::LogicErrorException(POL_EARGS_UNTYPED, 
+//       : lsst::pex::exceptions::LogicError(POL_EARGS_UNTYPED, 
 //                                                    "policy has unknown validation errors"), 
 //       _errors() 
 //    { }
@@ -395,7 +395,7 @@ public:
 
     /**
      * Return the semantic definition for the parameter, empty string if none is
-     * specified, or throw a TypeError if it is the wrong type.
+     * specified, or throw a pexPolicy::TypeError if it is the wrong type.
      */
     const std::string getDescription() const;
 
@@ -875,7 +875,7 @@ public:
      * error before the PolicyFile values themselves are erased.
      * @param strict      If true, throw an exception if an error occurs 
      *                    while reading and/or parsing the file (probably an
-     *                    IoErrorException or ParseError).  Otherwise, replace
+     *                    IoError or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
      *                    (that is, "{}").
      * @return            the number of files loaded

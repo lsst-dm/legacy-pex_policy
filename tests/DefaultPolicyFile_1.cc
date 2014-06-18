@@ -35,8 +35,6 @@
 using namespace std;
 using lsst::pex::policy::Policy;
 using lsst::pex::policy::DefaultPolicyFile;
-using lsst::pex::policy::TypeError;
-using lsst::pex::policy::NameNotFound;
 
 namespace fs = boost::filesystem;
 
@@ -74,7 +72,7 @@ int main() {
         ipath = DefaultPolicyFile::installPathFor("pex_goober");
         Assert(false, "Ignored undefined product name (pex_goober)");
     }
-    catch (lsst::pex::exceptions::NotFoundException ex) {
+    catch (lsst::pex::exceptions::NotFoundError ex) {
         cout << "Detected missing product" << endl;
     }
 

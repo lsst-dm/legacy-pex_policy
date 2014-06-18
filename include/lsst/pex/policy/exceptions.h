@@ -52,14 +52,14 @@ namespace policy {
  * either starts with a period, ends with a period, or contains two or more
  * consecutive periods.
  */
-class BadNameError : public lsst::pex::exceptions::RuntimeErrorException {
+class BadNameError : public lsst::pex::exceptions::RuntimeError {
 public:
     BadNameError(POL_EARGS_TYPED) 
-        : lsst::pex::exceptions::RuntimeErrorException(
+        : lsst::pex::exceptions::RuntimeError(
                 POL_EARGS_UNTYPED, "Illegal Policy parameter name") 
     { }
     BadNameError(POL_EARGS_TYPED, const std::string& badname) 
-        : lsst::pex::exceptions::RuntimeErrorException(POL_EARGS_UNTYPED, 
+        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, 
               std::string("Illegal Policy parameter name: ") + badname) 
     { }
     virtual char const *getType(void) const throw();
@@ -69,14 +69,14 @@ public:
 /**
  * There is a problem with a dictionary.
  */
-class DictionaryError : public lsst::pex::exceptions::DomainErrorException {
+class DictionaryError : public lsst::pex::exceptions::DomainError {
 public:
     DictionaryError(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::DomainErrorException(
+        : lsst::pex::exceptions::DomainError(
                 POL_EARGS_UNTYPED, "Malformed dictionary")
     { }
     DictionaryError(POL_EARGS_TYPED, const std::string& msg)
-        : lsst::pex::exceptions::DomainErrorException(POL_EARGS_UNTYPED,
+        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED,
             std::string("Malformed dictionary: ") + msg)
     { }
     virtual char const *getType(void) const throw();
@@ -87,14 +87,14 @@ public:
  * an exception indicating that a policy parameter of a given name can
  * not be found in a Policy object.
  */
-class NameNotFound : public lsst::pex::exceptions::NotFoundException {
+class NameNotFound : public lsst::pex::exceptions::NotFoundError {
 public:
     NameNotFound(POL_EARGS_TYPED) 
-        : lsst::pex::exceptions::NotFoundException(
+        : lsst::pex::exceptions::NotFoundError(
                 POL_EARGS_UNTYPED, "Policy parameter name not found") 
     { }
     NameNotFound(POL_EARGS_TYPED, const std::string& parameter) 
-        : lsst::pex::exceptions::NotFoundException(POL_EARGS_UNTYPED,
+        : lsst::pex::exceptions::NotFoundError(POL_EARGS_UNTYPED,
                 std::string("Policy parameter name not found: ") + parameter) 
     { }
     virtual char const *getType(void) const throw();
@@ -105,15 +105,15 @@ public:
  * an exception indicating that a policy parameter with a given name has a
  * type different from the one that was requested.
  */
-class TypeError : public lsst::pex::exceptions::DomainErrorException {
+class TypeError : public lsst::pex::exceptions::DomainError {
 public:
     TypeError(POL_EARGS_TYPED) 
-        : lsst::pex::exceptions::DomainErrorException(
+        : lsst::pex::exceptions::DomainError(
                 POL_EARGS_UNTYPED, "Parameter has wrong type") 
     { }
     TypeError(POL_EARGS_TYPED, 
               const std::string& parameter, const std::string& expected)  
-        : lsst::pex::exceptions::DomainErrorException(POL_EARGS_UNTYPED, 
+        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED, 
               std::string("Parameter \"") + parameter + 
               "\" has wrong type; expecting " + expected + ".")
     { }

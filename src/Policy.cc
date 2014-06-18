@@ -256,7 +256,7 @@ void Policy::setDictionary(const Dictionary& dict) {
 
 /**
  * Validate this policy, using its stored dictionary.  If \code
- * canValidate() \endcode is false, this will throw a LogicErrorException.
+ * canValidate() \endcode is false, this will throw a LogicError.
  *
  * If validation errors are found and \code err \endcode is null, a
  * ValidationError will be thrown.
@@ -457,10 +457,10 @@ Policy::ValueType Policy::getValueType(const string& name) const {
         }
         else {
             throw LSST_EXCEPT
-                (pexExcept::LogicErrorException,
+                (pexExcept::LogicError,
                  string("Policy: illegal type held by PropertySet: ") + tp.name());
         }
-    } catch (pexExcept::NotFoundException&) {
+    } catch (pexExcept::NotFoundError&) {
         return UNDEF;
     }
 }
@@ -641,7 +641,7 @@ int Policy::loadPolicyFiles(const fs::path& repository, bool strict) {
 		    PolicyFile(localPath.string()).load(*policy);
 		}
             }
-            catch (pexExcept::IoErrorException& e) {
+            catch (pexExcept::IoError& e) {
                 if (strict) {
                     throw e;
                 }
@@ -751,7 +751,7 @@ int Policy::mergeDefaults(const Policy& defaultPol, bool keepForValidation,
             }
             else {
                 // should not happen
-                throw LSST_EXCEPT(pexExcept::LogicErrorException,
+                throw LSST_EXCEPT(pexExcept::LogicError,
                                   string("Unknown type for \"") + *nm 
                                   + "\": \"" + getTypeName(*nm) + "\"");
                 // added--;
@@ -845,7 +845,7 @@ string Policy::str(const string& name, const string& indent) const {
             }
         }
         else {
-            throw LSST_EXCEPT(pexExcept::LogicErrorException,
+            throw LSST_EXCEPT(pexExcept::LogicError,
                               "Policy: unexpected type held by any");
         }
     }

@@ -58,7 +58,7 @@ fs::path DefaultPolicyFile::getInstallPath(const char* const productName) {
  * the value of an environment variable PRODUCTNAME_DIR where 
  * PRODUCTNAME is the given name of the product with all letters 
  * converted to upper case.  
- * @exception lsst::pex::exception::NotFoundException  if the 
+ * @exception lsst::pex::exception::NotFoundError  if the 
  *    environement variable is not defined.
  */
 fs::path DefaultPolicyFile::installPathFor(const char* const productName) {
@@ -75,7 +75,7 @@ fs::path DefaultPolicyFile::installPathFor(const char* const productName) {
     // get installation directory from environment
     const char *ipath = getenv(productName_DIR.c_str());
     if (ipath == 0) 
-        throw LSST_EXCEPT(pexExcept::NotFoundException, 
+        throw LSST_EXCEPT(pexExcept::NotFoundError, 
 			  productName_DIR + ": environment variable not set");
 
     return fs::path(ipath);

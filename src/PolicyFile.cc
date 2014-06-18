@@ -180,7 +180,7 @@ const string& PolicyFile::getFormatName() {
     if (fs::exists(_file)) {
         ifstream is(_file.string().c_str());
         if (is.fail()) 
-            throw LSST_EXCEPT(pexExcept::IoErrorException,
+            throw LSST_EXCEPT(pexExcept::IoError,
                               "failure opening Policy file: " 
                               + fs::absolute(_file).string());
 
@@ -193,7 +193,7 @@ const string& PolicyFile::getFormatName() {
         { }
             
         if (is.fail()) 
-            throw LSST_EXCEPT(pexExcept::IoErrorException,
+            throw LSST_EXCEPT(pexExcept::IoError,
                               "failure reading Policy file: " 
                               + fs::absolute(_file).string());
         if (is.eof() && 
@@ -232,7 +232,7 @@ void PolicyFile::load(Policy& policy) const {
 
     ifstream fs(_file.string().c_str());
     if (fs.fail()) 
-        throw LSST_EXCEPT(pexExcept::IoErrorException,
+        throw LSST_EXCEPT(pexExcept::IoError,
                           "failure opening Policy file: " 
                           + fs::absolute(_file).string());
 

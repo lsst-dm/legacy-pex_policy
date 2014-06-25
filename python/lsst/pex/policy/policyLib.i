@@ -288,7 +288,7 @@ def _Policy_set(p, name, value):
         p._setBool(name, value)
     elif (value == None):
         raise RuntimeError("Attempt to set value of \"" + name + "\" to None.  Values must be non-None.  Use remove() instead.")
-#        raise lsst.pex.exceptions.InvalidParameterException("Value of " + name + " cannot be None.")
+#        raise lsst.pex.exceptions.InvalidParameterError("Value of " + name + " cannot be None.")
     else:
         _Policy_wrap_set(p, name, value)
 Policy.set = _Policy_set

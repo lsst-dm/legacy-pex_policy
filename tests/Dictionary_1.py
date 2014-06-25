@@ -358,7 +358,7 @@ class DictionaryTestCase(unittest.TestCase):
 
         d = Dictionary(self.getTestDictionary("nested_dictionary_good.paf"))
         d.check()
-        self.assertRaiseLCE("LogicErrorException", "dictionaryFile needs to be loaded",
+        self.assertRaiseLCE("LogicError", "dictionaryFile needs to be loaded",
                             d.validate, "dictionaryFile not loaded", p)
         self.assert_(not d.hasSubDictionary("policy_1"))
         self.assert_(d.hasSubDictionary("policy_2"))

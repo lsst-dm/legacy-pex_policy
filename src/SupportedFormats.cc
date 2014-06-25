@@ -47,7 +47,7 @@ void SupportedFormats::initDefaultFormats(SupportedFormats& sf) {
 void SupportedFormats::registerFormat(const PolicyParserFactory::Ptr& factory) 
 {
     if (factory.get() == 0) 
-        throw LSST_EXCEPT(pexExcept::RuntimeErrorException, 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, 
                           std::string("attempt to register null ") + 
                                                "PolicyParserFactory pointer");
 

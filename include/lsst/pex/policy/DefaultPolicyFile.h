@@ -95,7 +95,7 @@ public:
      * return the file path to the installation directory of a given
      * named product.  This implementation uses the implementation 
      * provided by DefaultPolicyFile::installPathFor().
-     * @exception lsst::pex::exception::NotFoundException  if the 
+     * @exception lsst::pex::exception::NotFoundError  if the 
      *    environement variable is not defined.
      */
     virtual boost::filesystem::path getInstallPath(const char* const productName);

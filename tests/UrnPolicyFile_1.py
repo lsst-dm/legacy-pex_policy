@@ -112,12 +112,12 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         self.assertRaiseLCE("BadNameError", "Wrong number of terms",
                             Policy, "URN too short",
                             "urn:eupspkg:foo.paf")
-        self.assertRaiseLCE("IoErrorException", "failure opening Policy file",
+        self.assertRaiseLCE("IoError", "failure opening Policy file",
                             Policy, "URN abbrev '@' not allowed in constructor",
                             "@pex_policy:tests/urn:level_1.paf")
 
         urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_good.paf"
-        self.assertRaiseLCE("IoErrorException", "/./defaults_dictionary_indirect",
+        self.assertRaiseLCE("IoError", "/./defaults_dictionary_indirect",
                             Policy.createPolicyFromUrn, 
                             "doesn't support loading undecorated DictionaryFile",
                             urn)
@@ -131,10 +131,10 @@ class UrnPolicyFileTestCase(unittest.TestCase):
 
     def testTypos(self):
         base = "pex_policy:tests/urn:indirect_parent_typo_"
-        self.assertRaiseLCE("IoErrorException", "failure opening Policy file",
+        self.assertRaiseLCE("IoError", "failure opening Policy file",
                             UrnPolicyFile(base + "1.paf").load, "Typo in URN",
                             Policy())
-        self.assertRaiseLCE("IoErrorException", "failure opening Policy file",
+        self.assertRaiseLCE("IoError", "failure opening Policy file",
                             UrnPolicyFile(base + "2.paf").load, "Typo in URN",
                             Policy())
 
@@ -143,7 +143,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         upf = UrnPolicyFile("pex_policy:tests:urn/indirect_parent_good.paf")
         # we expect it to look in <package>/tests/simple.paf
         expectedFile = os.environ["PEX_POLICY_DIR"] + "/tests/simple.paf"
-        self.assertRaiseLCE("IoErrorException",
+        self.assertRaiseLCE("IoError",
                             "failure opening Policy file: " + expectedFile,
                             upf.load, "Wrong repository dir.", Policy())
 

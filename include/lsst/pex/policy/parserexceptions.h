@@ -43,14 +43,14 @@ namespace policy {
  * an parent exception for errors that occur during the parsing of policy 
  * files.  
  */
-class ParserError : public lsst::pex::exceptions::RuntimeErrorException {
+class ParserError : public lsst::pex::exceptions::RuntimeError {
 public:
 
     /**
      * Create an exception the exception with a default message.
      */
     ParserError(POL_EARGS_TYPED) 
-        : lsst::pex::exceptions::RuntimeErrorException(
+        : lsst::pex::exceptions::RuntimeError(
                 POL_EARGS_UNTYPED, "Unspecified parsing error encountered") 
     { }
 
@@ -59,7 +59,7 @@ public:
      * @param msg     a message describing the problem.
      */
     ParserError(POL_EARGS_TYPED, const std::string& msg) 
-        : lsst::pex::exceptions::RuntimeErrorException(POL_EARGS_UNTYPED, msg) 
+        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, msg) 
     { }
 
     /**
@@ -70,7 +70,7 @@ public:
      *                  file is typically line 1.  
      */
     ParserError(POL_EARGS_TYPED, const std::string& msg, int lineno) 
-        : lsst::pex::exceptions::RuntimeErrorException(
+        : lsst::pex::exceptions::RuntimeError(
                 POL_EARGS_UNTYPED, makeLocatedMessage(msg,lineno)) 
     { }
 

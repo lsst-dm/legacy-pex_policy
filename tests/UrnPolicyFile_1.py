@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -27,8 +28,8 @@ import eups
 
 import lsst.utils.tests as tests
 
-from lsst.pex.policy import Policy, UrnPolicyFile
-from lsst.pex.exceptions import LsstCppException
+from lsst.pex.policy import Policy, UrnPolicyFile, BadNameError
+import lsst.pex.exceptions
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -36,11 +37,11 @@ from lsst.pex.exceptions import LsstCppException
 # repositories in a deeply nested and linked policy file.
 
 class UrnPolicyFileTestCase(unittest.TestCase):
+
     def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """
-        Expect callableObj(args, kwargs) to raise an LsstCppException that wraps
-        the class specified by excClass, and carrying a message that contains
-        excMsg.
+        Expect callableObj(args, kwargs) to raise an exception of type excClass,
+        and carres a message that contains excMsg.
 
         excClass: the subclass of LsstCppException we expect to see
         excMsg: a substring of the message it should carry
@@ -50,18 +51,8 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         """
         try:
             callableObj(*args, **kwargs)
-        except LsstCppException, e:
-            self.assert_(isinstance(e, LsstCppException))
-            lce = "lsst.pex.exceptions.exceptionsLib.LsstCppException"
-            self.assert_(str(e.__class__).find(lce) > 0,
-                         failMsg + ": expected an " + lce + ", found a " 
-                         + str(e.__class__))
-            self.assert_(len(e.args) == 1)
-            nested = e.args[0] # the real exception that was thrown
-            self.assert_(str(nested.__class__).find(excClass) > 0,
-                         failMsg + ": expected a " + excClass + "; found a " 
-                         + str(nested.__class__))
-            self.assert_(str(e).find(excMsg) > 0, 
+        except excClass as e:
+            self.assert_(str(e).find(excMsg) > 0,
                          failMsg + ": expected to see the message \"" + excMsg 
                          + "\"; actual message was \"" + str(e) + "\".")
         else:
@@ -109,15 +100,15 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         p = Policy("urn:eupspkg:pex_policy:tests/urn:level_1.paf")
         self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
 
-        self.assertRaiseLCE("BadNameError", "Wrong number of terms",
+        self.assertRaiseLCE(BadNameError, "Wrong number of terms",
                             Policy, "URN too short",
                             "urn:eupspkg:foo.paf")
-        self.assertRaiseLCE("IoError", "failure opening Policy file",
+        self.assertRaiseLCE(lsst.pex.exceptions.IoError, "failure opening Policy file",
                             Policy, "URN abbrev '@' not allowed in constructor",
                             "@pex_policy:tests/urn:level_1.paf")
 
         urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_good.paf"
-        self.assertRaiseLCE("IoError", "/./defaults_dictionary_indirect",
+        self.assertRaiseLCE(lsst.pex.exceptions.IoError, "/./defaults_dictionary_indirect",
                             Policy.createPolicyFromUrn, 
                             "doesn't support loading undecorated DictionaryFile",
                             urn)
@@ -131,10 +122,10 @@ class UrnPolicyFileTestCase(unittest.TestCase):
 
     def testTypos(self):
         base = "pex_policy:tests/urn:indirect_parent_typo_"
-        self.assertRaiseLCE("IoError", "failure opening Policy file",
+        self.assertRaiseLCE(lsst.pex.exceptions.IoError, "failure opening Policy file",
                             UrnPolicyFile(base + "1.paf").load, "Typo in URN",
                             Policy())
-        self.assertRaiseLCE("IoError", "failure opening Policy file",
+        self.assertRaiseLCE(lsst.pex.exceptions.IoError, "failure opening Policy file",
                             UrnPolicyFile(base + "2.paf").load, "Typo in URN",
                             Policy())
 
@@ -143,7 +134,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         upf = UrnPolicyFile("pex_policy:tests:urn/indirect_parent_good.paf")
         # we expect it to look in <package>/tests/simple.paf
         expectedFile = os.environ["PEX_POLICY_DIR"] + "/tests/simple.paf"
-        self.assertRaiseLCE("IoError",
+        self.assertRaiseLCE(lsst.pex.exceptions.IoError,
                             "failure opening Policy file: " + expectedFile,
                             upf.load, "Wrong repository dir.", Policy())
 

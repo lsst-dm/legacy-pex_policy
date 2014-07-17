@@ -25,7 +25,7 @@ import sys
 import os
 
 from lsst.pex.policy import Policy, Dictionary, PAFWriter
-from lsst.pex.exceptions import LsstCppException
+import lsst.pex.exceptions
 
 usage = """usage: %prog [--help] <options> <policy>"""
 
@@ -95,7 +95,7 @@ class PolicyValidator:
             writer.write(dictionary)
             print writer.toString()
             #print dictionary
-        except LsstCppException, e:
+        except lsst.pex.exceptions.Exception as e:
             ve = e.args[0]
             print "Internal error: validation fails against extrapolated dictionary:"
             print ve.describe("  - ")
@@ -137,7 +137,7 @@ class PolicyValidator:
             if self.verbose: print explain
             result = callableObj(*args, **kwargs)
             return result
-        except LsstCppException, e:
+        except lsst.pex.exceptions.Exception as e:
             print "error", explain + ":"
             print e.args[0].what()
             sys.exit(2)

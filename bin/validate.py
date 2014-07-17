@@ -28,7 +28,7 @@ import sys
 import os
 
 from lsst.pex.policy import Policy, Dictionary
-from lsst.pex.exceptions import LsstCppException
+import lsst.pex.exceptions
 
 usage = """usage: %prog [--help] <options> [policy] [dictionary]"""
 
@@ -111,7 +111,7 @@ class PolicyValidator:
             if self.verbose: print explain
             result = callableObj(*args, **kwargs)
             return result
-        except LsstCppException, e:
+        except lsst.pex.exceptions.Exception as e:
             print "error", explain + ":"
             print e.args[0].what()
             sys.exit(2)

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -25,7 +26,7 @@ import unittest
 
 import lsst.utils.tests as tests
 from lsst.pex.policy import Policy, NameNotFound
-from lsst.pex.exceptions import LsstCppException
+import lsst.pex.exceptions
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -36,7 +37,7 @@ class PolicyTestCase(unittest.TestCase):
         self.assertEqual(p.valueCount("foo.bar"), 0,
                          "empty valueCount test failed")
 
-        self.assertRaises(LsstCppException, p.getTypeInfo, "foo")
+        self.assertRaises(lsst.pex.exceptions.Exception, p.getTypeInfo, "foo")
 
         p.set("doall", "true")
 
@@ -47,15 +48,15 @@ class PolicyTestCase(unittest.TestCase):
                          "empty valueCount test failed")
         self.failUnless(not p.isInt("foo"),
                         "non-empty non-existence type test failed")
-        self.assertRaises(LsstCppException, p.getTypeInfo, "foo")
+        self.assertRaises(lsst.pex.exceptions.Exception, p.getTypeInfo, "foo")
 
         # existence tests
         self.assert_(p.exists("doall"), "non-empty existence test failed")
         self.assertEquals(p.valueCount("doall"), 1,
                           "single valueCount test failed")
 
-        self.assertRaises(LsstCppException, p.getInt, "doall")
-        self.assertRaises(LsstCppException, p.getDoubleArray, "doall")
+        self.assertRaises(lsst.pex.exceptions.Exception, p.getInt, "doall")
+        self.assertRaises(lsst.pex.exceptions.Exception, p.getDoubleArray, "doall")
 
         self.assertEquals(p.get("doall"), "true",
                           "top-level getString failed")
@@ -106,21 +107,9 @@ class PolicyTestCase(unittest.TestCase):
         # test shallow & deep copies
 
         # test raise NameNotFound if not present
-        try:
-            p.get("nonexistent")
-            self.fail() # should never reach here
-        except LsstCppException, e:
-            self.assert_(isinstance(e.args[0], NameNotFound))
-        try:
-            p.getArray("nonexistent")
-            self.fail()
-        except LsstCppException, e:
-            self.assert_(isinstance(e.args[0], NameNotFound))
-        try:
-            p.getDouble("nonexistent")
-            self.fail()
-        except LsstCppException, e:
-            self.assert_(isinstance(e.args[0], NameNotFound))
+        self.assertRaises(NameNotFound, p.get, "nonexistent")
+        self.assertRaises(NameNotFound, p.getArray, "nonexistent")
+        self.assertRaises(NameNotFound, p.getDouble, "nonexistent")
 
     def testSimpleLoad(self):
 #        n = mwid.Citizen_census(0)

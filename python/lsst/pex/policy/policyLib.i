@@ -226,6 +226,17 @@ namespace boost { namespace filesystem { } }
 %include "lsst/pex/policy/exceptions.h"
 %include "lsst/pex/policy/parserexceptions.h"
 
+%declareException(BadNameError, lsst.pex.exceptions.RuntimeError, lsst::pex::policy::BadNameError)
+%declareException(DictionaryError, lsst.pex.exceptions.DomainError, lsst::pex::policy::DictionaryError)
+%declareException(NameNotFound, lsst.pex.exceptions.NotFoundError, lsst::pex::policy::NameNotFound)
+%declareException(TypeError, lsst.pex.exceptions.DomainError, lsst::pex::policy::TypeError)
+%declareException(ParserError, lsst.pex.exceptions.RuntimeError, lsst::pex::policy::ParserError)
+%declareException(EOFError, ParserError, lsst::pex::policy::EOFError)
+%declareException(SyntaxError, ParserError, lsst::pex::policy::SyntaxError)
+%declareException(FormatSyntaxError, SyntaxError, lsst::pex::policy::FormatSyntaxError)
+%declareException(UnsupportedSyntax, SyntaxError, lsst::pex::policy::UnsupportedSyntax)
+%declareException(ValidationError, lsst.pex.exceptions.LogicError, lsst::pex::policy::ValidationError)
+
 %template(vector_Policy_Ptr) std::vector<boost::shared_ptr<lsst::pex::policy::Policy> >;
 
 %extend lsst::pex::policy::Policy {

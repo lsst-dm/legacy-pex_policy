@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -28,17 +29,17 @@ import eups
 import lsst.utils.tests as tests
 
 from lsst.pex.policy import Policy, Dictionary, PolicyFile, DefaultPolicyFile
-from lsst.pex.policy import ValidationError #, DictionaryError
-from lsst.pex.exceptions import LsstCppException
+from lsst.pex.policy import ValidationError, DictionaryError
+import lsst.pex.exceptions
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 class DictionaryTestCase(unittest.TestCase):
+
     def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """
-        Expect callableObj(args, kwargs) to raise an LsstCppException that wraps
-        the class specified by excClass, and carrying a message that contains
-        excMsg.
+        Expect callableObj(args, kwargs) to raise an exception of type excClass,
+        and carres a message that contains excMsg.
 
         excClass: the subclass of LsstCppException we expect to see
         excMsg: a substring of the message it should carry
@@ -48,36 +49,18 @@ class DictionaryTestCase(unittest.TestCase):
         """
         try:
             callableObj(*args, **kwargs)
-        except LsstCppException, e:
-            self.assert_(isinstance(e, LsstCppException))
-            lce = "lsst.pex.exceptions.exceptionsLib.LsstCppException"
-            self.assert_(str(e.__class__).find(lce) > 0,
-                         failMsg + ": expected an " + lce + ", found a " 
-                         + str(e.__class__))
-            self.assert_(len(e.args) == 1)
-            nested = e.args[0] # the real exception that was thrown
-#            print "%%% wrapped exception is ", nested
-#            print "  % class is ", nested.__class__
-            self.assert_(str(nested.__class__).find(excClass) > 0,
-                         failMsg + ": expected a " + excClass + "; found a " 
-                         + str(nested.__class__))
-            self.assert_(str(e).find(excMsg) > 0, 
+        except excClass as e:
+            self.assert_(str(e).find(excMsg) > 0,
                          failMsg + ": expected to see the message \"" + excMsg 
                          + "\"; actual message was \"" + str(e) + "\".")
-#            print " -%%% e = ", e
-#            print "    % members of e: ", dir(e)
-#            print "    % members of len(e.args): ", len(e.args)
-#            print "    % members of e.args.args[0]: ", inspect.getmembers(e.args[0])
-#            print "    % inspect(e): ", inspect.getmembers(e)
         else:
             self.fail(failMsg + ": did not raise " + excClass)
 
     def assertValidationError(self, errorCode, callableObj, field, value):
         try:
             callableObj(field, value)
-        except LsstCppException, e:
-            ve = e.args[0]
-            self.assert_(ve.getErrors(field) == errorCode)
+        except ValidationError as e:
+            self.assertEqual(e.getErrors(field), errorCode)
 
     testDictDir = None
     def getTestDictionary(self, filename=None):
@@ -95,44 +78,44 @@ class DictionaryTestCase(unittest.TestCase):
 
     def testBadDictionary(self):
         d = Dictionary(self.getTestDictionary("dictionary_bad_policyfile.paf"))
-        self.assertRaiseLCE("DictionaryError", "Illegal type: \"PolicyFile\"",
+        self.assertRaiseLCE(DictionaryError, "Illegal type: \"PolicyFile\"",
                             d.makeDef("file_type").getType,
                             "Dictionary specified PolicyFile type")
 
         d = Dictionary(self.getTestDictionary("dictionary_bad_unknown_type.paf"))
-        self.assertRaiseLCE("DictionaryError", "Unknown type: \"NotAType\"",
+        self.assertRaiseLCE(DictionaryError, "Unknown type: \"NotAType\"",
                             d.makeDef("something").getType,
                             "Dictionary specifies unknown types")
 
         d = Dictionary(self.getTestDictionary("dictionary_bad_type_type.paf"))
-        self.assertRaiseLCE("DictionaryError", "Expected string",
+        self.assertRaiseLCE(DictionaryError, "Expected string",
                             d.makeDef("something").getType,
                             "Expected string \"type\" type")
 
-        self.assertRaiseLCE("DictionaryError", "property found at bad: min_occurs",
+        self.assertRaiseLCE(DictionaryError, "property found at bad: min_occurs",
                             Dictionary,
                             "Dictionary has mispelled keyword \"min_occurs\".",
                             self.getTestDictionary("dictionary_bad_keyword.paf"))
 
         dbmd = self.getTestDictionary("dictionary_bad_multiple_definitions.paf")
-        self.assertRaiseLCE("DictionaryError", "expected a single",
+        self.assertRaiseLCE(DictionaryError, "expected a single",
                             Dictionary,
                             "Dictionary has two 'definitions' sections",
                             dbmd)
 
         p = Policy(self.getTestDictionary("values_policy_good_1.paf"))
         d = Dictionary(self.getTestDictionary("dictionary_bad_multiple_min.paf"))
-        self.assertRaiseLCE("DictionaryError", "Min value for int_ra", d.validate,
+        self.assertRaiseLCE(DictionaryError, "Min value for int_ra", d.validate,
                             "Two mins specified.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_multiple_max.paf"))
-        self.assertRaiseLCE("DictionaryError", "Max value for int_ra", d.validate,
+        self.assertRaiseLCE(DictionaryError, "Max value for int_ra", d.validate,
                             "Two maxes specified.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_min_wrong_type.paf"))
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaiseLCE(DictionaryError,
                             "Wrong type for int_range_count_type min",
                             d.validate, "Wrong min type.", p)
         d = Dictionary(self.getTestDictionary("dictionary_bad_max_wrong_type.paf"))
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaiseLCE(DictionaryError,
                             "Wrong type for int_range_count_type max",
                             d.validate, "Wrong max type.", p)
 
@@ -140,13 +123,13 @@ class DictionaryTestCase(unittest.TestCase):
         d = Dictionary(self.getTestDictionary("conflict_occurs_dictionary.paf"))
         p = Policy(self.getTestDictionary("conflict_occurs_policy_1.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testBadDictionary")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("1to0") == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getErrors("2to1") == ValidationError.NOT_AN_ARRAY)
         self.assert_(ve.getParamCount() == 2)
         p = Policy(self.getTestDictionary("conflict_occurs_policy_2.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testBadDictionary")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("1to0") == ValidationError.MISSING_REQUIRED)
         self.assert_(ve.getErrors("2to1") == ValidationError.TOO_MANY_VALUES)
         self.assert_(ve.getParamCount() == 2)
@@ -155,7 +138,7 @@ class DictionaryTestCase(unittest.TestCase):
         d = Dictionary(self.getTestDictionary("simple_dictionary.paf"))
         p = Policy(self.getTestDictionary("simple_policy.paf"))
         ve = ValidationError("Dictionary_1.py", 0, "testSimpleValidate")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("name") == 0, "no errors in name")
         self.assert_(ve.getErrors("height") == 0, "no errors in height")
         self.assert_(ve.getErrors() == 0, "no errors overall")
@@ -180,7 +163,7 @@ class DictionaryTestCase(unittest.TestCase):
         p = Policy(self.getTestDictionary("types_policy_good.paf"))
 
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("file_type") == ValidationError.NOT_LOADED,
                      "require loadPolicyFiles before validating")
         self.assert_(ve.getErrors("undef_file") == ValidationError.NOT_LOADED,
@@ -190,7 +173,7 @@ class DictionaryTestCase(unittest.TestCase):
 
         p.loadPolicyFiles(self.getTestDictionary(), True)
         ve = ValidationError("Dictionary_1.py", 0, "testTypeValidation")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
 
         self.assert_(ve.getErrors("undef_type")  == 0, "no errors with undef")
         self.assert_(ve.getErrors("int_type")    == 0, "no errors with int")
@@ -206,14 +189,14 @@ class DictionaryTestCase(unittest.TestCase):
 
         p = Policy(self.getTestDictionary("types_policy_bad_bool.paf"))
         ve = ValidationError("Dictionary_1.py", 0, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("bool_type") == 0, "correct type")
         
         p = Policy(self.getTestDictionary("types_policy_bad_int.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("int_type") == 0, "correct type")
@@ -222,21 +205,21 @@ class DictionaryTestCase(unittest.TestCase):
         
         p = Policy(self.getTestDictionary("types_policy_bad_double.paf"))
         ve = ValidationError("Dictionary_1.py", 2, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("double_type") == 0, "correct type")
 
         p = Policy(self.getTestDictionary("types_policy_bad_string.paf"))
         ve = ValidationError("Dictionary_1.py", 3, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 5, "number of errors")
         self.assert_(ve.getErrors("string_type") == 0, "correct type")
 
         p = Policy(self.getTestDictionary("types_policy_bad_policy.paf"))
         ve = ValidationError("Dictionary_1.py", 4, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getParamCount() == 4, "number of errors")
         self.assert_(ve.getErrors("policy_type") == 0, "correct type")
@@ -244,7 +227,7 @@ class DictionaryTestCase(unittest.TestCase):
 
         p = Policy(self.getTestDictionary("types_policy_bad_file.paf"))
         ve = ValidationError("Dictionary_1.py", 5, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.NOT_LOADED, "not loaded")
         self.assert_(ve.getParamCount() == 6, "number of errors")
         self.assert_(ve.getErrors("bool_type") == ValidationError.NOT_LOADED,
@@ -255,7 +238,7 @@ class DictionaryTestCase(unittest.TestCase):
                      "not loaded")
         p.loadPolicyFiles(self.getTestDictionary(), True)
         ve = ValidationError("Dictionary_1.py", 6, "testWrongType")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors() == ValidationError.WRONG_TYPE, "wrong type")
         self.assert_(ve.getErrors("file_type") == 0, "correct type")
         self.assert_(ve.getErrors("policy_type") == 0, "correct type")
@@ -266,30 +249,30 @@ class DictionaryTestCase(unittest.TestCase):
         d.check()
         p = Policy(self.getTestDictionary("values_policy_good_1.paf"))
         ve = ValidationError("Dictionary_1.py", 0, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 0)
 
         # policy: disallow allowed, min, max
         p = Policy(self.getTestDictionary("values_policy_bad_policy_set.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("policy_set_type") 
                      == ValidationError.VALUE_DISALLOWED)
         p = Policy(self.getTestDictionary("values_policy_bad_policy_max.paf"))
         ve = ValidationError("Dictionary_1.py", 2, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("policy_max_type") 
                      == ValidationError.VALUE_OUT_OF_RANGE)
         p = Policy(self.getTestDictionary("values_policy_bad_policy_min.paf"))
         ve = ValidationError("Dictionary_1.py", 3, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("policy_min_type") 
                      == ValidationError.VALUE_OUT_OF_RANGE)
 
         # minOccurs/maxOccurs
         p = Policy(self.getTestDictionary("values_policy_bad_occurs.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 6)
         self.assert_(ve.getErrors("bool_set_count_type")
                     == ValidationError.TOO_MANY_VALUES)
@@ -307,7 +290,7 @@ class DictionaryTestCase(unittest.TestCase):
         # min
         p = Policy(self.getTestDictionary("values_policy_bad_min.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 4)
         self.assert_(ve.getErrors() == ValidationError.VALUE_OUT_OF_RANGE)
         self.assert_(ve.getErrors("string_count_type") == ValidationError.OK)
@@ -315,7 +298,7 @@ class DictionaryTestCase(unittest.TestCase):
         # max
         p = Policy(self.getTestDictionary("values_policy_bad_max.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 4)
         self.assert_(ve.getErrors() == ValidationError.VALUE_OUT_OF_RANGE)
         self.assert_(ve.getErrors("string_count_type") == ValidationError.OK)
@@ -324,7 +307,7 @@ class DictionaryTestCase(unittest.TestCase):
         # allowed
         p = Policy(self.getTestDictionary("values_policy_bad_allowed.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 4)
         self.assert_(ve.getErrors() == ValidationError.VALUE_DISALLOWED)
         self.assert_(ve.getErrors("int_range_count_type") == ValidationError.OK)
@@ -334,7 +317,7 @@ class DictionaryTestCase(unittest.TestCase):
         # allowed & min/max
         p = Policy(self.getTestDictionary("values_policy_bad_allowedminmax.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 2)
         self.assert_(ve.getErrors("int_range_set_type") 
                      == ValidationError.VALUE_DISALLOWED 
@@ -343,22 +326,22 @@ class DictionaryTestCase(unittest.TestCase):
                      == ValidationError.TOO_MANY_VALUES 
                      + ValidationError.VALUE_OUT_OF_RANGE)
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
 
     def testNested(self):
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaiseLCE(DictionaryError,
                             "policy_bad_subdef.dictionary is a string",
                             Dictionary, "Malformed subdictionary",
                             self.getTestDictionary("nested_dictionary_bad_1.paf"))
 
         p = Policy(self.getTestDictionary("nested_policy_good.paf"))
-        self.assertRaiseLCE("DictionaryError", "Unknown Dictionary property",
+        self.assertRaiseLCE(DictionaryError, "Unknown Dictionary property",
                             Dictionary, "Malformed subdictionary",
                             self.getTestDictionary("nested_dictionary_bad_2.paf"))
 
         d = Dictionary(self.getTestDictionary("nested_dictionary_good.paf"))
         d.check()
-        self.assertRaiseLCE("LogicError", "dictionaryFile needs to be loaded",
+        self.assertRaiseLCE(lsst.pex.exceptions.LogicError, "dictionaryFile needs to be loaded",
                             d.validate, "dictionaryFile not loaded", p)
         self.assert_(not d.hasSubDictionary("policy_1"))
         self.assert_(d.hasSubDictionary("policy_2"))
@@ -370,7 +353,7 @@ class DictionaryTestCase(unittest.TestCase):
 
         ve = ValidationError("Dictionary_1.py", 1, "testNested")
         p = Policy(self.getTestDictionary("nested_policy_bad.paf"))
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("policy_1") == ValidationError.WRONG_TYPE)
         self.assert_(ve.getErrors("policy_2.foo")
                      == ValidationError.VALUE_DISALLOWED)
@@ -403,7 +386,7 @@ class DictionaryTestCase(unittest.TestCase):
         d = Dictionary(self.getTestDictionary("nested_dictionary_bad_child.paf"))
         d.loadPolicyFiles(self.getTestDictionary())
         # this should really be caught during loadPolicyFiles(), above
-        self.assertRaiseLCE("DictionaryError", "Unknown type: \"NotAType\"",
+        self.assertRaiseLCE(DictionaryError, "Unknown type: \"NotAType\"",
                             d.makeDef("sub.something").getType,
                             "Loaded sub-dictionary specified a bogus type")
 
@@ -414,12 +397,12 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p)
         p = Policy(self.getTestDictionary("childdef_simple_policy_bad.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testChildDef")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("baz") == ValidationError.WRONG_TYPE)
 
         # multiple childDefs (DictionaryError)
         d = Dictionary(self.getTestDictionary("childdef_dictionary_bad_multiple.paf"))
-        self.assertRaiseLCE("DictionaryError", "Multiple childDef",
+        self.assertRaiseLCE(DictionaryError, "Multiple childDef",
                             d.validate, "Dictionary specifies unknown types", p)
 
         # complex
@@ -430,7 +413,7 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p)
         p = Policy(self.getTestDictionary("childdef_complex_policy_bad_1.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testChildDef")
-        d.validate(p, ve)
+        d.validate(p, ve.cpp)
         self.assert_(ve.getErrors("joe") == ValidationError.NOT_AN_ARRAY)
         self.assert_(ve.getErrors("deb") == ValidationError.NOT_AN_ARRAY)
         self.assert_(ve.getErrors("bob") == ValidationError.NOT_AN_ARRAY)
@@ -455,8 +438,7 @@ class DictionaryTestCase(unittest.TestCase):
         try:
             p = Policy.createPolicy(self.getTestDictionary("defaults_dictionary_bad_1.paf"),
                                     "", True)
-        except LsstCppException, e:
-            ve = e.args[0] # the real exception that was thrown
+        except ValidationError as ve:
             self.assert_(ve.getErrors("double")
                          == ValidationError.WRONG_TYPE)
             self.assert_(ve.getErrors("int_range_count")
@@ -487,10 +469,10 @@ class DictionaryTestCase(unittest.TestCase):
         # add & set don't check against minOccurs, but validate() does
         try:
             p.validate()
-        except LsstCppException, e:
-            self.assert_(e.args[0].getErrors("int_range_count")
+        except ValidationError as ve:
+            self.assert_(ve.getErrors("int_range_count")
                          == ValidationError.NOT_AN_ARRAY)
-            self.assert_(e.args[0].getErrors("required")
+            self.assert_(ve.getErrors("required")
                          == ValidationError.MISSING_REQUIRED)
         p.add("int_range_count", -8)
         p.set("required", "foo")
@@ -522,12 +504,11 @@ class DictionaryTestCase(unittest.TestCase):
         p.set("bool_type", "foo")
         p.setDictionary(typesDict)
         ve = ValidationError("Dictionary_1.py", 1, "testSelfValidation")
-        p.validate(ve)
+        p.validate(ve.cpp)
         self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
         try:
             p.validate()
-        except LsstCppException, e:
-            ve = e.args[0]
+        except ValidationError as ve:
             self.assert_(ve.getErrors("bool_type") == ValidationError.WRONG_TYPE)
             self.assert_(ve.getParamCount() == 1)
         p.set("bool_type", True)
@@ -539,14 +520,14 @@ class DictionaryTestCase(unittest.TestCase):
         p.setDictionary(valuesDict)
         try:
             p.validate()
-        except LsstCppException, e:
-            self.assert_(e.args[0].getErrors("bool_type")
+        except ValidationError as ve:
+            self.assert_(ve.getErrors("bool_type")
                          == ValidationError.UNKNOWN_NAME)
         p.set("string_range_type", "moo")
         try:
             p.set("string_range_type", "victor")
-        except LsstCppException, e:
-            self.assert_(e.args[0].getErrors("string_range_type")
+        except ValidationError as ve:
+            self.assert_(ve.getErrors("string_range_type")
                          == ValidationError.VALUE_OUT_OF_RANGE)
         p.setDictionary(oldD)
         p.remove("string_range_type")
@@ -589,14 +570,14 @@ class DictionaryTestCase(unittest.TestCase):
         p = Policy(self.getTestDictionary("defaults_policy_partial.paf"))
         try:
             p.mergeDefaults(pd)
-        except LsstCppException, e:
-            self.assert_(e.args[0].getErrors("required")
+        except ValidationError as ve:
+            self.assert_(ve.getErrors("required")
                          == ValidationError.MISSING_REQUIRED)
 
         # non-throwing validation
         p = Policy(self.getTestDictionary("defaults_policy_partial.paf"))
         ve = ValidationError("Dictionary_1.py", 1, "testMergeDefaults")
-        p.mergeDefaults(pd, False, ve)
+        p.mergeDefaults(pd, False, ve.cpp)
         self.assert_(ve.getErrors("required") == ValidationError.MISSING_REQUIRED)
         self.assert_(ve.getParamCount() == 1)
 
@@ -605,7 +586,7 @@ class DictionaryTestCase(unittest.TestCase):
         p.set("required", "foo")
         p.mergeDefaults(pd, False)
         # make sure validate() fails gracefully when no dictionary present
-        self.assertRaiseLCE("DictionaryError", "No dictionary",
+        self.assertRaiseLCE(DictionaryError, "No dictionary",
                             p.validate, "No dictionary assigned")
         p.add("unknown", 0) # would be rejected if dictionary was kept
 
@@ -664,7 +645,7 @@ class DictionaryTestCase(unittest.TestCase):
         # which fails because there's only a definition for "empty_sub_no_default",
         # but it doesn't contain any sub-definitions
         # p.set("empty_sub_no_default.foo", "baz")
-        self.assertRaiseLCE("DictionaryError",
+        self.assertRaiseLCE(DictionaryError,
                             "empty_sub_no_default.dictionary not found",
                             p.set, "Empty policy definition -- if this fails, "
                             "it means a known bug has been fixed.  That's good.",

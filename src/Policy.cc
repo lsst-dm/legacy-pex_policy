@@ -234,7 +234,7 @@ Policy::~Policy() { }
  * operations will be checked against it.
  */
 bool Policy::canValidate() const {
-    return _dictionary;
+    return static_cast<bool>(_dictionary);
 }
 
 /**

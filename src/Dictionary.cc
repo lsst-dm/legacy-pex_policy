@@ -30,6 +30,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
 
 #include <stdexcept>
 #include <memory>
@@ -37,7 +38,6 @@
 #include <set>
 
 namespace pexExcept = lsst::pex::exceptions;
-namespace fs = boost::filesystem;
 
 namespace lsst {
 namespace pex {
@@ -46,7 +46,6 @@ namespace policy {
 //@cond
 
 using namespace std;
-using namespace boost;
 
 const string ValidationError::EMPTY;
 
@@ -380,7 +379,7 @@ void Definition::validateBasic(const string& name, const T& value,
                     throw LSST_EXCEPT
                         (DictionaryError, 
                          string("Min value for ") + getPrefix() + name
-                         + " (" + lexical_cast<string>(min) 
+                         + " (" + boost::lexical_cast<string>(min) 
                          + ") already specified; additional value not allowed.");
                 }
                 try {
@@ -401,7 +400,7 @@ void Definition::validateBasic(const string& name, const T& value,
                     throw LSST_EXCEPT
                         (DictionaryError,
                          string("Max value for ") + getPrefix() + name
-                         + " (" + lexical_cast<string>(max) 
+                         + " (" + boost::lexical_cast<string>(max) 
                          + ") already specified; additional value not allowed.");
                 try {
                     max = a->getValue<T>(Dictionary::KW_MAX);
@@ -562,7 +561,7 @@ const char* Dictionary::KW_MIN = "min";
 const char* Dictionary::KW_MAX = "max";
 const char* Dictionary::KW_VALUE = "value";
 
-const regex Dictionary::FIELDSEP_RE("\\.");
+const boost::regex Dictionary::FIELDSEP_RE("\\.");
 
 /*
  * load a dictionary from a file
@@ -597,8 +596,8 @@ Definition* Dictionary::makeDef(const string& name) const {
     Policy::Ptr sp; // sub-policy
 
     // split the name
-    sregex_token_iterator it = make_regex_token_iterator(name, FIELDSEP_RE, -1);
-    sregex_token_iterator end;
+    boost::sregex_token_iterator it = boost::make_regex_token_iterator(name, FIELDSEP_RE, -1);
+    boost::sregex_token_iterator end;
     string find;
     bool isWildcard = false; // was the immediate parent a wildcard childDefinition?
     while (it != end) {
@@ -649,12 +648,12 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
         (DictionaryError, subname + " is a " + getTypeName(subname) 
          + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
     ConstPtr subpol = getPolicy(subname);
-    Policy::DictPtr result = make_shared<Dictionary>(*subpol);
+    Policy::DictPtr result = boost::make_shared<Dictionary>(*subpol);
     result->setPrefix(_prefix + name + ".");
     return result;
 }
 
-int Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
+int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool strict) {
     int maxLevel = 16;
     int result = 0;
     // loop until we reach the leaves
@@ -676,7 +675,7 @@ int Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
                     defin->set(Dictionary::KW_DICT, getFile(*ni));
                 else
                     defin->set(Dictionary::KW_DICT,
-                               make_shared<PolicyFile>(getString(*ni)));
+                               boost::make_shared<PolicyFile>(getString(*ni)));
                 
                 toRemove.push_back(*ni);
             }
@@ -697,7 +696,7 @@ int Dictionary::loadPolicyFiles(const fs::path& repository, bool strict) {
     }
     throw LSST_EXCEPT
         (DictionaryError, string("Exceeded recursion limit (") 
-         + lexical_cast<string>(maxLevel) 
+         + boost::lexical_cast<string>(maxLevel) 
          + ") loading policy files; does this dictionary contain a circular"
          " definition?");
 }
@@ -714,13 +713,13 @@ void Dictionary::check() const {
     if (defs.size() > 1)
         throw LSST_EXCEPT
             (DictionaryError, string("expected a single \"") + KW_DEFINITIONS 
-             + "\" section; found " + lexical_cast<string>(defs.size()));
+             + "\" section; found " + boost::lexical_cast<string>(defs.size()));
 
     Policy::StringArray names = defs[0]->names(false);
     for (Policy::StringArray::const_iterator i = names.begin();
          i != names.end(); ++i)
     {
-        scoped_ptr<Definition> def(makeDef(*i));
+        boost::scoped_ptr<Definition> def(makeDef(*i));
         def->check();
 
         if (hasSubDictionary(*i)) {
@@ -748,7 +747,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
          i != params.end(); ++i) 
     {
         try {
-            scoped_ptr<Definition> def(makeDef(*i));
+            boost::scoped_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
         }
         catch (NameNotFound& e) {
@@ -762,7 +761,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     for (Policy::StringArray::const_iterator i = dn.begin(); i != dn.end(); ++i) {
         const string& name = *i;
         if (!pol.exists(name)) { // item in dictionary, but not in policy
-            scoped_ptr<Definition> def(makeDef(name));
+            boost::scoped_ptr<Definition> def(makeDef(name));
             if (name != Dictionary::KW_CHILD_DEF && def->getMinOccurs() > 0)
                 use->addError(getPrefix() + name,
                               ValidationError::MISSING_REQUIRED);

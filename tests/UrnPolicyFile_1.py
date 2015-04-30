@@ -23,8 +23,6 @@
 
 import os
 import unittest
-import eups
-#import inspect
 
 import lsst.utils.tests as tests
 
@@ -61,8 +59,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
     examplesDir = None
     def getExamples(self, filename=None):
         if not self.examplesDir:
-            self.examplesDir = os.path.join(eups.productDir("pex_policy"),
-                                            "examples")
+            self.examplesDir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples")
         if filename:
             return os.path.join(self.examplesDir, filename)
         else:

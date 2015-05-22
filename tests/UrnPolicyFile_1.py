@@ -23,7 +23,7 @@
 
 import os
 import unittest
-import eups
+import lsst.utils
 #import inspect
 
 import lsst.utils.tests as tests
@@ -61,8 +61,9 @@ class UrnPolicyFileTestCase(unittest.TestCase):
     examplesDir = None
     def getExamples(self, filename=None):
         if not self.examplesDir:
-            self.examplesDir = os.path.join(eups.productDir("pex_policy"),
-                                            "examples")
+            # XXX is this really the best way to find the src_dir?
+            pexPolicyDir = lsst.utils.getPackageDir('pex_policy')
+            self.examplesDir = os.path.join(pexPolicyDir, "examples")
         if filename:
             return os.path.join(self.examplesDir, filename)
         else:
@@ -133,7 +134,8 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         # when the repository is mis-specified, local files cannot be loaded
         upf = UrnPolicyFile("pex_policy:tests:urn/indirect_parent_good.paf")
         # we expect it to look in <package>/tests/simple.paf
-        expectedFile = os.environ["PEX_POLICY_DIR"] + "/tests/simple.paf"
+        pexPolicyDir = lsst.utils.getPackageDir('pex_policy')
+        expectedFile = pexPolicyDir + "/tests/simple.paf"
         self.assertRaiseLCE(lsst.pex.exceptions.IoError,
                             "failure opening Policy file: " + expectedFile,
                             upf.load, "Wrong repository dir.", Policy())

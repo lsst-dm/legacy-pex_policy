@@ -23,7 +23,7 @@
 
 import os
 import unittest
-import eups
+import lsst.utils
 #import inspect
 
 import lsst.utils.tests as tests
@@ -65,8 +65,8 @@ class DictionaryTestCase(unittest.TestCase):
     testDictDir = None
     def getTestDictionary(self, filename=None):
         if not self.testDictDir:
-            self.testDictDir = os.path.join(eups.productDir("pex_policy"),
-                                                  "tests", "dictionary")
+            pexPolicyDir = lsst.utils.getPackageDir('pex_policy')
+            self.testDictDir = os.path.join(pexPolicyDir, "tests", "dictionary")
         return os.path.join(self.testDictDir, filename) if filename else self.testDictDir
 
     def testDictionaryLoad(self):

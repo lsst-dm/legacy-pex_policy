@@ -31,9 +31,10 @@ import sys
 import unittest
 import time
 
+import lsst.utils
 from lsst.pex.policy import Policy
 
-proddir = os.environ["PEX_POLICY_DIR"]
+proddir = lsst.utils.getPackageDir('pex_policy')
 
 class BigBoolTestCase(unittest.TestCase):
 

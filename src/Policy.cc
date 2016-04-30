@@ -32,7 +32,6 @@
 // #include "lsst/pex/logging/Trace.h"
 
 #include <boost/make_shared.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include <stdexcept>
@@ -408,7 +407,7 @@ int Policy::_names(list<string>& names,
 template <class T> void Policy::_validate(const std::string& name, const T& value, int curCount) {
     if (_dictionary) {
         try {
-            boost::scoped_ptr<Definition> def(_dictionary->makeDef(name));
+            std::unique_ptr<Definition> def(_dictionary->makeDef(name));
             def->validateBasic(name, value, curCount);
         } catch(NameNotFound& e) {
             ValidationError ve(LSST_EXCEPT_HERE);

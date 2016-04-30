@@ -27,8 +27,6 @@
 #include <sstream>
 // #include <iosfwd>
 
-#include <boost/scoped_ptr.hpp>
-
 #include "lsst/pex/policy/PolicyString.h"
 #include "lsst/pex/policy/PolicyFile.h"
 #include "lsst/pex/policy/PolicyParser.h"
@@ -47,7 +45,7 @@ using std::ifstream;
 using boost::regex;
 using boost::regex_match;
 using boost::regex_search;
-using boost::scoped_ptr;
+using std::unique_ptr;
 using lsst::pex::policy::paf::PAFParserFactory;
 
 namespace pexExcept = lsst::pex::exceptions;
@@ -142,7 +140,7 @@ void PolicyString::load(Policy& policy) {
         pfactory = _formats->getFactory(fmtname);
     }
 
-    scoped_ptr<PolicyParser> parser(pfactory->createParser(policy));
+    std::unique_ptr<PolicyParser> parser(pfactory->createParser(policy));
 
     std::istringstream is(_data);
     if (is.fail()) {

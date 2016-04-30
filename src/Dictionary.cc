@@ -27,7 +27,6 @@
 #include "lsst/pex/policy/PolicyFile.h"
 // #include "lsst/pex/utils/Trace.h"
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
@@ -719,7 +718,7 @@ void Dictionary::check() const {
     for (Policy::StringArray::const_iterator i = names.begin();
          i != names.end(); ++i)
     {
-        boost::scoped_ptr<Definition> def(makeDef(*i));
+        std::unique_ptr<Definition> def(makeDef(*i));
         def->check();
 
         if (hasSubDictionary(*i)) {
@@ -747,7 +746,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
          i != params.end(); ++i) 
     {
         try {
-            boost::scoped_ptr<Definition> def(makeDef(*i));
+            std::unique_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
         }
         catch (NameNotFound& e) {
@@ -761,7 +760,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     for (Policy::StringArray::const_iterator i = dn.begin(); i != dn.end(); ++i) {
         const string& name = *i;
         if (!pol.exists(name)) { // item in dictionary, but not in policy
-            boost::scoped_ptr<Definition> def(makeDef(name));
+            std::unique_ptr<Definition> def(makeDef(name));
             if (name != Dictionary::KW_CHILD_DEF && def->getMinOccurs() > 0)
                 use->addError(getPrefix() + name,
                               ValidationError::MISSING_REQUIRED);

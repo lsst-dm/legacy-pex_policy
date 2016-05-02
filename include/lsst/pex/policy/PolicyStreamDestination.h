@@ -35,7 +35,7 @@
 #define LSST_PEX_POLICY_STRMDEST_H
 
 #include <ostream>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "lsst/pex/policy/PolicyDestination.h"
 
@@ -49,7 +49,7 @@ namespace policy {
 class PolicyStreamDestination : public PolicyDestination {
 public:
 
-    typedef boost::shared_ptr<std::ostream> StreamPtr;
+    typedef std::shared_ptr<std::ostream> StreamPtr;
 
     /**
      * create the destination

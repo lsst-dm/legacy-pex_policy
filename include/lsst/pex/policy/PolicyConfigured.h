@@ -78,7 +78,7 @@ class PolicyConfigured {
 public: 
     typedef Policy::Ptr PolicyPtr;
     typedef Policy::ConstPtr ConstPolicyPtr;
-    typedef boost::shared_ptr<PolicySource> PolicySourcePtr;
+    typedef std::shared_ptr<PolicySource> PolicySourcePtr;
 
     /**
      * configure this class with a policy.  

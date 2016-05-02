@@ -36,7 +36,7 @@
 #ifndef LSST_PEX_POLICY_FILE_H
 #define LSST_PEX_POLICY_FILE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/regex.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>

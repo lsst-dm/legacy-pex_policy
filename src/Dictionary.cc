@@ -647,7 +647,7 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
         (DictionaryError, subname + " is a " + getTypeName(subname) 
          + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
     ConstPtr subpol = getPolicy(subname);
-    Policy::DictPtr result = boost::make_shared<Dictionary>(*subpol);
+    Policy::DictPtr result = std::make_shared<Dictionary>(*subpol);
     result->setPrefix(_prefix + name + ".");
     return result;
 }
@@ -674,7 +674,7 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
                     defin->set(Dictionary::KW_DICT, getFile(*ni));
                 else
                     defin->set(Dictionary::KW_DICT,
-                               boost::make_shared<PolicyFile>(getString(*ni)));
+                               std::make_shared<PolicyFile>(getString(*ni)));
                 
                 toRemove.push_back(*ni);
             }

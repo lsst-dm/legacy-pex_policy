@@ -30,7 +30,7 @@
 #include <list>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -169,11 +169,11 @@ class ValidationError;
 class Policy : public lsst::daf::base::Citizen, public lsst::daf::base::Persistable {
 public:
 
-    typedef boost::shared_ptr<Policy> Ptr;
-    typedef boost::shared_ptr<const Policy> ConstPtr;
-    typedef boost::shared_ptr<Dictionary> DictPtr;
-    typedef boost::shared_ptr<const Dictionary> ConstDictPtr;
-    typedef boost::shared_ptr<PolicyFile> FilePtr;
+    typedef std::shared_ptr<Policy> Ptr;
+    typedef std::shared_ptr<const Policy> ConstPtr;
+    typedef std::shared_ptr<Dictionary> DictPtr;
+    typedef std::shared_ptr<const Dictionary> ConstDictPtr;
+    typedef std::shared_ptr<PolicyFile> FilePtr;
 
     typedef std::vector<bool> BoolArray;
     typedef std::vector<int> IntArray;

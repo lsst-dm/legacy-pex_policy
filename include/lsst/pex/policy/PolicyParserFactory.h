@@ -37,7 +37,7 @@
 #include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/Policy.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace lsst {
 namespace pex {
@@ -58,7 +58,7 @@ class PolicyParser;
 class PolicyParserFactory {
 public: 
 
-    typedef boost::shared_ptr<PolicyParserFactory> Ptr;
+    typedef std::shared_ptr<PolicyParserFactory> Ptr;
 
     /**
      * create a factory

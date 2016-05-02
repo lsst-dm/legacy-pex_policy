@@ -31,7 +31,7 @@
 #ifndef LSST_PEX_POLICY_STRING_H
 #define LSST_PEX_POLICY_STRING_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/regex.hpp>
 
 #include "lsst/pex/policy/PolicySource.h"

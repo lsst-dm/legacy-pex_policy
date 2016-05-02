@@ -35,7 +35,7 @@
 #define LSST_PEX_POLICY_STRDEST_H
 
 #include <ostream>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "lsst/pex/policy/PolicyStreamDestination.h"
 

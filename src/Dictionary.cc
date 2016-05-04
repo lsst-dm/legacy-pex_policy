@@ -27,7 +27,7 @@
 #include "lsst/pex/policy/PolicyFile.h"
 // #include "lsst/pex/utils/Trace.h"
 
-#include <boost/make_shared.hpp>
+#include <memory>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 

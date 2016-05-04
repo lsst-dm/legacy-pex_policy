@@ -31,7 +31,7 @@
 #include "lsst/pex/policy/parserexceptions.h"
 // #include "lsst/pex/logging/Trace.h"
 
-#include <boost/make_shared.hpp>
+#include <memory>
 #include <boost/filesystem/path.hpp>
 
 #include <stdexcept>

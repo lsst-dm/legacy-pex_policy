@@ -27,13 +27,11 @@
 #include "lsst/pex/policy/PolicyFile.h"
 // #include "lsst/pex/utils/Trace.h"
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 
-#include <stdexcept>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <set>
 
@@ -648,7 +646,7 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
         (DictionaryError, subname + " is a " + getTypeName(subname) 
          + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
     ConstPtr subpol = getPolicy(subname);
-    Policy::DictPtr result = boost::make_shared<Dictionary>(*subpol);
+    Policy::DictPtr result = std::make_shared<Dictionary>(*subpol);
     result->setPrefix(_prefix + name + ".");
     return result;
 }
@@ -675,7 +673,7 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
                     defin->set(Dictionary::KW_DICT, getFile(*ni));
                 else
                     defin->set(Dictionary::KW_DICT,
-                               boost::make_shared<PolicyFile>(getString(*ni)));
+                               std::make_shared<PolicyFile>(getString(*ni)));
                 
                 toRemove.push_back(*ni);
             }
@@ -719,7 +717,7 @@ void Dictionary::check() const {
     for (Policy::StringArray::const_iterator i = names.begin();
          i != names.end(); ++i)
     {
-        boost::scoped_ptr<Definition> def(makeDef(*i));
+        std::unique_ptr<Definition> def(makeDef(*i));
         def->check();
 
         if (hasSubDictionary(*i)) {
@@ -747,7 +745,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
          i != params.end(); ++i) 
     {
         try {
-            boost::scoped_ptr<Definition> def(makeDef(*i));
+            std::unique_ptr<Definition> def(makeDef(*i));
             def->validate(pol, *i, use);
         }
         catch (NameNotFound& e) {
@@ -761,7 +759,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     for (Policy::StringArray::const_iterator i = dn.begin(); i != dn.end(); ++i) {
         const string& name = *i;
         if (!pol.exists(name)) { // item in dictionary, but not in policy
-            boost::scoped_ptr<Definition> def(makeDef(name));
+            std::unique_ptr<Definition> def(makeDef(name));
             if (name != Dictionary::KW_CHILD_DEF && def->getMinOccurs() > 0)
                 use->addError(getPrefix() + name,
                               ValidationError::MISSING_REQUIRED);

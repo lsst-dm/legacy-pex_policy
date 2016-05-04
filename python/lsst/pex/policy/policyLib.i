@@ -145,27 +145,27 @@ namespace boost { namespace filesystem { } }
     }
 }
 
-%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::Policy > > {
+%typemap(out) std::vector<std::shared_ptr<lsst::pex::policy::Policy > > {
     int len = ($1).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        boost::shared_ptr<lsst::pex::policy::Policy> * smartresult =
-            new boost::shared_ptr<lsst::pex::policy::Policy>(($1)[i]);
+        std::shared_ptr<lsst::pex::policy::Policy> * smartresult =
+            new std::shared_ptr<lsst::pex::policy::Policy>(($1)[i]);
         PyObject * obj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult),
-            SWIGTYPE_p_boost__shared_ptrT_lsst__pex__policy__Policy_t,
+            SWIGTYPE_p_std__shared_ptrT_lsst__pex__policy__Policy_t,
             SWIG_POINTER_OWN);
         PyList_SetItem($result, i, obj);
     }
 }
 
-%typemap(out) std::vector<boost::shared_ptr<lsst::pex::policy::PolicyFile > > {
+%typemap(out) std::vector<std::shared_ptr<lsst::pex::policy::PolicyFile > > {
     int len = (*(&$1)).size();
     $result = PyList_New(len);
     for (int i = 0; i < len; i++) {
-        boost::shared_ptr<lsst::pex::policy::PolicyFile> * smartresult =
-            new boost::shared_ptr<lsst::pex::policy::PolicyFile>((*(&$1))[i]);
+        std::shared_ptr<lsst::pex::policy::PolicyFile> * smartresult =
+            new std::shared_ptr<lsst::pex::policy::PolicyFile>((*(&$1))[i]);
         PyObject * obj = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult),
-            SWIGTYPE_p_boost__shared_ptrT_lsst__pex__policy__PolicyFile_t,
+            SWIGTYPE_p_std__shared_ptrT_lsst__pex__policy__PolicyFile_t,
             SWIG_POINTER_OWN);
         PyList_SetItem($result, i, obj);
     }
@@ -237,7 +237,7 @@ namespace boost { namespace filesystem { } }
 %declareException(UnsupportedSyntax, SyntaxError, lsst::pex::policy::UnsupportedSyntax)
 %declareException(ValidationError, lsst.pex.exceptions.LogicError, lsst::pex::policy::ValidationError)
 
-%template(vector_Policy_Ptr) std::vector<boost::shared_ptr<lsst::pex::policy::Policy> >;
+%template(vector_Policy_Ptr) std::vector<std::shared_ptr<lsst::pex::policy::Policy> >;
 
 %extend lsst::pex::policy::Policy {
     void _setBool(const std::string& name, bool value) {

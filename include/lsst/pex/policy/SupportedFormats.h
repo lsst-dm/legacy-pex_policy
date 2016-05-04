@@ -37,7 +37,7 @@
 
 #include "lsst/pex/policy/PolicyParserFactory.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace lsst {
 namespace pex {
@@ -52,7 +52,7 @@ namespace policy {
 class SupportedFormats {
 public: 
 
-    typedef boost::shared_ptr<SupportedFormats> Ptr;
+    typedef std::shared_ptr<SupportedFormats> Ptr;
 
 //    SupportedFormats() : Citizen(typeid(this)), _formats() { }
 

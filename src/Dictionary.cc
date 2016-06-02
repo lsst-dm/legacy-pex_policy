@@ -1,6 +1,6 @@
 /* 
  * LSST Data Management System
- * Copyright 2008, 2009, 2010 LSST Corporation.
+ * Copyright 2008-2016 LSST Corporation.
  * 
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
@@ -27,7 +27,6 @@
 #include "lsst/pex/policy/PolicyFile.h"
 // #include "lsst/pex/utils/Trace.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 
 #include <memory>
@@ -377,8 +376,7 @@ void Definition::validateBasic(const string& name, const T& value,
                     throw LSST_EXCEPT
                         (DictionaryError, 
                          string("Min value for ") + getPrefix() + name
-                         + " (" + boost::lexical_cast<string>(min) 
-                         + ") already specified; additional value not allowed.");
+                         + " already specified; additional value not allowed.");
                 }
                 try {
                     min = a->getValue<T>(Dictionary::KW_MIN);
@@ -398,8 +396,7 @@ void Definition::validateBasic(const string& name, const T& value,
                     throw LSST_EXCEPT
                         (DictionaryError,
                          string("Max value for ") + getPrefix() + name
-                         + " (" + boost::lexical_cast<string>(max) 
-                         + ") already specified; additional value not allowed.");
+                         + " already specified; additional value not allowed.");
                 try {
                     max = a->getValue<T>(Dictionary::KW_MAX);
                     maxFound = true; // after max assign, in case of exceptions
@@ -694,7 +691,7 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
     }
     throw LSST_EXCEPT
         (DictionaryError, string("Exceeded recursion limit (") 
-         + boost::lexical_cast<string>(maxLevel) 
+         + std::to_string(maxLevel) 
          + ") loading policy files; does this dictionary contain a circular"
          " definition?");
 }
@@ -711,7 +708,7 @@ void Dictionary::check() const {
     if (defs.size() > 1)
         throw LSST_EXCEPT
             (DictionaryError, string("expected a single \"") + KW_DEFINITIONS 
-             + "\" section; found " + boost::lexical_cast<string>(defs.size()));
+             + "\" section; found " + std::to_string(defs.size()));
 
     Policy::StringArray names = defs[0]->names(false);
     for (Policy::StringArray::const_iterator i = names.begin();

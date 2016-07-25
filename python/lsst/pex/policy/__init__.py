@@ -20,5 +20,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from policyLib import *
+from __future__ import absolute_import
+
+from .policyLib import *
 from .version import *

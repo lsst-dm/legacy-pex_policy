@@ -91,7 +91,7 @@ class PolicyTestCase(unittest.TestCase):
         # test types
         p.set("pint", 5)
         self.assertEquals(p.getInt("pint"), 5, "support for type int failed")
-        self.assertEquals(type(p.get("pint")), type(5),
+        self.assertIsInstance(p.get("pint"), (int, long),
                           "auto-typing for int failed")
         p.set("pdbl", 5.1)
         self.assertAlmostEquals(p.getDouble("pdbl"), 5.1, 7, 
@@ -100,7 +100,7 @@ class PolicyTestCase(unittest.TestCase):
                           "auto-typing for double failed")
         p.set("pbool", True)
         self.assert_(p.getBool("pbool"), "support for type bool failed")
-        self.assertEquals(type(p.get("pbool")), type(True),
+        self.assertIsInstance(p.get("pbool"), bool,
                           "auto-typing for bool failed")
         p.add("pbool", False)
 

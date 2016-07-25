@@ -34,7 +34,7 @@
 #ifndef LSST_PEX_POLICY_STRDEST_H
 #define LSST_PEX_POLICY_STRDEST_H
 
-#include <ostream>
+#include <sstream>
 #include <memory>
 
 #include "lsst/pex/policy/PolicyStreamDestination.h"

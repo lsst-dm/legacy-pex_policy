@@ -320,11 +320,11 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve.cpp)
         self.assert_(ve.getParamCount() == 2)
         self.assert_(ve.getErrors("int_range_set_type") 
-                     == ValidationError.VALUE_DISALLOWED 
-                     + ValidationError.VALUE_OUT_OF_RANGE)
+                     == int(ValidationError.VALUE_DISALLOWED) 
+                     + int(ValidationError.VALUE_OUT_OF_RANGE))
         self.assert_(ve.getErrors("double_range_count_type") 
-                     == ValidationError.TOO_MANY_VALUES 
-                     + ValidationError.VALUE_OUT_OF_RANGE)
+                     == int(ValidationError.TOO_MANY_VALUES) 
+                     + int(ValidationError.VALUE_OUT_OF_RANGE))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve.cpp)
 
@@ -434,7 +434,6 @@ class DictionaryTestCase(unittest.TestCase):
         self.assert_(p.valueCount("int_range_count") == 3)
         self.assert_(p.getDouble("deep.sub_double") == 1.)
         self.assert_(p.get("indirect4.string_type") == "foo")
-
         try:
             p = Policy.createPolicy(self.getTestDictionary("defaults_dictionary_bad_1.paf"),
                                     "", True)
@@ -444,7 +443,7 @@ class DictionaryTestCase(unittest.TestCase):
             self.assert_(ve.getErrors("int_range_count")
                          == ValidationError.NOT_AN_ARRAY)
             self.assert_(ve.getErrors("bool_set_count")
-                         == ValidationError.TOO_MANY_VALUES)
+                        == ValidationError.TOO_MANY_VALUES)
             self.assert_(ve.getErrors("deep.sub_double")
                          == ValidationError.WRONG_TYPE)
             self.assert_(ve.getParamCount() == 4)

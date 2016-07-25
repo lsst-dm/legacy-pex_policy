@@ -146,6 +146,9 @@ public:
 
     static const std::string EMPTY;
 
+    ValidationError(std::string const & message) : lsst::pex::exceptions::LogicError(message), _errors()
+    { }
+
     // TODO: create way to change message when an error actually occurs
     /**
      * create an empty ValidationError message

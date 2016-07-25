@@ -319,11 +319,11 @@ class DictionaryTestCase(unittest.TestCase):
         d.validate(p, ve.cpp)
         self.assertEqual(ve.getParamCount(), 2)
         self.assertEqual(ve.getErrors("int_range_set_type"),
-                         ValidationError.VALUE_DISALLOWED +
-                         ValidationError.VALUE_OUT_OF_RANGE)
+                         int(ValidationError.VALUE_DISALLOWED) +
+                         int(ValidationError.VALUE_OUT_OF_RANGE))
         self.assertEqual(ve.getErrors("double_range_count_type"),
-                         ValidationError.TOO_MANY_VALUES +
-                         ValidationError.VALUE_OUT_OF_RANGE)
+                         int(ValidationError.TOO_MANY_VALUES) +
+                         int(ValidationError.VALUE_OUT_OF_RANGE))
         ve = ValidationError("Dictionary_1.py", 1, "testValues")
         d.validate(p, ve.cpp)
 

@@ -53,12 +53,12 @@ class BigBoolTestCase(unittest.TestCase):
             self.policy.add("true", True)
 
         v = self.policy.getArray("true")
-        self.assertEquals(len(v), biglen, "wrong big number of values in array")
+        self.assertEqual(len(v), biglen, "wrong big number of values in array")
         for i in range(biglen):
-            self.assert_(v[i], "big array with bad value")
+            self.assertTrue(v[i], "big array with bad value")
 
         del v
-        self.assert_(True, "Blew up True")
+        self.assertTrue(True, "Blew up True")
 
         fd = open("/dev/null", "w")
         print("look: %s" % True, file=fd)

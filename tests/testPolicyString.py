@@ -46,8 +46,8 @@ dbl: -1.0
     def testRead(self):
         ps = PolicyString(self.data)
         p = Policy.createPolicy(ps)
-        self.assertEquals(p.get("int"), 7)
-        self.assertEquals(p.get("dbl"), -1.0)
+        self.assertEqual(p.get("int"), 7)
+        self.assertEqual(p.get("dbl"), -1.0)
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):

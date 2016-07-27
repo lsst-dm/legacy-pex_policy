@@ -44,13 +44,13 @@ class PolicyOutStringTestCase(unittest.TestCase):
 
     def testDest(self):
         dest = PolicyStringDestination("#<?cfg paf policy ?>")
-        self.assertEquals(dest.getData(), "#<?cfg paf policy ?>")
+        self.assertEqual(dest.getData(), "#<?cfg paf policy ?>")
 
     def testWrite(self):
         writer = PAFWriter()
         writer.write(self.policy, True)
         out = writer.toString()
-        self.assert_(out.startswith("#<?cfg paf policy ?>"))
+        self.assertTrue(out.startswith("#<?cfg paf policy ?>"))
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):

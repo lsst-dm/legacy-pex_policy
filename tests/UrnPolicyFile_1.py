@@ -53,9 +53,9 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         try:
             callableObj(*args, **kwargs)
         except excClass as e:
-            self.assert_(str(e).find(excMsg) > 0,
-                         failMsg + ": expected to see the message \"" + excMsg +
-                         "\"; actual message was \"" + str(e) + "\".")
+            self.assertGreater(str(e).find(excMsg), 0,
+                               failMsg + ": expected to see the message \"" + excMsg +
+                               "\"; actual message was \"" + str(e) + "\".")
         else:
             self.fail(failMsg + ": did not raise " + excClass)
 
@@ -75,31 +75,31 @@ class UrnPolicyFileTestCase(unittest.TestCase):
 
         p.set("transmitter.logVerbosity", "not")
         UrnPolicyFile(addr).load(p)
-        self.assert_(p.get("transmitter.logVerbosity") == "debug")
+        self.assertEqual(p.get("transmitter.logVerbosity"), "debug")
 
         p.set("transmitter.logVerbosity", "not")
         UrnPolicyFile("urn:eupspkg:" + addr).load(p)
-        self.assert_(p.get("transmitter.logVerbosity") == "debug")
+        self.assertEqual(p.get("transmitter.logVerbosity"), "debug")
 
         p.set("transmitter.logVerbosity", "not")
         UrnPolicyFile("@@" + addr).load(p)
-        self.assert_(p.get("transmitter.logVerbosity") == "debug")
+        self.assertEqual(p.get("transmitter.logVerbosity"), "debug")
 
     def testIndirect(self):
         urn = "@urn:eupspkg:pex_policy:tests/urn:indirect_parent_good.paf"
         p = Policy(urn)
-        self.assert_(p.get("urn_full.name") == "Simple Policy")
-        self.assert_(p.get("urn_brief.name") == "Simple Policy")
-        self.assert_(p.get("urn_mixed_case.name") == "Simple Policy")
-        self.assert_(p.get("local.foo") == "bar")
+        self.assertEqual(p.get("urn_full.name"), "Simple Policy")
+        self.assertEqual(p.get("urn_brief.name"), "Simple Policy")
+        self.assertEqual(p.get("urn_mixed_case.name"), "Simple Policy")
+        self.assertEqual(p.get("local.foo"), "bar")
 
         p = Policy()
         UrnPolicyFile("pex_policy:tests/urn:level_1.paf").load(p)
-        self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
+        self.assertEqual(p.get("foo.bar.baz.qux.quux"), "schmazzle")
 
     def testLoading(self):
         p = Policy("urn:eupspkg:pex_policy:tests/urn:level_1.paf")
-        self.assert_(p.get("foo.bar.baz.qux.quux") == "schmazzle")
+        self.assertEqual(p.get("foo.bar.baz.qux.quux"), "schmazzle")
 
         self.assertRaiseLCE(BadNameError, "Wrong number of terms",
                             Policy, "URN too short",
@@ -116,10 +116,10 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_partial.paf"
         p = Policy.createPolicyFromUrn(urn)
         # make sure all reference types worked
-        # self.assert_(p.get("indirect.string_type") == "foo")
-        # self.assert_(p.get("indirect2.string_type") == "foo")
-        self.assert_(p.get("indirect3.string_type") == "foo")
-        self.assert_(p.get("indirect4.string_type") == "foo")
+        # self.assertEqual(p.get("indirect.string_type"), "foo")
+        # self.assertEqual(p.get("indirect2.string_type"), "foo")
+        self.assertEqual(p.get("indirect3.string_type"), "foo")
+        self.assertEqual(p.get("indirect4.string_type"), "foo")
 
     def testTypos(self):
         base = "pex_policy:tests/urn:indirect_parent_typo_"
@@ -143,7 +143,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         # a PAF file designed to have "tests" as it repository
         p = Policy()
         UrnPolicyFile("pex_policy:tests:urn/local_tests_repos.paf").load(p)
-        self.assert_(p.get("local.polish") == "fancy")
+        self.assertEqual(p.get("local.polish"), "fancy")
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):

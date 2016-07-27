@@ -27,6 +27,7 @@ Comprehensive tests reading and retrieving data of all types
 """
 
 import unittest
+import lsst.utils.tests
 
 from lsst.pex.policy import Policy, PolicyString
 
@@ -49,7 +50,15 @@ dbl: -1.0
         self.assertEquals(p.get("dbl"), -1.0)
 
 
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
 __all__ = "PolicyStringTestCase".split()
 
+
+def setup_module(module):
+    lsst.utils.tests.init()
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

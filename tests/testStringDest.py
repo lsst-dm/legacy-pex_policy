@@ -27,6 +27,7 @@ Comprehensive tests reading and retrieving data of all types
 """
 
 import unittest
+import lsst.utils.tests
 
 from lsst.pex.policy import Policy, PolicyStringDestination, PAFWriter
 
@@ -39,7 +40,7 @@ class PolicyOutStringTestCase(unittest.TestCase):
         self.policy.set("name", "ray")
 
     def tearDown(self):
-        pass
+        del self.policy
 
     def testDest(self):
         dest = PolicyStringDestination("#<?cfg paf policy ?>")
@@ -51,7 +52,17 @@ class PolicyOutStringTestCase(unittest.TestCase):
         out = writer.toString()
         self.assert_(out.startswith("#<?cfg paf policy ?>"))
 
+
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
+
 __all__ = "PolicyOutStringTestCase".split()
 
+
+def setup_module(module):
+    lsst.utils.tests.init()
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

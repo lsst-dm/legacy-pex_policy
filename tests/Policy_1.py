@@ -23,7 +23,7 @@
 
 import unittest
 
-import lsst.utils.tests as tests
+import lsst.utils.tests
 from lsst.pex.policy import Policy, NameNotFound
 import lsst.pex.exceptions
 
@@ -136,18 +136,14 @@ class PolicyTestCase(unittest.TestCase):
         except RuntimeError:
             self.assertFalse(p.exists("foo"))
 
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
 
 
-def suite():
-    """Returns a suite containing all the test cases in this module."""
-    tests.init()
-
-    suites = []
-    suites += unittest.makeSuite(PolicyTestCase)
-    suites += unittest.makeSuite(tests.MemoryTestCase)
-
-    return unittest.TestSuite(suites)
+def setup_module(module):
+    lsst.utils.tests.init()
 
 if __name__ == "__main__":
-    tests.run(suite())
+    lsst.utils.tests.init()
+    unittest.main()

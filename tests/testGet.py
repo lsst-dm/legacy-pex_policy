@@ -32,6 +32,7 @@ import os
 import unittest
 
 import lsst.utils
+import lsst.utils.tests
 from lsst.pex.policy import Policy
 
 proddir = lsst.utils.getPackageDir('pex_policy')
@@ -44,7 +45,7 @@ class GetTestCase(unittest.TestCase):
         self.policy = Policy.createPolicy(self.policyfile, False)
 
     def tearDown(self):
-        pass
+        del self.policy
 
     def testGet(self):
         p = self.policy
@@ -165,7 +166,15 @@ class GetTestCase(unittest.TestCase):
         self.assertAlmostEquals(v[1].get("dbl"), -5.2, 8)
 
 
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
 __all__ = "GetTestCase".split()
 
+
+def setup_module(module):
+    lsst.utils.tests.init()
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

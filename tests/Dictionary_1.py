@@ -24,7 +24,7 @@ from builtins import str
 import os
 import unittest
 
-import lsst.utils.tests as tests
+import lsst.utils.tests
 
 from lsst.pex.policy import Policy, Dictionary, PolicyFile, DefaultPolicyFile
 from lsst.pex.policy import ValidationError, DictionaryError
@@ -651,20 +651,13 @@ class DictionaryTestCase(unittest.TestCase):
                             "empty_sub_no_default.foo", "baz")
 
 
-def suite():
-    """a suite containing all the test cases in this module"""
-    tests.init()
-
-    suites = []
-    suites += unittest.makeSuite(DictionaryTestCase)
-    suites += unittest.makeSuite(tests.MemoryTestCase)
-
-    return unittest.TestSuite(suites)
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
 
 
-def run(exit=False):
-    """Run the tests"""
-    tests.run(suite(), exit)
+def setup_module(module):
+    lsst.utils.tests.init()
 
 if __name__ == "__main__":
-    run(True)
+    lsst.utils.tests.init()
+    unittest.main()

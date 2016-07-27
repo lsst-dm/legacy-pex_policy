@@ -32,6 +32,7 @@ from builtins import range
 import unittest
 
 import lsst.utils
+import lsst.utils.tests
 from lsst.pex.policy import Policy
 
 proddir = lsst.utils.getPackageDir('pex_policy')
@@ -63,7 +64,17 @@ class BigBoolTestCase(unittest.TestCase):
         print("look: %s" % True, file=fd)
         fd.close()
 
+
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
+
 __all__ = "BigBoolTestCase".split()
 
+
+def setup_module(module):
+    lsst.utils.tests.init()
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

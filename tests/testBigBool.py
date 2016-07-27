@@ -27,6 +27,8 @@ Comprehensive tests reading and retrieving data of all types
 """
 from __future__ import print_function
 
+from builtins import range
+
 import unittest
 
 import lsst.utils
@@ -46,12 +48,12 @@ class BigBoolTestCase(unittest.TestCase):
     def testBigBoolArray(self):
         biglen = 1000
         self.policy.isBool("true")
-        for i in xrange(biglen):
+        for i in range(biglen):
             self.policy.add("true", True)
 
         v = self.policy.getArray("true")
         self.assertEquals(len(v), biglen, "wrong big number of values in array")
-        for i in xrange(biglen):
+        for i in range(biglen):
             self.assert_(v[i], "big array with bad value")
 
         del v

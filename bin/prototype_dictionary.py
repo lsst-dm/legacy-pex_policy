@@ -20,6 +20,8 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 from __future__ import print_function
+from builtins import str
+from builtins import object
 
 import optparse
 import sys
@@ -37,7 +39,7 @@ strict, and you will want to loosen it up by hand.
 """
 
 
-class PolicyValidator:
+class PolicyValidator(object):
     def __init__(self):
         self.verbose = False
 

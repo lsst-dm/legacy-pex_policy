@@ -24,6 +24,8 @@
 
 #
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import optparse
 import sys
 import os
@@ -38,7 +40,7 @@ Validate a policy file against a dictionary (policy schema).
 """
 
 
-class PolicyValidator:
+class PolicyValidator(object):
     def __init__(self):
         self.verbose = False
 

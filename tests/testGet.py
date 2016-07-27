@@ -26,6 +26,8 @@
 Comprehensive tests reading and retrieving data of all types
 """
 
+from builtins import range
+
 import os
 import unittest
 
@@ -66,7 +68,7 @@ class GetTestCase(unittest.TestCase):
 
         truth = [-11, 0, 3, 42, -11, 0, 3, 42, 0, 0]
         self.assertEquals(len(v), len(truth), "wrong number of values in array")
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertEquals(v[i], truth[i],
                               "wrong array element at index %d: %d != %d" %
                               (i, v[i], truth[i]))
@@ -78,7 +80,7 @@ class GetTestCase(unittest.TestCase):
 
         truth = [True]
         self.assertEquals(len(v), len(truth), "wrong number of values in array")
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertEquals(v[i], truth[i],
                               "wrong array element at index %i: %s != %s" %
                               (i, v[i], truth[i]))
@@ -89,7 +91,7 @@ class GetTestCase(unittest.TestCase):
 
         truth = [False]
         self.assertEquals(len(v), len(truth), "wrong number of values in array")
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertEquals(v[i], truth[i],
                               "wrong array element at index %i: %s != %s" %
                               (i, v[i], truth[i]))
@@ -106,7 +108,7 @@ class GetTestCase(unittest.TestCase):
         self.assertEquals(len(v), len(truth),
                           "wrong number of values in array: %i != %i" %
                           (len(v), len(truth)))
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertAlmostEquals(v[i], truth[i], 8,
                                     "wrong array element at index %d: %g != %g" %
                                     (i, v[i], truth[i]))
@@ -119,7 +121,7 @@ class GetTestCase(unittest.TestCase):
         truth = ["word", "two words", "quoted ' words", 'quoted " words',
                  "a very long, multi-line description", "happy", "birthday"]
         self.assertEquals(len(v), len(truth), "wrong number of values in array")
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertEquals(v[i], truth[i],
                               "wrong array element at index %d: %s != %s" %
                               (i, v[i], truth[i]))
@@ -145,7 +147,7 @@ class GetTestCase(unittest.TestCase):
 
         truth = ["EventTransmitter_policy.paf", "CacheManager_dict.paf"]
         self.assertEquals(len(v), len(truth), "wrong number of values in array")
-        for i in xrange(len(truth)):
+        for i in range(len(truth)):
             self.assertEquals(v[i].getPath(), truth[i],
                               "wrong array element at index %d: %s != %s" %
                               (i, v[i], truth[i]))

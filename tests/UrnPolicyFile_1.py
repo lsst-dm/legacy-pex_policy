@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -10,33 +10,33 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
 import os
 import unittest
-import lsst.utils
-#import inspect
 
 import lsst.utils.tests as tests
 
 from lsst.pex.policy import Policy, UrnPolicyFile, BadNameError
 import lsst.pex.exceptions
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # TODO: test cross-package loading more thoroughly -- mix up the packages and
 # repositories in a deeply nested and linked policy file.
 
+
 class UrnPolicyFileTestCase(unittest.TestCase):
+    examplesDir = None
 
     def assertRaiseLCE(self, excClass, excMsg, callableObj, failMsg, *args, **kwargs):
         """
@@ -53,12 +53,11 @@ class UrnPolicyFileTestCase(unittest.TestCase):
             callableObj(*args, **kwargs)
         except excClass as e:
             self.assert_(str(e).find(excMsg) > 0,
-                         failMsg + ": expected to see the message \"" + excMsg 
-                         + "\"; actual message was \"" + str(e) + "\".")
+                         failMsg + ": expected to see the message \"" + excMsg +
+                         "\"; actual message was \"" + str(e) + "\".")
         else:
             self.fail(failMsg + ": did not raise " + excClass)
 
-    examplesDir = None
     def getExamples(self, filename=None):
         if not self.examplesDir:
             # XXX is this really the best way to find the src_dir?
@@ -110,7 +109,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
 
         urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_good.paf"
         self.assertRaiseLCE(lsst.pex.exceptions.IoError, "/./defaults_dictionary_indirect",
-                            Policy.createPolicyFromUrn, 
+                            Policy.createPolicyFromUrn,
                             "doesn't support loading undecorated DictionaryFile",
                             urn)
         urn = "urn:eupspkg:pex_policy:tests/dictionary:defaults_dictionary_partial.paf"
@@ -145,6 +144,7 @@ class UrnPolicyFileTestCase(unittest.TestCase):
         UrnPolicyFile("pex_policy:tests:urn/local_tests_repos.paf").load(p)
         self.assert_(p.get("local.polish") == "fancy")
 
+
 def suite():
     """a suite containing all the test cases in this module"""
     tests.init()
@@ -154,6 +154,7 @@ def suite():
     suites += unittest.makeSuite(tests.MemoryTestCase)
 
     return unittest.TestSuite(suites)
+
 
 def run(exit=False):
     """Run the tests"""

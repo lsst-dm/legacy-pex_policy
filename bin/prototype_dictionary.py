@@ -19,6 +19,7 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
+from __future__ import print_function
 
 import optparse
 import sys
@@ -59,7 +60,7 @@ class PolicyValidator:
                 polLoadDesc = "current directory; " \
                               "try -l DIR or --load-policy-references=DIR"
             if self.verbose:
-                print "No policy load dir specified; defaulting to " + polLoadDesc
+                print("No policy load dir specified; defaulting to " + polLoadDesc)
         message = "Resolving references in " + self.policyFile \
                   + ",\n    using " + polLoadDesc
         self.tryThis(policy.loadPolicyFiles, message, polLoadDir, True)
@@ -72,7 +73,7 @@ class PolicyValidator:
             shortname = shortname.rpartition("/")[2]
 
         if self.verbose:
-            print "Short name =", shortname
+            print("Short name =", shortname)
 
         # 2. create a dictionary from it
         dictionary = Policy()
@@ -82,23 +83,23 @@ class PolicyValidator:
 
         # TODO: remove commas from lists
         if self.verbose:
-            print "Generating Dictionary for Policy " + self.policyFile + ":"
-            print "---------------------------Policy---------------------------"
-            print policy
-            print "-------------------------Dictionary-------------------------"
+            print("Generating Dictionary for Policy " + self.policyFile + ":")
+            print("---------------------------Policy---------------------------")
+            print(policy)
+            print("-------------------------Dictionary-------------------------")
 
         realDict = Dictionary(dictionary)
         try:
             realDict.validate(policy)
-            print "#<?cfg paf dictionary ?>"
+            print("#<?cfg paf dictionary ?>")
             writer = PAFWriter()
             writer.write(dictionary)
-            print writer.toString()
+            print(writer.toString())
             #print dictionary
         except lsst.pex.exceptions.Exception as e:
             ve = e.args[0]
-            print "Internal error: validation fails against extrapolated dictionary:"
-            print ve.describe("  - ")
+            print("Internal error: validation fails against extrapolated dictionary:")
+            print(ve.describe("  - "))
 
     def generateDict(self, policy, dictionary, prefix=""):
         definitions = Policy()
@@ -118,7 +119,7 @@ class PolicyValidator:
                 subdict = Policy()
                 defin.set("dictionary", subdict)
                 if len(values) > 1:
-                    print "# Warning: only using first value of", newPrefix
+                    print("# Warning: only using first value of", newPrefix)
                 self.generateDict(values[0], subdict, newPrefix)
             else:
                 allowed = Policy()
@@ -134,12 +135,12 @@ class PolicyValidator:
 
     def tryThis(self, callableObj, explain, *args, **kwargs):
         try:
-            if self.verbose: print explain
+            if self.verbose: print(explain)
             result = callableObj(*args, **kwargs)
             return result
         except lsst.pex.exceptions.Exception as e:
-            print "error", explain + ":"
-            print e.args[0].what()
+            print("error", explain + ":")
+            print(e.args[0].what())
             sys.exit(2)
 
     def parseArgs(self, argv=None):

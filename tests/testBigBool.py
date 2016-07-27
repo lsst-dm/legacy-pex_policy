@@ -25,6 +25,7 @@
 """
 Comprehensive tests reading and retrieving data of all types
 """
+from __future__ import print_function
 import pdb                              # we may want to say pdb.set_trace()
 import os
 import sys
@@ -59,7 +60,7 @@ class BigBoolTestCase(unittest.TestCase):
         self.assert_(True, "Blew up True")
 
         fd = open("/dev/null", "w")
-        print >> fd, "look: %s" % True
+        print("look: %s" % True, file=fd)
         fd.close()
 
         

@@ -23,6 +23,7 @@
 #
 
 #
+from __future__ import print_function
 import optparse
 import sys
 import os
@@ -53,7 +54,7 @@ class PolicyValidator:
         polLoadDesc = polLoadDir
         if polLoadDir == None:
             if self.verbose:
-                print "No policy load dir specified; using current dir."
+                print("No policy load dir specified; using current dir.")
             polLoadDir = ""
             polLoadDesc = "current directory; " \
                           "try -l DIR or --load-policy-references=DIR"
@@ -71,8 +72,8 @@ class PolicyValidator:
         dictLoadDesc = dictLoadDir
         if (dictLoadDir == None):
             if self.verbose:
-                print "No dictionary load dir specified; using policy load dir", \
-                      polLoadDesc
+                print("No dictionary load dir specified; using policy load dir", \
+                      polLoadDesc)
             if polLoadDir != "":
                 dictLoadDir = polLoadDir
                 dictLoadDesc = polLoadDesc
@@ -100,20 +101,20 @@ class PolicyValidator:
                      policy)
 
         if self.verbose:
-            print
-        print "Validation passed:"
-        print "      policy: " + self.policyFile
-        print "                  is a valid instance of"
-        print "  dictionary: " + self.dictFile
+            print()
+        print("Validation passed:")
+        print("      policy: " + self.policyFile)
+        print("                  is a valid instance of")
+        print("  dictionary: " + self.dictFile)
 
     def tryThis(self, callableObj, explain, *args, **kwargs):
         try:
-            if self.verbose: print explain
+            if self.verbose: print(explain)
             result = callableObj(*args, **kwargs)
             return result
         except lsst.pex.exceptions.Exception as e:
-            print "error", explain + ":"
-            print e.args[0].what()
+            print("error", explain + ":")
+            print(e.args[0].what())
             sys.exit(2)
 
     def parseArgs(self, argv=None):

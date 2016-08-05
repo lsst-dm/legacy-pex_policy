@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,163 +11,170 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
 """
 Comprehensive tests reading and retrieving data of all types
 """
-import pdb                              # we may want to say pdb.set_trace()
+
+from builtins import range
+
 import os
-import sys
 import unittest
-import time
 
 import lsst.utils
+import lsst.utils.tests
 from lsst.pex.policy import Policy
 
 proddir = lsst.utils.getPackageDir('pex_policy')
 
+
 class GetTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.policyfile = os.path.join(proddir,"examples","types.paf")
+        self.policyfile = os.path.join(proddir, "examples", "types.paf")
         self.policy = Policy.createPolicy(self.policyfile, False)
 
     def tearDown(self):
-        pass
+        del self.policy
 
     def testGet(self):
         p = self.policy
-        self.assertEquals(p.get("int"), 0)
-        self.assertEquals(p.get("true"), True)
-        self.assertEquals(p.get("false"), False)
+        self.assertEqual(p.get("int"), 0)
+        self.assertEqual(p.get("true"), True)
+        self.assertEqual(p.get("false"), False)
         self.assertAlmostEquals(p.get("dbl"), -0.05, 8)
-        self.assertEquals(p.get("str"), "birthday")
-        self.assert_(p.isFile("file"),
-                     "Unexpected: 'file' is not a PolicyFile")
-        self.assert_(p.get("file") is not None, "file value returned as None")
-        self.assertEquals(p.get("file").getPath(), "CacheManager_dict.paf")
-        self.assert_(p.isPolicy("pol"), "Unexpected: 'pol' is not a Policy")
+        self.assertEqual(p.get("str"), "birthday")
+        self.assertTrue(p.isFile("file"),
+                        "Unexpected: 'file' is not a PolicyFile")
+        self.assertIsNotNone(p.get("file"), "file value returned as None")
+        self.assertEqual(p.get("file").getPath(), "CacheManager_dict.paf")
+        self.assertTrue(p.isPolicy("pol"), "Unexpected: 'pol' is not a Policy")
         sp = p.get("pol")
-        self.assertEquals(sp.get("int"), 2)
+        self.assertEqual(sp.get("int"), 2)
 
     def testGetIntArray(self):
-        self.assert_(self.policy.isInt("int"))
+        self.assertTrue(self.policy.isInt("int"))
         v = self.policy.getArray("int")
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
-        truth = [-11, 0, 3, 42, -11, 0 , 3, 42, 0, 0]
-        self.assertEquals(len(v), len(truth),"wrong number of values in array")
-        for i in xrange(len(truth)):
-            self.assertEquals(v[i], truth[i],
-                              "wrong array element at index %d: %d != %d" %
-                              (i, v[i], truth[i]))
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
+        truth = [-11, 0, 3, 42, -11, 0, 3, 42, 0, 0]
+        self.assertEqual(len(v), len(truth), "wrong number of values in array")
+        for i in range(len(truth)):
+            self.assertEqual(v[i], truth[i],
+                             "wrong array element at index %d: %d != %d" %
+                             (i, v[i], truth[i]))
 
     def testGetBoolArray(self):
-        self.assert_(self.policy.isBool("true"))
+        self.assertTrue(self.policy.isBool("true"))
         v = self.policy.getArray("true")
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
-        truth = [ True ]
-        self.assertEquals(len(v), len(truth),"wrong number of values in array")
-        for i in xrange(len(truth)):
-            self.assertEquals(v[i], truth[i],
-                              "wrong array element at index %i: %s != %s" %
-                              (i, v[i], truth[i]))
+        self.assertIsInstance(v, list, "array value not returned as a list")
 
-        self.assert_(self.policy.isBool("false"))
+        truth = [True]
+        self.assertEqual(len(v), len(truth), "wrong number of values in array")
+        for i in range(len(truth)):
+            self.assertEqual(v[i], truth[i],
+                             "wrong array element at index %i: %s != %s" %
+                             (i, v[i], truth[i]))
+
+        self.assertTrue(self.policy.isBool("false"))
         v = self.policy.getArray("false")
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
-        truth = [ False ]
-        self.assertEquals(len(v), len(truth),"wrong number of values in array")
-        for i in xrange(len(truth)):
-            self.assertEquals(v[i], truth[i],
-                              "wrong array element at index %i: %s != %s" %
-                              (i, v[i], truth[i]))
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
+        truth = [False]
+        self.assertEqual(len(v), len(truth), "wrong number of values in array")
+        for i in range(len(truth)):
+            self.assertEqual(v[i], truth[i],
+                             "wrong array element at index %i: %s != %s" %
+                             (i, v[i], truth[i]))
 
     def testGetDoublArray(self):
-        self.assert_(self.policy.isDouble("dbl"))
+        self.assertTrue(self.policy.isDouble("dbl"))
         v = self.policy.getArray("dbl")
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
-        truth = [-1.0, -65.78, -14.0, -0.12, -0.12, 1.0, 65.78, 14.0, 0.12, 
-                 0.12, 1.0, 65.78, 14.0, 0.12, 0.12, -1.0e10, -65780000.0, 
-                 -0.014, -0.12e14, 0.12e-11, 14.0, 0.12, 0.12, 1.0, 65.78, 
-                 14.0, 50000, -0.05 ]
-        self.assertEquals(len(v), len(truth),
-                          "wrong number of values in array: %i != %i" %
-                          (len(v), len(truth)))
-        for i in xrange(len(truth)):
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
+        truth = [-1.0, -65.78, -14.0, -0.12, -0.12, 1.0, 65.78, 14.0, 0.12,
+                 0.12, 1.0, 65.78, 14.0, 0.12, 0.12, -1.0e10, -65780000.0,
+                 -0.014, -0.12e14, 0.12e-11, 14.0, 0.12, 0.12, 1.0, 65.78,
+                 14.0, 50000, -0.05]
+        self.assertEqual(len(v), len(truth),
+                         "wrong number of values in array: %i != %i" %
+                         (len(v), len(truth)))
+        for i in range(len(truth)):
             self.assertAlmostEquals(v[i], truth[i], 8,
-                              "wrong array element at index %d: %g != %g" %
-                              (i, v[i], truth[i]))
+                                    "wrong array element at index %d: %g != %g" %
+                                    (i, v[i], truth[i]))
 
     def testGetStringArray(self):
-        #pdb.set_trace()
-        self.assert_(self.policy.isString("str"))
+        self.assertTrue(self.policy.isString("str"))
         v = self.policy.getArray("str")
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
         truth = ["word", "two words", "quoted ' words", 'quoted " words',
-                 "a very long, multi-line description", "happy", "birthday" ]
-        self.assertEquals(len(v), len(truth),"wrong number of values in array")
-        for i in xrange(len(truth)):
-            self.assertEquals(v[i], truth[i],
-                              "wrong array element at index %d: %s != %s" %
-                              (i, v[i], truth[i]))
+                 "a very long, multi-line description", "happy", "birthday"]
+        self.assertEqual(len(v), len(truth), "wrong number of values in array")
+        for i in range(len(truth)):
+            self.assertEqual(v[i], truth[i],
+                             "wrong array element at index %d: %s != %s" %
+                             (i, v[i], truth[i]))
 
     def testGetEmptyString(self):
         p = self.policy
-        self.assertEquals(p.get("empty"), '')
+        self.assertEqual(p.get("empty"), '')
         s = p.getArray("empty")
-        self.assertEquals(len(s), 5)
-        self.assertEquals(s[0], ' description ')
-        self.assertEquals(s[1], '  ')
-        self.assertEquals(s[2], '  ')
-        self.assertEquals(s[3], ' ')
-        self.assertEquals(s[4], '')
-        
+        self.assertEqual(len(s), 5)
+        self.assertEqual(s[0], ' description ')
+        self.assertEqual(s[1], '  ')
+        self.assertEqual(s[2], '  ')
+        self.assertEqual(s[3], ' ')
+        self.assertEqual(s[4], '')
+
     def testGetFileArray(self):
-        self.assert_(self.policy.isFile("file"))
+        self.assertTrue(self.policy.isFile("file"))
         v = self.policy.getArray("file")
-        self.assert_(v is not None, "file array returned as None")
+        self.assertIsNotNone(v, "file array returned as None")
 
         # this is be fixed in another ticket
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
         truth = ["EventTransmitter_policy.paf", "CacheManager_dict.paf"]
-        self.assertEquals(len(v), len(truth),"wrong number of values in array")
-        for i in xrange(len(truth)):
-            self.assertEquals(v[i].getPath(), truth[i],
-                          "wrong array element at index %d: %s != %s" %
-                          (i, v[i], truth[i]))
+        self.assertEqual(len(v), len(truth), "wrong number of values in array")
+        for i in range(len(truth)):
+            self.assertEqual(v[i].getPath(), truth[i],
+                             "wrong array element at index %d: %s != %s" %
+                             (i, v[i], truth[i]))
 
     def testGetPolicyArray(self):
-        self.assert_(self.policy.isPolicy("pol"))
+        self.assertTrue(self.policy.isPolicy("pol"))
         v = self.policy.getArray("pol")
         # this is be fixed in another ticket
-        self.assert_(isinstance(v, list), "array value not returned as a list")
-        
-        self.assertEquals(len(v), 2,"wrong number of values in array")
-        self.assertEquals(v[0].get("int"), 1)
-        self.assertEquals(v[1].get("int"), 2)
+        self.assertIsInstance(v, list, "array value not returned as a list")
+
+        self.assertEqual(len(v), 2, "wrong number of values in array")
+        self.assertEqual(v[0].get("int"), 1)
+        self.assertEqual(v[1].get("int"), 2)
         self.assertAlmostEquals(v[0].get("dbl"), 0.0003, 8)
         self.assertAlmostEquals(v[1].get("dbl"), -5.2, 8)
-    
 
 
-__all__ = "GetTestCase".split()        
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
+__all__ = "GetTestCase".split()
+
+
+def setup_module(module):
+    lsst.utils.tests.init()
 
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()
-

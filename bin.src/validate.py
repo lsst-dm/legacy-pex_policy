@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,18 +11,21 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
 #
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import optparse
 import sys
 import os
@@ -36,7 +39,8 @@ desc = """
 Validate a policy file against a dictionary (policy schema).
 """
 
-class PolicyValidator:
+
+class PolicyValidator(object):
     def __init__(self):
         self.verbose = False
 
@@ -51,9 +55,9 @@ class PolicyValidator:
         # resolve policy file references
         polLoadDir = self.options.loadPolicy
         polLoadDesc = polLoadDir
-        if polLoadDir == None:
+        if polLoadDir is None:
             if self.verbose:
-                print "No policy load dir specified; using current dir."
+                print("No policy load dir specified; using current dir.")
             polLoadDir = ""
             polLoadDesc = "current directory; " \
                           "try -l DIR or --load-policy-references=DIR"
@@ -69,10 +73,10 @@ class PolicyValidator:
         # resolve dictionary file references
         dictLoadDir = self.options.loadDict
         dictLoadDesc = dictLoadDir
-        if (dictLoadDir == None):
+        if (dictLoadDir is None):
             if self.verbose:
-                print "No dictionary load dir specified; using policy load dir", \
-                      polLoadDesc
+                print("No dictionary load dir specified; using policy load dir",
+                      polLoadDesc)
             if polLoadDir != "":
                 dictLoadDir = polLoadDir
                 dictLoadDesc = polLoadDesc
@@ -83,15 +87,16 @@ class PolicyValidator:
         message = "resolving references in " + self.dictFile + ",\n" \
                   "    using " + dictLoadDesc
         self.tryThis(dictionary.loadPolicyFiles, message, dictLoadDir, True)
-    
+
         # 3. merge defaults into policy
         defaults = None
         defaultsFile = self.options.defaults
-        if (defaultsFile != None):
+        if (defaultsFile is not None):
             defaults = self.tryThis(Policy,
                                     "reading defaults from \"" + defaultsFile + "\"",
                                     defaultsFile)
-        else: defaults = dictionary # if no defaults file specified, use dictionary
+        else:
+            defaults = dictionary  # if no defaults file specified, use dictionary
         self.tryThis(policy.mergeDefaults, "merging defaults into policy", defaults)
 
         # 4. validate
@@ -100,25 +105,26 @@ class PolicyValidator:
                      policy)
 
         if self.verbose:
-            print
-        print "Validation passed:"
-        print "      policy: " + self.policyFile
-        print "                  is a valid instance of"
-        print "  dictionary: " + self.dictFile
+            print()
+        print("Validation passed:")
+        print("      policy: " + self.policyFile)
+        print("                  is a valid instance of")
+        print("  dictionary: " + self.dictFile)
 
     def tryThis(self, callableObj, explain, *args, **kwargs):
         try:
-            if self.verbose: print explain
+            if self.verbose:
+                print(explain)
             result = callableObj(*args, **kwargs)
             return result
         except lsst.pex.exceptions.Exception as e:
-            print "error", explain + ":"
-            print e.args[0].what()
+            print("error", explain + ":")
+            print(e.args[0].what())
             sys.exit(2)
 
     def parseArgs(self, argv=None):
         # see http://docs.python.org/library/optparse.html
-        self.parser = optparse.OptionParser(usage=usage, description=desc) # parasoft-suppress W0201
+        self.parser = optparse.OptionParser(usage=usage, description=desc)  # parasoft-suppress W0201
         self.parser.add_option("-d", "--dictionary", dest="dictionary", metavar="FILE",
                                help="The dictionary to validate a policy against.")
         self.parser.add_option("-p", "--policy", dest="policy", metavar="FILE",
@@ -143,21 +149,21 @@ class PolicyValidator:
 
         if argv is None:
             argv = sys.argv
-        (self.options, args) = self.parser.parse_args(argv) # parasoft-suppress W0201
-        # print "args =", args, len(args)
-        # print "options =", self.options
-        if (self.options.verbose != None):
+        (self.options, args) = self.parser.parse_args(argv)  # parasoft-suppress W0201
+        # print("args =", args, len(args))
+        # print("options =", self.options)
+        if (self.options.verbose is not None):
             self.verbose = self.options.verbose
-        
+
         self.policyFile = self.options.policy               # parasoft-suppress W0201
         self.dictFile = self.options.dictionary             # parasoft-suppress W0201
-        del args[0] # script name
-        if (self.policyFile == None):
+        del args[0]  # script name
+        if (self.policyFile is None):
             if len(args) < 1:
                 self.parser.error("no policy specified")
             self.policyFile = args[0]
             del(args[0])
-        if (self.dictFile == None):
+        if (self.dictFile is None):
             if len(args) < 1:
                 self.parser.error("no dictionary specified")
             self.dictFile = args[0]

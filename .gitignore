@@ -9,12 +9,15 @@ config.log
 *.pyc
 *_wrap.cc
 *Lib.py
+_build.*
 bin/validate.py
 doc/html
+doc/xml
 doc/*.tag
 doc/*.inc
 doc/doxygen.conf
 tests/.tests
+tests/.cache
 version.py
 tests/DefaultPolicyFile_1
 tests/PAFBadSyntax

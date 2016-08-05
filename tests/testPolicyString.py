@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,27 +11,26 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
 """
 Comprehensive tests reading and retrieving data of all types
 """
-import pdb                              # we may want to say pdb.set_trace()
-import os
-import sys
+
 import unittest
-import time
+import lsst.utils.tests
 
 from lsst.pex.policy import Policy, PolicyString
+
 
 class PolicyStringTestCase(unittest.TestCase):
 
@@ -47,14 +46,19 @@ dbl: -1.0
     def testRead(self):
         ps = PolicyString(self.data)
         p = Policy.createPolicy(ps)
-        self.assertEquals(p.get("int"), 7)
-        self.assertEquals(p.get("dbl"), -1.0)
+        self.assertEqual(p.get("int"), 7)
+        self.assertEqual(p.get("dbl"), -1.0)
 
 
+class TestMemory(lsst.utils.tests.MemoryTestCase):
+    pass
+
+__all__ = "PolicyStringTestCase".split()
 
 
-__all__ = "PolicyStringTestCase".split()        
+def setup_module(module):
+    lsst.utils.tests.init()
 
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()
-

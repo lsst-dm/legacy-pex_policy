@@ -1,7 +1,7 @@
-# 
+#
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -9,16 +9,19 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
+from __future__ import print_function
+from builtins import str
+from builtins import object
 
 import optparse
 import sys
@@ -35,7 +38,8 @@ instance of the Dictionary.  In practice, the Dictionary will probably be overly
 strict, and you will want to loosen it up by hand.
 """
 
-class PolicyValidator:
+
+class PolicyValidator(object):
     def __init__(self):
         self.verbose = False
 
@@ -50,7 +54,7 @@ class PolicyValidator:
         # resolve policy file references
         polLoadDir = self.options.loadPolicy
         polLoadDesc = polLoadDir
-        if polLoadDir == None:
+        if polLoadDir is None:
             if self.policyFile.find("/") >= 0:
                 polLoadDir = self.policyFile.rpartition("/")[0]
                 polLoadDesc = polLoadDir
@@ -59,7 +63,7 @@ class PolicyValidator:
                 polLoadDesc = "current directory; " \
                               "try -l DIR or --load-policy-references=DIR"
             if self.verbose:
-                print "No policy load dir specified; defaulting to " + polLoadDesc
+                print("No policy load dir specified; defaulting to " + polLoadDesc)
         message = "Resolving references in " + self.policyFile \
                   + ",\n    using " + polLoadDesc
         self.tryThis(policy.loadPolicyFiles, message, polLoadDir, True)
@@ -72,7 +76,7 @@ class PolicyValidator:
             shortname = shortname.rpartition("/")[2]
 
         if self.verbose:
-            print "Short name =", shortname
+            print("Short name =", shortname)
 
         # 2. create a dictionary from it
         dictionary = Policy()
@@ -82,23 +86,23 @@ class PolicyValidator:
 
         # TODO: remove commas from lists
         if self.verbose:
-            print "Generating Dictionary for Policy " + self.policyFile + ":"
-            print "---------------------------Policy---------------------------"
-            print policy
-            print "-------------------------Dictionary-------------------------"
+            print("Generating Dictionary for Policy " + self.policyFile + ":")
+            print("---------------------------Policy---------------------------")
+            print(policy)
+            print("-------------------------Dictionary-------------------------")
 
         realDict = Dictionary(dictionary)
         try:
             realDict.validate(policy)
-            print "#<?cfg paf dictionary ?>"
+            print("#<?cfg paf dictionary ?>")
             writer = PAFWriter()
             writer.write(dictionary)
-            print writer.toString()
-            #print dictionary
+            print(writer.toString())
+            # print(dictionary)
         except lsst.pex.exceptions.Exception as e:
             ve = e.args[0]
-            print "Internal error: validation fails against extrapolated dictionary:"
-            print ve.describe("  - ")
+            print("Internal error: validation fails against extrapolated dictionary:")
+            print(ve.describe("  - "))
 
     def generateDict(self, policy, dictionary, prefix=""):
         definitions = Policy()
@@ -118,13 +122,13 @@ class PolicyValidator:
                 subdict = Policy()
                 defin.set("dictionary", subdict)
                 if len(values) > 1:
-                    print "# Warning: only using first value of", newPrefix
+                    print("# Warning: only using first value of", newPrefix)
                 self.generateDict(values[0], subdict, newPrefix)
             else:
                 allowed = Policy()
                 defin.set("allowed", allowed)
                 orderable = type == Policy.INT or type == Policy.DOUBLE \
-                            or type == Policy.STRING
+                    or type == Policy.STRING
                 if orderable:
                     allowed.set("min", min(values))
                     allowed.set("max", max(values))
@@ -134,17 +138,18 @@ class PolicyValidator:
 
     def tryThis(self, callableObj, explain, *args, **kwargs):
         try:
-            if self.verbose: print explain
+            if self.verbose:
+                print(explain)
             result = callableObj(*args, **kwargs)
             return result
         except lsst.pex.exceptions.Exception as e:
-            print "error", explain + ":"
-            print e.args[0].what()
+            print("error", explain + ":")
+            print(e.args[0].what())
             sys.exit(2)
 
     def parseArgs(self, argv=None):
         # see http://docs.python.org/library/optparse.html
-        self.parser = optparse.OptionParser(usage=usage, description=desc) # parasoft-suppress W0201
+        self.parser = optparse.OptionParser(usage=usage, description=desc)  # parasoft-suppress W0201
         self.parser.add_option("-p", "--policy", dest="policy", metavar="FILE",
                                help="the policy to validate")
         self.parser.add_option("-l", "--load-policy-references", dest="loadPolicy",
@@ -158,15 +163,15 @@ class PolicyValidator:
 
         if argv is None:
             argv = sys.argv
-        (self.options, args) = self.parser.parse_args(argv) # parasoft-suppress W0201
-        # print "args =", args, len(args)
-        # print "options =", self.options
-        if (self.options.verbose != None):
+        (self.options, args) = self.parser.parse_args(argv)  # parasoft-suppress W0201
+        # print("args =", args, len(args))
+        # print("options =", self.options)
+        if (self.options.verbose is not None):
             self.verbose = self.options.verbose
-        
+
         self.policyFile = self.options.policy               # parasoft-suppress W0201
-        del args[0] # script name
-        if (self.policyFile == None):
+        del args[0]  # script name
+        if (self.policyFile is None):
             if len(args) < 1:
                 self.parser.error("no policy specified")
             self.policyFile = args[0]

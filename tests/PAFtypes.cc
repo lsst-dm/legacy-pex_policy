@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PAFtypes.cc
  *
@@ -59,7 +59,7 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
             << "Value number " << which << " !=  "   \
             << expected << ": " << found << ends;    \
         throw runtime_error(msg.str());              \
-    } 
+    }
 
 #define TYPED_VALUE_IS(ary, item, val)  TYPETEST((ary[item] == val), item, val, ary[item])
 #define TYPED_VALUE_NEAR(ary, item, val)  TYPETEST((fabs(ary[item] - val) < 1.0e-14), item, val, ary[item])
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
 
     Policy::FilePtrArray vf = p.getFileArray("file");
     Policy::StringArray vfs;
-    for(Policy::FilePtrArray::iterator vfi=vf.begin(); vfi!=vf.end(); ++vfi) 
+    for(Policy::FilePtrArray::iterator vfi=vf.begin(); vfi!=vf.end(); ++vfi)
         vfs.push_back((*vfi)->getPath());
     i=0;
     TYPED_VALUE_IS(vfs, i, "EventTransmitter_policy.paf");        ++i;
@@ -130,17 +130,17 @@ int main(int argc, char** argv) {
 
     Policy::PolicyPtrArray vp = p.getPolicyArray("pol");
     Assert(vp[0]->getInt("int") == 1, "policy int not 1");
-    Assert(fabs(vp[0]->getDouble("dbl") - 3.0e-4) < 1.0e-14, 
+    Assert(fabs(vp[0]->getDouble("dbl") - 3.0e-4) < 1.0e-14,
            "policy dbl not 3.0e-4");
 
     Policy::IntArray vi2 = p.getIntArray("pol.int");
-    TYPED_VALUE_IS(vi2, 0, 1); 
-    TYPED_VALUE_IS(vi2, 1, 2); 
+    TYPED_VALUE_IS(vi2, 0, 1);
+    TYPED_VALUE_IS(vi2, 1, 2);
     Policy::DoubleArray vd2 = p.getDoubleArray("pol.dbl");
-    TYPED_VALUE_NEAR(vd2, 0, 0.0003); 
-    TYPED_VALUE_NEAR(vd2, 1, -5.2); 
+    TYPED_VALUE_NEAR(vd2, 0, 0.0003);
+    TYPED_VALUE_NEAR(vd2, 1, -5.2);
 
-    Assert(p.getString("pol.pol.label") == "hank", 
+    Assert(p.getString("pol.pol.label") == "hank",
            "pol.pol.label != 'hank': " + p.getString("pol.pol.label"));
 
 }

@@ -30,9 +30,9 @@ dbl : 65.78
 dbl : 14.
 dbl : .12
 dbl : 0.12
-dbl : -1.0e10 
+dbl : -1.0e10
 dbl : -65.78E6
-dbl : -14.e-3   
+dbl : -14.e-3
 dbl : -.12e+14
 dbl : -0.12E-11
 dbl : +14. +.12  +0.12 1.0 65.78  14.
@@ -43,15 +43,15 @@ str : word
 str : two words
 str : "quoted ' words"
 str : 'quoted " words'
-str : "a very long, multi-line 
+str : "a very long, multi-line
         description"
 str : "happy" "birthday"
 
 empty: "
        description
        "
-empty: " 
-       
+empty: "
+
        "
 empty: '
 
@@ -63,7 +63,7 @@ file : @EventTransmitter_policy.paf
 file : @CacheManager_dict.paf
 # file : @EventTransmitter_policy.paf @CacheManager_dict.paf
 
-pol : { 
+pol : {
   int: 1
 dbl: 3.e-4
 }

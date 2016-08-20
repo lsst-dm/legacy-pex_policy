@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,26 +11,26 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PAFParser.h
- * 
+ *
  * @ingroup pex
  *
  * @brief definition of the PAFParser class
- * 
+ *
  * @author Ray Plante
- * 
+ *
  */
 #ifndef LSST_PEX_POLICY_PAF_TOKENIZER_H
 #define LSST_PEX_POLICY_PAF_TOKENIZER_H
@@ -52,7 +52,7 @@ namespace paf {
  * @brief  a parser for reading PAF-formatted data into a Policy object
  */
 class PAFParser : public PolicyParser {
-public: 
+public:
 
     /**
      * create a parser to load a Policy
@@ -62,10 +62,10 @@ public:
 
     /**
      * @copydoc PAFParser(Policy&)
-     * @param strict   if true, be strict in reporting errors in file 
-     *                   contents and syntax.  If false, errors will be 
-     *                   ignored if possible; often, such errors will 
-     *                   result in some data not getting loaded.  The 
+     * @param strict   if true, be strict in reporting errors in file
+     *                   contents and syntax.  If false, errors will be
+     *                   ignored if possible; often, such errors will
+     *                   result in some data not getting loaded.  The
      *                   default (set by PolicyParser) is true.
      */
     PAFParser(Policy& policy, bool strict);
@@ -79,7 +79,7 @@ public:
      * parse the data found on the given stream
      * @param is      the stream to read PAF-encoded data from
      * @returns int   the number of parameters values loaded.  This does not
-     *                   include sub-Policy objects.  
+     *                   include sub-Policy objects.
      */
     virtual int parse(std::istream& is);
 
@@ -91,7 +91,7 @@ private:
     void _pushBackLine(const std::string& line);
 
     int _parseIntoPolicy(std::istream& is, Policy& policy);
-    int _addValue(const std::string& propname, std::string& value, 
+    int _addValue(const std::string& propname, std::string& value,
                   Policy& policy, std::istream& is);
 
     static const boost::regex COMMENT_LINE;

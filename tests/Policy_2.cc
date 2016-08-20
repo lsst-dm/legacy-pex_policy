@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,21 +9,21 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Policy_2.cc
  *
- * This test tests the format-specific parsers for Policies.  
+ * This test tests the format-specific parsers for Policies.
  */
 #include <sstream>
 #include <fstream>
@@ -61,11 +61,11 @@ int main(int argc, char** argv) {
     cout << p2 << endl;
 
     string dataerror("Incorrect data found for ");
-    Assert(p2.getString("receiver.logVerbosity") == "debug", 
+    Assert(p2.getString("receiver.logVerbosity") == "debug",
            dataerror+"receiver.logVerbosity");
-    Assert(p2.getString("transmitter.logVerbosity") == "debug", 
+    Assert(p2.getString("transmitter.logVerbosity") == "debug",
            dataerror+"transmitter.logVerbosity");
-    Assert(p2.getString("transmitter.serializationFormat") == "deluxe", 
+    Assert(p2.getString("transmitter.serializationFormat") == "deluxe",
            dataerror+"transmitter.serializationFormat");
     Assert(p2.getBool("standalone"), dataerror+"standalone");
     Assert(p2.getDouble("threshold") == 4.5, /* parasoft-suppress LsstDm-5-12 "unittest" */
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 //     list<string> names;
 //     p.paramNames(names);
 
-//     for(list<string>::iterator i=names.begin(); i!=names.end(); ++i) 
+//     for(list<string>::iterator i=names.begin(); i!=names.end(); ++i)
 //         cout << *i << endl;
 
 }

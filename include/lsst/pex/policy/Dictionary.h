@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,17 +11,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Dictionary.h
  * @ingroup pex
@@ -50,7 +50,7 @@ class PolicyFile;
  * The errors captured by this exception indicate that the value of one or
  * more Policy parameters do not conform with the definition given in a
  * Policy Dictionary.  Each error is represented by an enumeration constant
- * which maps to an error message.  
+ * which maps to an error message.
  */
 class ValidationError : public lsst::pex::exceptions::LogicError {
 public:
@@ -58,7 +58,7 @@ public:
     /**
      * the possible validation errors that could be encountered.  Theses
      * are intended to be bit-wise compared with the error value held in
-     * a ValidationError.  
+     * a ValidationError.
      */
     enum ErrorType {
         /** no error found */
@@ -76,18 +76,18 @@ public:
         /** array does not have enough values */
         ARRAY_TOO_SHORT = 8,
 
-        /** 
-         * parameter contains too few array values.  This bit-wise ORs 
+        /**
+         * parameter contains too few array values.  This bit-wise ORs
          * MISSING_REQUIRED, ARRAY_TOO_SHORT, and NOT_AN_ARRAY
          */
-        TOO_FEW_VALUES = 14, 
+        TOO_FEW_VALUES = 14,
 
         /** parameter contains too many array values */
         TOO_MANY_VALUES = 16,
 
-        /** 
-         * array has an incorrect number of values.   This bit-wise ORs 
-         * MISSING_REQUIRED, NOT_AN_ARRAY, ARRAY_TOO_SHORT, and 
+        /**
+         * array has an incorrect number of values.   This bit-wise ORs
+         * MISSING_REQUIRED, NOT_AN_ARRAY, ARRAY_TOO_SHORT, and
          * TOO_MANY_VALUES.
          */
         WRONG_OCCURRENCE_COUNT = 30,
@@ -95,8 +95,8 @@ public:
         /** the value is not one of the explicit values allowed. */
         VALUE_DISALLOWED = 32,
 
-        /** 
-         * the value is out of range, either below the minimum or above the 
+        /**
+         * the value is out of range, either below the minimum or above the
          * maximum.
          */
         VALUE_OUT_OF_RANGE = 64,
@@ -150,10 +150,10 @@ public:
     /**
      * create an empty ValidationError message
      */
-    ValidationError(char const* ex_file, int ex_line, char const* ex_func) 
+    ValidationError(char const* ex_file, int ex_line, char const* ex_func)
 	: lsst::pex::exceptions::LogicError(ex_file, ex_line, ex_func,
-					             "Policy has unknown validation errors"), 
-       _errors() 
+					             "Policy has unknown validation errors"),
+       _errors()
     { }
 
     virtual lsst::pex::exceptions::Exception *clone() const;
@@ -162,8 +162,8 @@ public:
     /**
      * Copy constructor.
      */
-    ValidationError(const ValidationError& that) 
-	: lsst::pex::exceptions::LogicError(that), _errors(that._errors) 
+    ValidationError(const ValidationError& that)
+	: lsst::pex::exceptions::LogicError(that), _errors(that._errors)
     { }
 
     ValidationError& operator=(const ValidationError& that) {
@@ -173,10 +173,10 @@ public:
     }
 
 // Swig is having trouble with this macro
-//    ValidationError(POL_EARGS_TYPED) 
-//       : lsst::pex::exceptions::LogicError(POL_EARGS_UNTYPED, 
-//                                                    "policy has unknown validation errors"), 
-//       _errors() 
+//    ValidationError(POL_EARGS_TYPED)
+//       : lsst::pex::exceptions::LogicError(POL_EARGS_UNTYPED,
+//                                                    "policy has unknown validation errors"),
+//       _errors()
 //    { }
 
     /**
@@ -190,7 +190,7 @@ public:
     int getParamCount() const { return _errors.size(); }
 
     /**
-     * load the names of the parameters that had problems into the given 
+     * load the names of the parameters that had problems into the given
      * list
      */
     void paramNames(std::list<std::string>& names) const {
@@ -210,7 +210,7 @@ public:
      */
     int getErrors(const std::string& name) const {
         ParamLookup::const_iterator it = _errors.find(name);
-        if (it != _errors.end()) 
+        if (it != _errors.end())
             return it->second;
         else
             return 0;
@@ -224,8 +224,8 @@ public:
     }
 
     /**
-     * get all the errors collectively encountered for all parameters 
-     * examined.  
+     * get all the errors collectively encountered for all parameters
+     * examined.
      */
     int getErrors() const {
         int out = 0;
@@ -270,7 +270,7 @@ public:
      * @param paramName   the name of the parameter being defined.
      */
     Definition(const std::string& paramName = "")
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
 	_name(paramName), _policy(), _wildcard(false)
     {
         _policy.reset(new Policy());
@@ -281,8 +281,8 @@ public:
      * @param paramName   the name of the parameter being defined.
      * @param defn        the policy containing the definition data
      */
-    Definition(const std::string& paramName, const Policy::Ptr& defn) 
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+    Definition(const std::string& paramName, const Policy::Ptr& defn)
+        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
           _name(paramName), _policy(defn), _wildcard(false)
     { }
 
@@ -290,16 +290,16 @@ public:
      * create a definition from a data contained in a Policy
      * @param defn        the policy containing the definition data
      */
-    Definition(const Policy::Ptr& defn) 
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+    Definition(const Policy::Ptr& defn)
+        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
           _name(), _policy(defn), _wildcard(false)
     { }
 
     /**
      * create a copy of a definition
      */
-    Definition(const Definition& that) 
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED), 
+    Definition(const Definition& that)
+        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
           _name(that._name), _policy(that._policy), _wildcard(false)
     { }
 
@@ -319,7 +319,7 @@ public:
      * reset this definition's data to another one.  The name of the parameter
      * will remain the same.
      */
-    Definition& operator=(const Policy::Ptr& defdata) { 
+    Definition& operator=(const Policy::Ptr& defdata) {
         setData(defdata);
         return *this;
     }
@@ -352,8 +352,8 @@ public:
     //@}
 
     /**
-     * set the name of the parameter.  Note that this will not effect the 
-     * name in Dictionary that this Definition came from.  
+     * set the name of the parameter.  Note that this will not effect the
+     * name in Dictionary that this Definition came from.
      */
     void setName(const std::string& newname) { _name = newname; }
 
@@ -365,9 +365,9 @@ public:
     /**
      * return the definition data as a Policy pointer
      */
-    void setData(const Policy::Ptr& defdata) { 
+    void setData(const Policy::Ptr& defdata) {
         _type = Policy::UNDETERMINED;
-        _policy = defdata; 
+        _policy = defdata;
     }
 
     /**
@@ -400,7 +400,7 @@ public:
     const std::string getDescription() const;
 
     /**
-     * return the maximum number of occurrences allowed for this parameter, 
+     * return the maximum number of occurrences allowed for this parameter,
      * or -1 if there is no limit.
      */
     const int getMaxOccurs() const;
@@ -437,32 +437,32 @@ public:
 					    ValidationError* errs=0) const;
 
     /**
-     * confirm that a Policy parameter conforms to this definition.  
+     * confirm that a Policy parameter conforms to this definition.
      *   If a ValidationError instance is provided, any errors detected will be
      *   loaded into it.  If no ValidationError is provided, then any errors
      *   detected will cause a ValidationError exception to be thrown.
      * @param policy   the policy object to inspect
      * @param name     the name to look for the value under.  If not given
      *                 the name set in this definition will be used.
-     * @param errs     a pointer to a ValidationError instance to load errors 
-     *                 into. 
-     * @exception ValidationError   if errs is not provided and the value 
-     *                 does not conform.  
+     * @param errs     a pointer to a ValidationError instance to load errors
+     *                 into.
+     * @exception ValidationError   if errs is not provided and the value
+     *                 does not conform.
      */
-    void validate(const Policy& policy, const std::string& name, 
+    void validate(const Policy& policy, const std::string& name,
                   ValidationError *errs=0) const;
 
     /**
-     * confirm that a Policy parameter conforms to this definition.  
-     *   If a ValidationError instance is provided, any errors detected 
+     * confirm that a Policy parameter conforms to this definition.
+     *   If a ValidationError instance is provided, any errors detected
      *   will be loaded into it.  If no ValidationError is provided,
      *   then any errors detected will cause a ValidationError exception
-     *   to be thrown.  
+     *   to be thrown.
      * @param policy   the policy object to inspect
-     * @param errs     a pointer to a ValidationError instance to load errors 
-     *                  into. 
-     * @exception ValidationError   if errs is not provided and the value 
-     *                  does not conform.  
+     * @param errs     a pointer to a ValidationError instance to load errors
+     *                  into.
+     * @exception ValidationError   if errs is not provided and the value
+     *                  does not conform.
      */
     void validate(const Policy& policy, ValidationError *errs=0) const {
         validate(policy, _name, errs);
@@ -470,78 +470,78 @@ public:
 
     //@{
     /**
-     * confirm that a Policy parameter name-value combination is consistent 
-     * with this dictionary.  This does not check the minimum occurrence 
-     * requirement; however, it will check if adding this will exceed the 
-     * maximum, assuming that there are currently curcount values.  This 
+     * confirm that a Policy parameter name-value combination is consistent
+     * with this dictionary.  This does not check the minimum occurrence
+     * requirement; however, it will check if adding this will exceed the
+     * maximum, assuming that there are currently curcount values.  This
      * method is intended for use by the Policy object to do on-the-fly
      * validation.
      *
-     * If a ValidationError instance is provided, any errors detected 
+     * If a ValidationError instance is provided, any errors detected
      * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
-     * to be thrown.  
+     * to be thrown.
      *
      * @param name      the name of the parameter being checked
      * @param value     the value of the parameter to check.
      * @param curcount  the number of values assumed to already stored under
      *                  the given name.  If < 0, limit checking is not done.
-     * @param errs      a pointer to a ValidationError instance to load errors 
-     *                  into. 
+     * @param errs      a pointer to a ValidationError instance to load errors
+     *                  into.
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
 
-    void validate(const std::string& name, bool value, int curcount=-1, 
+    void validate(const std::string& name, bool value, int curcount=-1,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, int value, int curcount=-1, 
+    void validate(const std::string& name, int value, int curcount=-1,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, double value, int curcount=-1, 
+    void validate(const std::string& name, double value, int curcount=-1,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, std::string value, int curcount=-1, 
+    void validate(const std::string& name, std::string value, int curcount=-1,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy& value, int curcount=-1, 
+    void validate(const std::string& name, const Policy& value, int curcount=-1,
                   ValidationError *errs=0) const;
     //@}
 
     //@{
     /**
-     * confirm that a Policy parameter name-array value combination is 
-     * consistent with this dictionary.  Unlike the scalar version, 
-     * this does check occurrence compliance.  
+     * confirm that a Policy parameter name-array value combination is
+     * consistent with this dictionary.  Unlike the scalar version,
+     * this does check occurrence compliance.
      *
-     * If a ValidationError instance is provided, any errors detected 
+     * If a ValidationError instance is provided, any errors detected
      * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
-     * to be thrown.  
+     * to be thrown.
      *
      * @param name     the name of the parameter being checked
      * @param value    the value of the parameter to check.
-     * @param errs     a pointer to a ValidationError instance to load errors 
-     *                  into. 
+     * @param errs     a pointer to a ValidationError instance to load errors
+     *                  into.
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    void validate(const std::string& name, const Policy::BoolArray& value, 
+    void validate(const std::string& name, const Policy::BoolArray& value,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy::IntArray& value, 
+    void validate(const std::string& name, const Policy::IntArray& value,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy::DoubleArray& value, 
+    void validate(const std::string& name, const Policy::DoubleArray& value,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, 
-                  const Policy::StringArray& value, 
+    void validate(const std::string& name,
+                  const Policy::StringArray& value,
                   ValidationError *errs=0) const;
-    void validate(const std::string& name, 
-                  const Policy::ConstPolicyPtrArray& value, 
+    void validate(const std::string& name,
+                  const Policy::ConstPolicyPtrArray& value,
                   ValidationError *errs=0) const;
     //@}
 
     /**
-     * confirm that a Policy parameter name-array value combination is 
-     * consistent with this dictionary.  Unlike the scalar version, 
-     * this does check occurrence compliance.  
+     * confirm that a Policy parameter name-array value combination is
+     * consistent with this dictionary.  Unlike the scalar version,
+     * this does check occurrence compliance.
      *
-     * If a ValidationError instance is provided, any errors detected 
+     * If a ValidationError instance is provided, any errors detected
      * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
      * to be thrown.
@@ -603,7 +603,7 @@ protected:
 
     /**
      * Validate the number of values for a field. Used internally by the
-     * validate() functions. 
+     * validate() functions.
      * @param name   the name of the parameter being checked
      * @param count  the number of values this name actually has
      * @param errs   report validation errors here (must exist)
@@ -630,35 +630,35 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  * @brief   a class representing the allowed or expected contents of a Policy
  *
  * This class keeps in memory a definition of a Policy "schema".  In other
- * words, it provides definitions of each name that is expected or allowed 
+ * words, it provides definitions of each name that is expected or allowed
  * in a conforming Policy not only in terms of its semantic meaning but also
- * its value type, default and allowed values, and how often it must or can 
- * occur.  
- *  
- * A Dictionary is envisioned to play two important roles.  First, its 
- * serialized form can provide the documentation for the Policy parameters 
- * that a Policy-supporting class will be looking for.  Second, it can be 
- * used to validate that an instance of a Policy is conformant with the 
- * expectations of such a class.  
+ * its value type, default and allowed values, and how often it must or can
+ * occur.
+ *
+ * A Dictionary is envisioned to play two important roles.  First, its
+ * serialized form can provide the documentation for the Policy parameters
+ * that a Policy-supporting class will be looking for.  Second, it can be
+ * used to validate that an instance of a Policy is conformant with the
+ * expectations of such a class.
  *
  * A Dictionary is a specialization of the Policy class itself.  This means
  * that not only can a Dictionary be handled as any other Policy, but also
- * any Policy format can be used to author a Dictionary.  
+ * any Policy format can be used to author a Dictionary.
  *
- * A Dictionary policy, however, is assumed to follow a specific schema.  
+ * A Dictionary policy, however, is assumed to follow a specific schema.
  * The expected parameter names at the top level are:
  * \verbatim
  * Name          Required?    Type    Defintion
  * ------------- -----------  ------  --------------------------------------
- * target        recommended  string  The name of an object or system that 
+ * target        recommended  string  The name of an object or system that
  *                                      this dictionary is intended for
- * definitions   required     Policy  The definitions of each term, where 
+ * definitions   required     Policy  The definitions of each term, where
  *                                      each parameter name is a Policy
  *                                      parameter being defined.
  * \endverbatim
- * 
- * Each of the parameters contained under definitions represents a term 
- * being defined and is of type Policy.  Each definition is expected to 
+ *
+ * Each of the parameters contained under definitions represents a term
+ * being defined and is of type Policy.  Each definition is expected to
  * follow the following schema:
  * \verbatim
  * Name          Required?    Type    Defintion
@@ -666,53 +666,53 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  * type          recommended  string  the type of the value expected, one of
  *                                      "int", "bool", "double", "string", and
  *                                      "Policy".  If not provided, any type
- *                                      ("undefined") should be assumed.  If 
- *                                      The type is Policy, a dictionary for 
- *                                      its terms can be provided via 
+ *                                      ("undefined") should be assumed.  If
+ *                                      The type is Policy, a dictionary for
+ *                                      its terms can be provided via
  *                                      "dictionary"/"dictionaryFile".
  *                                      Note that "PolicyFile" is not allowed;
  *                                      "Policy" should be used in its place,
  *                                      and policy.loadPolicyFiles() should
  *                                      be called before validating a policy.
- * description   recommended  string  The semantic meaning of the term or 
+ * description   recommended  string  The semantic meaning of the term or
  *                                      explanation of how it will be used.
  * minOccurs     optional     int     The minimun number of values expected.
  *                                      0 means that the parameter is optional,
  *                                      > 0 means that it is required,
  *                                      > 1 means that a vector is required.
- *                                      If not specified or < 0, 0 should be 
+ *                                      If not specified or < 0, 0 should be
  *                                      assumed.
  * maxOccurs     optional     int     The maximun number of values expected.
  *                                      0 means that the parameter is forbidden
  *                                      to occur, 1 means that the value must
  *                                      be a scalar, and > 1 means that an
- *                                      array value is allowed.  If 
- *                                      not specified or < 0, any number of 
+ *                                      array value is allowed.  If
+ *                                      not specified or < 0, any number of
  *                                      of values is allowed; the user should
- *                                      assume a vector value.  
- * default       optional     *       A value that will be assumed if none is 
- *                                      provided.  
- * dictionaryFile  optional   string  A file path to the definition of the 
+ *                                      assume a vector value.
+ * default       optional     *       A value that will be assumed if none is
+ *                                      provided.
+ * dictionaryFile  optional   string  A file path to the definition of the
  *                                      sub-policy parameters.  This is ignored
  *                                      unless "type" equals "Policy".
  * dictionary    optional     Policy  the dictionary policy object that defines
  *                                      sub-policy parameters using this above,
- *                                      top-level schema.  
- * allowed       optional     Policy  A description of the allowed values.  
+ *                                      top-level schema.
+ * allowed       optional     Policy  A description of the allowed values.
  * allowed.value   optional   *       One allowed value.  This should not be an
  *                                      an array of values.
- * allowed.description  opt.  *       a description of what this value 
+ * allowed.description  opt.  *       a description of what this value
  *                                      indicates.
- * allowed.min   optional     *       The minimum allowed value, used for 
+ * allowed.min   optional     *       The minimum allowed value, used for
  *                                      int and double typed parameters.
- * allowed.max   optional     *       The maximum allowed value, used for 
+ * allowed.max   optional     *       The maximum allowed value, used for
  *                                      int and double typed parameters.
  * childDefinition optional   Policy    A general definition for wildcard policy
  *                                      elements whose names may or may not be
  *                                      known ahead of time; all such elements
  *                                      must be of uniform type
  * -------------------------------------------------------------------------
- * *the type must be that specified by the type parameter. 
+ * *the type must be that specified by the type parameter.
  * \endverbatim
  *
  */
@@ -735,7 +735,7 @@ public:
     static const char *KW_VALUE;
 
     /**
-     * return an empty dictionary.  This can be passed to a parser to be 
+     * return an empty dictionary.  This can be passed to a parser to be
      * filled.
      */
     Dictionary() : Policy() { }
@@ -746,7 +746,7 @@ public:
      * top-level Policy parameter called "dictionary", its contents will be
      * copied into this dictionary.
      */
-    Dictionary(const Policy& pol) 
+    Dictionary(const Policy& pol)
         : Policy( (pol.isPolicy("dictionary")) ? *(pol.getPolicy("dictionary"))
                                                : pol )
     {
@@ -788,18 +788,18 @@ public:
     void check() const;
 
     /**
-     * load the top-level parameter names defined in this Dictionary into 
-     * a given list.  
+     * load the top-level parameter names defined in this Dictionary into
+     * a given list.
      */
     int definedNames(std::list<std::string>& names, bool append=false) const {
-        return getDefinitions()->names(names, true, append); 
+        return getDefinitions()->names(names, true, append);
     }
 
     /**
      * return the top-level parameter names defined in this Dictionary
      */
     StringArray definedNames() const {
-        return getDefinitions()->names(true); 
+        return getDefinitions()->names(true);
     }
 
     /**
@@ -851,14 +851,14 @@ public:
      * in the dictionary, including "dictionaryFile" references, must be
      * resolved first, or else a DictionaryError will be thrown.
      *
-     * If a ValidationError instance is provided, any errors detected 
+     * If a ValidationError instance is provided, any errors detected
      * will be loaded into it.  If no ValidationError is provided,
      * then any errors detected will cause a ValidationError exception
-     * to be thrown.  
+     * to be thrown.
      *
      * @param pol    the policy to validate
-     * @param errs   a pointer to a ValidationError instance to load errors 
-     *                 into. 
+     * @param errs   a pointer to a ValidationError instance to load errors
+     *                 into.
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
@@ -868,12 +868,12 @@ public:
     // re-declare this here, even though an identical function is declared in
     // Policy
     /**
-     * Recursively replace all PolicyFile values with the contents of the 
+     * Recursively replace all PolicyFile values with the contents of the
      * files they refer to.  The type of a parameter containing a PolicyFile
      * will consequently change to a Policy upon successful completion.  If
      * the value is an array, all PolicyFiles in the array must load without
      * error before the PolicyFile values themselves are erased.
-     * @param strict      If true, throw an exception if an error occurs 
+     * @param strict      If true, throw an exception if an error occurs
      *                    while reading and/or parsing the file (probably an
      *                    IoError or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
@@ -886,7 +886,7 @@ public:
 
     /**
      * \copydoc loadPolicyFiles()
-     * @param repository  a directory to look in for the referenced files.  
+     * @param repository  a directory to look in for the referenced files.
      *                    Only when the name of the file to be included is an
      *                    absolute path will this.  If empty or not provided,
      *                    the directorywill be assumed to be the current one.
@@ -939,7 +939,7 @@ void Definition::validateBasic(const std::string& name, const std::vector<T>& va
 
 template <typename T>
 void Definition::setDefaultIn(Policy& policy, const std::string& withName,
-			      ValidationError *errs) const 
+			      ValidationError *errs) const
 {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = (errs == 0 ? &ve : errs);

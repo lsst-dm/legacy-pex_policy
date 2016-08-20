@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,22 +9,22 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Policy_3.cc
  *
- * This test tests format detection and format-agnostic loading of policy 
- * data.  
+ * This test tests format detection and format-agnostic loading of policy
+ * data.
  */
 #include <sstream>
 #include <fstream>
@@ -54,9 +54,9 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 int main(int argc, char** argv) {
 
     Policy p;
-    string files[] = { 
+    string files[] = {
         string("examples/EventTransmitter_policy.paf"),
-        string("examples/pipeline_policy.paf") 
+        string("examples/pipeline_policy.paf")
     };
     int nfiles = 2;
 
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 
     for(int i=0; i < nfiles; i++) {
         PolicyFile pfile(files[i]);
-        cout << "Contents of " << pfile.getFormatName() << " file, " 
+        cout << "Contents of " << pfile.getFormatName() << " file, "
              << files[i] << endl;
 
         Policy p(pfile);

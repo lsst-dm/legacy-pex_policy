@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Policy_1.cc
  *
@@ -48,39 +48,39 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 
 int main() {
 
-    DefaultPolicyFile df("pex_policy", "CacheManager_dict.paf", 
+    DefaultPolicyFile df("pex_policy", "CacheManager_dict.paf",
                          "examples", true);
     Policy::Ptr p(Policy::createPolicy(df, "examples"));
-    Assert(p->exists("freeSpaceBuffer"), 
+    Assert(p->exists("freeSpaceBuffer"),
            "Failed to extract top-level defaults from Dictionary");
-    Assert(p->exists("itemType.lifetimeFactor"), 
+    Assert(p->exists("itemType.lifetimeFactor"),
            "Failed to extract sub-policy data from Dictionary");
-    Assert(p->getString("status") == "active", 
+    Assert(p->getString("status") == "active",
            "Wrong value for 'status': " + p->getString("status"));
 
     Policy p2;
     p2.set("status", "disabled");
     p2.mergeDefaults(*p);
     Assert(p2.exists("freeSpaceBuffer"), "Failed to load integer default");
-    Assert(p2.exists("itemType.lifetimeFactor"), 
+    Assert(p2.exists("itemType.lifetimeFactor"),
            "Failed to load double default");
-    Assert(p2.exists("itemType2.lifetimeFactor"), 
+    Assert(p2.exists("itemType2.lifetimeFactor"),
            "Failed to load double default via std file include");
-    Assert(p2.exists("itemType3.lifetimeFactor"), 
+    Assert(p2.exists("itemType3.lifetimeFactor"),
            "Failed to load double default via dictionaryFile");
-    Assert(p2.getString("status") == "disabled", 
+    Assert(p2.getString("status") == "disabled",
            "Wrong value for 'status': " + p2.getString("status"));
 
 }
 
 /*
  * The presence of this function definition can demonstrate a (now-fixed)
- * error stemming from declarartions of template specializations for 
+ * error stemming from declarartions of template specializations for
  * Policy::getValueArray<T>().
  *
  */
 void foo(lsst::pex::policy::Definition *defn, const Policy& policy, const string& name)
-{ 
+{
     policy.getValueArray<double>("bar");
 //    defn->validateBasic<double>(name, policy);
 }

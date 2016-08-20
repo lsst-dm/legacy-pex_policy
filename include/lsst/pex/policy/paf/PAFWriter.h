@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,17 +11,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PAFWriter.h
  * @ingroup pex
@@ -42,23 +42,23 @@ namespace paf {
  * An abstract interface for writing policy data to streams
  */
 class PAFWriter : public PolicyWriter {
-public: 
+public:
 
     /**
      * create a writer attached to an output stream
      * @param out     the output stream to write data to
      */
-    explicit PAFWriter(std::ostream *out = 0) 
+    explicit PAFWriter(std::ostream *out = 0)
         : PolicyWriter(out), _indent() { }
 
     /**
      * create a writer attached to an output stream
      * @param out     the output stream to write data to
      * @param indent  a string (of spaces) to used as indentation for each
-     *                  line printed out.  
+     *                  line printed out.
      */
-    PAFWriter(std::ostream *out, const std::string indent) 
-        : PolicyWriter(out), _indent(indent) 
+    PAFWriter(std::ostream *out, const std::string indent)
+        : PolicyWriter(out), _indent(indent)
     { }
 
     //@{
@@ -66,9 +66,9 @@ public:
      * create a writer attached to an output file
      * @param file     the output file
      */
-    explicit PAFWriter(const std::string& file) 
+    explicit PAFWriter(const std::string& file)
         : PolicyWriter(file), _indent() { }
-    explicit PAFWriter(const char *file) 
+    explicit PAFWriter(const char *file)
         : PolicyWriter(file), _indent() { }
     //@}
 
@@ -80,23 +80,23 @@ public:
     //@{
     /**
      * write an array of property values with a given name
-     * @param name    the name to save the values as.  This may be a 
-     *                  hierarchical name; however, an implementation is 
-     *                  not guaranteed to support it.  If it cannot, 
+     * @param name    the name to save the values as.  This may be a
+     *                  hierarchical name; however, an implementation is
+     *                  not guaranteed to support it.  If it cannot,
      *                  it should raise an exception.
      * @param values   the values to save under that name.
      */
-    virtual void writeBools(const std::string& name, 
+    virtual void writeBools(const std::string& name,
                             const Policy::BoolArray& values);
-    virtual void writeInts(const std::string& name, 
+    virtual void writeInts(const std::string& name,
                            const Policy::IntArray& values);
-    virtual void writeDoubles(const std::string& name, 
+    virtual void writeDoubles(const std::string& name,
                               const Policy::DoubleArray& values);
-    virtual void writeStrings(const std::string& name, 
+    virtual void writeStrings(const std::string& name,
                               const Policy::StringArray& values);
-    virtual void writePolicies(const std::string& name, 
+    virtual void writePolicies(const std::string& name,
                               const Policy::PolicyPtrArray& values);
-    virtual void writeFiles(const std::string& name, 
+    virtual void writeFiles(const std::string& name,
                             const Policy::FilePtrArray& values);
     //@}
 

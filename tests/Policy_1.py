@@ -22,10 +22,14 @@
 #
 
 import unittest
+import os.path
 
 import lsst.utils.tests
 from lsst.pex.policy import Policy, NameNotFound
 import lsst.pex.exceptions
+
+
+proddir = lsst.utils.getPackageDir('pex_policy')
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -112,7 +116,7 @@ class PolicyTestCase(unittest.TestCase):
 
     def testSimpleLoad(self):
         # n = mwid.Citizen_census(0)
-        p = Policy.createPolicy("examples/EventTransmitter_policy.paf")
+        p = Policy.createPolicy(os.path.join(proddir, "examples", "EventTransmitter_policy.paf"))
         self.assertEqual(p.get("transmitter.serializationFormat"), "deluxe")
         p = None
         # self.assertEqual(mwid.Citizen_census(0), n, "Policy apparently leaked")
@@ -121,7 +125,7 @@ class PolicyTestCase(unittest.TestCase):
         p = Policy()  # noqa F841: unused variable
 
     def testPolicyCopy(self):
-        p = Policy.createPolicy("examples/EventTransmitter_policy.paf")
+        p = Policy.createPolicy(os.path.join(proddir, "examples", "EventTransmitter_policy.paf"))
         pp = Policy(p, True)
         self.assertEqual(p.get("transmitter.serializationFormat"), "deluxe")
         self.assertEqual(pp.getString("transmitter.serializationFormat"), "deluxe")

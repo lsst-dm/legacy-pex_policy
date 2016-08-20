@@ -1,4 +1,4 @@
-#<?cfg paf dictionary ?>  
+#<?cfg paf dictionary ?>
 target: types
 definitions: {
 
@@ -6,7 +6,7 @@ definitions: {
       type: "Policy"
       allowed: {
          min: {
-            
+
          }
       }
    }

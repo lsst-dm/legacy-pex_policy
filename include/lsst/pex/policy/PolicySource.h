@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,24 +11,24 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PolicySource.h
- * 
+ *
  * @ingroup pex
  * @brief definition of the PolicySource class
  * @author Ray Plante
- * 
+ *
  */
 
 #ifndef LSST_PEX_POLICY_SOURCE_H
@@ -44,10 +44,10 @@ namespace pex {
 namespace policy {
 
 /**
- * @brief an abstract class representing a source of serialized Policy 
- * parameter data.  This might be a file or a stream; sub-classes handle 
+ * @brief an abstract class representing a source of serialized Policy
+ * parameter data.  This might be a file or a stream; sub-classes handle
  * the different possibilities.  This class can determine which format the
- * data is in (which may involve reading the first few characters) and 
+ * data is in (which may involve reading the first few characters) and
  * load it into a Policy.
  */
 class PolicySource : public lsst::daf::base::Citizen {
@@ -57,10 +57,10 @@ public:
      * create a Policy file that points a file with given path.
      * @param fmts   the list of formats to support
      */
-    PolicySource(SupportedFormats::Ptr fmts=defaultFormats) 
-        : lsst::daf::base::Citizen(typeid(this)), _formats(fmts) 
-    { 
-        if (defaultFormats->size() == 0) 
+    PolicySource(SupportedFormats::Ptr fmts=defaultFormats)
+        : lsst::daf::base::Citizen(typeid(this)), _formats(fmts)
+    {
+        if (defaultFormats->size() == 0)
             SupportedFormats::initDefaultFormats(*defaultFormats);
     }
 
@@ -90,9 +90,9 @@ public:
 //     /**
 //      * determine the format that the data is stored in and return its format
 //      * type identifier.  Note that UNKNOWN will be returned
-//      * if the format is supported--that is, the data can be read into a 
-//      * Policy object--but otherwise does not have a defined type identifier 
-//      * defined.  This may cause the first few records of the source to 
+//      * if the format is supported--that is, the data can be read into a
+//      * Policy object--but otherwise does not have a defined type identifier
+//      * defined.  This may cause the first few records of the source to
 //      * be read.
 //      * @exception IOError   if an error occurs while reading the first few
 //      *                      characters of the source stream.
@@ -100,7 +100,7 @@ public:
 //     virtual FormatType getFormatType();
 
     /**
-     * return the name of the format that the data is stored in.  This may 
+     * return the name of the format that the data is stored in.  This may
      * cause the first few records of the source to be read.
      * @exception IOError   if an error occurs while reading the first few
      *                      characters of the source stream.
@@ -112,7 +112,7 @@ public:
      * load the data from this Policy source into a Policy object
      * @param policy    the policy object to load the data into
      * @exception ParserException  if an error occurs while parsing the data
-     * @exception IOError   if an I/O error occurs while reading from the 
+     * @exception IOError   if an I/O error occurs while reading from the
      *                       source stream.
      */
     virtual void load(Policy& policy) const = 0;
@@ -122,8 +122,8 @@ public:
 //     /**
 //      * returns true if the given string containing a content identifier
 //      * indicates that it contains dictionary data.  Dictionary data has
-//      * a content id of "<?cfg ... dictionary ?>" (where ... indicates 
-//      * the format); policy data has an id of "<?cfg ... policy ?>".  
+//      * a content id of "<?cfg ... dictionary ?>" (where ... indicates
+//      * the format); policy data has an id of "<?cfg ... policy ?>".
 //      */
 //     static bool indicatesDictionary(const std::string& contentid) {
 //         return regex_search(contentid, DICTIONARY_CONTENT);
@@ -139,7 +139,7 @@ public:
 protected:
 
 
-    SupportedFormats::Ptr _formats;   
+    SupportedFormats::Ptr _formats;
 };
 
 

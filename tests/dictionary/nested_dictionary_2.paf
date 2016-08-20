@@ -1,4 +1,4 @@
-#<?cfg paf dictionary ?>  
+#<?cfg paf dictionary ?>
 definitions: {
     2a.type: Policy
     2a.dictionaryFile: nested_dictionary_3.paf

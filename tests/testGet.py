@@ -50,9 +50,9 @@ class GetTestCase(unittest.TestCase):
     def testGet(self):
         p = self.policy
         self.assertEqual(p.get("int"), 0)
-        self.assertEqual(p.get("true"), True)
-        self.assertEqual(p.get("false"), False)
-        self.assertAlmostEquals(p.get("dbl"), -0.05, 8)
+        self.assertIs(p.get("true"), True)
+        self.assertIs(p.get("false"), False)
+        self.assertAlmostEqual(p.get("dbl"), -0.05, 8)
         self.assertEqual(p.get("str"), "birthday")
         self.assertTrue(p.isFile("file"),
                         "Unexpected: 'file' is not a PolicyFile")
@@ -110,9 +110,9 @@ class GetTestCase(unittest.TestCase):
                          "wrong number of values in array: %i != %i" %
                          (len(v), len(truth)))
         for i in range(len(truth)):
-            self.assertAlmostEquals(v[i], truth[i], 8,
-                                    "wrong array element at index %d: %g != %g" %
-                                    (i, v[i], truth[i]))
+            self.assertAlmostEqual(v[i], truth[i], 8,
+                                   "wrong array element at index %d: %g != %g" %
+                                   (i, v[i], truth[i]))
 
     def testGetStringArray(self):
         self.assertTrue(self.policy.isString("str"))
@@ -162,8 +162,8 @@ class GetTestCase(unittest.TestCase):
         self.assertEqual(len(v), 2, "wrong number of values in array")
         self.assertEqual(v[0].get("int"), 1)
         self.assertEqual(v[1].get("int"), 2)
-        self.assertAlmostEquals(v[0].get("dbl"), 0.0003, 8)
-        self.assertAlmostEquals(v[1].get("dbl"), -5.2, 8)
+        self.assertAlmostEqual(v[0].get("dbl"), 0.0003, 8)
+        self.assertAlmostEqual(v[1].get("dbl"), -5.2, 8)
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):

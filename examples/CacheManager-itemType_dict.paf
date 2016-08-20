@@ -1,7 +1,7 @@
-#<?cfg paf dictionary ?>  
-# 
+#<?cfg paf dictionary ?>
+#
 # This is a sample sub-dictionary.
-# 
+#
 target:  CacheManager.itemType
 definitions: {
    name: {

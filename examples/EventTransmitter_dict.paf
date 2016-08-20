@@ -1,11 +1,11 @@
-#<?cfg paf dictionary ?>  
-# 
+#<?cfg paf dictionary ?>
+#
 # This is a sample dictionary.
-# 
+#
 # The first line above is a content identifier.  It can be used for
 # determining both the format and distinguising between a policy file
 # and a dictionary.  It's use is not required but recommended.
-#        
+#
 target: EventTransmitter
 definitions: {
    standalone: {
@@ -19,12 +19,12 @@ definitions: {
                    will be ignored and remain undelivered."
      allowed: {
         value:       0
-        description: "do not require event services to be running" 
+        description: "do not require event services to be running"
      }
      allowed: {
         value:       1
         description: "The EventTransmitter object if constructed without
-                     the required event services running" 
+                     the required event services running"
      }
    }
 

@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,17 +11,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 #ifndef LSST_PEX_POLICY_POLICY_H
 #define LSST_PEX_POLICY_POLICY_H
 
@@ -69,7 +69,7 @@ class ValidationError;
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
     } catch (boost::bad_any_cast&) { \
         throw LSST_EXCEPT(TypeError, name, std::string(typeName[vtype])); \
-    } 
+    }
 
 
 /**
@@ -82,16 +82,16 @@ class ValidationError;
  * control of objects even if much of the configuration parameters they
  * provide are normally set to defaults and otherwise do not change.
  *
- * The Policy interface allows an application to pull out parameter values 
- * by name.  Typically, the application "knows" the names it needs from a 
- * Policy to configure itself--that is, these names and the use of their 
- * values are hard-coded into the application.  The application simply calls 
- * one of the get methods to retrieve a typed value for the parameter.  
- * (Nevertheless, if necessary, the parameter names contained in a policy 
+ * The Policy interface allows an application to pull out parameter values
+ * by name.  Typically, the application "knows" the names it needs from a
+ * Policy to configure itself--that is, these names and the use of their
+ * values are hard-coded into the application.  The application simply calls
+ * one of the get methods to retrieve a typed value for the parameter.
+ * (Nevertheless, if necessary, the parameter names contained in a policy
  * can be retrieved via the \c names() member function.)
- * 
- * Policy parameters values are restricted to a limited set of types to ensure 
- * simple, well-defined ASCII text serialization format.  These types are 
+ *
+ * Policy parameters values are restricted to a limited set of types to ensure
+ * simple, well-defined ASCII text serialization format.  These types are
  * In particular, a Policy parameter can be one of:
  *  - integer (int not long)
  *  - double
@@ -101,69 +101,69 @@ class ValidationError;
  *  - PolicyFile, a reference to file containing additional Policy data
  *  - arrays of any of the above
  *
- * As implied by the inclusion of Policy as a value type, a Policy can be 
- * hierarchical (like a PropertySet).  Values deep within the hierarchy 
- * can be retrieved via a hiearchical name.  Such a name is made up of 
- * name fields delimited by dots (.) where each name field represents a 
- * level of the hierarchy.  The first field represents the top level of 
+ * As implied by the inclusion of Policy as a value type, a Policy can be
+ * hierarchical (like a PropertySet).  Values deep within the hierarchy
+ * can be retrieved via a hiearchical name.  Such a name is made up of
+ * name fields delimited by dots (.) where each name field represents a
+ * level of the hierarchy.  The first field represents the top level of
  * the hierarchy.  If a given name does not resolve to value, a NameNotFound
- * exception is thrown.  If one expects a different value type for a name 
- * than what is actually stored, (e.g. one calls \c getInt(name) for a 
+ * exception is thrown.  If one expects a different value type for a name
+ * than what is actually stored, (e.g. one calls \c getInt(name) for a
  * parameter that is actually a string), a TypeError exception is thrown.
- * 
- * A hierarchical Policy allows an application to configure a whole 
- * hierarchy of objects, even if the object classes (and their 
+ *
+ * A hierarchical Policy allows an application to configure a whole
+ * hierarchy of objects, even if the object classes (and their
  * associated policy parameters) were developed by different people.  In
- * particular, if an application that is configuring one of the objects it 
- * uses, it can either pull out the relevent values directly by their 
- * hierarchical names, or if that object supports configuration from a 
- * Policy, it can pull all of the values for the object by retrieving a 
- * Policy (via \c getPolicy(name) ) and passing it to the object.  
- * 
- * It is important to note that parameter names relative the Policy that 
- * contains them.  For example, suppose you have a parameter accessible via 
- * the name "foo.bar.zub".  This implies that the name "foo.bar" will 
- * resolve to a Policy object.  You can retrieve the "zub" parameter from 
- * that "sub-Policy" object by asking for "zub".  
- * 
+ * particular, if an application that is configuring one of the objects it
+ * uses, it can either pull out the relevent values directly by their
+ * hierarchical names, or if that object supports configuration from a
+ * Policy, it can pull all of the values for the object by retrieving a
+ * Policy (via \c getPolicy(name) ) and passing it to the object.
+ *
+ * It is important to note that parameter names relative the Policy that
+ * contains them.  For example, suppose you have a parameter accessible via
+ * the name "foo.bar.zub".  This implies that the name "foo.bar" will
+ * resolve to a Policy object.  You can retrieve the "zub" parameter from
+ * that "sub-Policy" object by asking for "zub".
+ *
  * \section secPolicyLoading Loading a Policy File
  *
- * One can read Policy data via the constructors that take a file name in 
+ * One can read Policy data via the constructors that take a file name in
  * some form as an input argument; however the prefered manner is via one
- * of the createPolicy() functions.  The latter is able to intelligently 
- * differentiate between simple Policy file and a Dictionary file.  In 
- * either case, the formats supported would be restricted by default to 
- * those currently built into this package.  Support for other formats 
- * can be plugged in using the PolicyFile and SupportFormats classes.  
+ * of the createPolicy() functions.  The latter is able to intelligently
+ * differentiate between simple Policy file and a Dictionary file.  In
+ * either case, the formats supported would be restricted by default to
+ * those currently built into this package.  Support for other formats
+ * can be plugged in using the PolicyFile and SupportFormats classes.
  *
- * For more information about about Policy files, file formats, and 
- * dictionaries, see the \ref pexPolicyMain "package overview" as well as the 
+ * For more information about about Policy files, file formats, and
+ * dictionaries, see the \ref pexPolicyMain "package overview" as well as the
  * PolicyFile and Dictionary class descriptions.
  *
  * \section secPolicyDefaults Default Policy Data
  *
  * When an object using a Policy fails to find a parameter it was expecting,
  * it is a little inelegant to provide a default hard-coded in the object's
- * implementation, <em>by design</em>.  Instead it is recommended that 
- * defaults be loaded from another Policy.  The intended way to do this is 
+ * implementation, <em>by design</em>.  Instead it is recommended that
+ * defaults be loaded from another Policy.  The intended way to do this is
  * to load defaults via a DefaultPolicyFile (which can locate a policy file
  * from any EUPS-setup installation directory) and to merge them into to the
- * primary Policy instance via the mergeDefaults() function.  
- * 
+ * primary Policy instance via the mergeDefaults() function.
+ *
  * \section secPolicyVer Version Notes
  *
- * With version 3.1, support for the JSON format was dropped.  
- * 
- * After version 3.2, Policy's internal implementation was changed to be 
- * a wrapper around PropertySet.  Prior to this, it used its own internal 
- * data map.  The API (which had been optimized for the old implementation), 
- * remained largely unchanged for the purposes of backward compatibility.  
- * The changes include (1) dropping support for providing default values to 
- * the get*() functions, (2) returning array values by value rather than 
- * reference, and (3) added functions for greater consistancy with 
+ * With version 3.1, support for the JSON format was dropped.
+ *
+ * After version 3.2, Policy's internal implementation was changed to be
+ * a wrapper around PropertySet.  Prior to this, it used its own internal
+ * data map.  The API (which had been optimized for the old implementation),
+ * remained largely unchanged for the purposes of backward compatibility.
+ * The changes include (1) dropping support for providing default values to
+ * the get*() functions, (2) returning array values by value rather than
+ * reference, and (3) added functions for greater consistancy with
  * PropertySet.
  *
- * After 3.3.3, loading default data (including from Dictionarys) was 
+ * After 3.3.3, loading default data (including from Dictionarys) was
  * improved.  This included adding mergeDefaults()
  */
 class Policy : public lsst::daf::base::Citizen, public lsst::daf::base::Persistable {
@@ -198,9 +198,9 @@ public:
     };
 
     /**
-     * c-string forms for the supported value types.  The ValueType 
-     * enum values can be used a indexes into the array to return the 
-     * name of the corresping type.  
+     * c-string forms for the supported value types.  The ValueType
+     * enum values can be used a indexes into the array to return the
+     * name of the corresping type.
      */
     static const char * const typeName[];
 
@@ -243,7 +243,7 @@ public:
            const boost::filesystem::path& repository="");
 
     /**
-     * copy a Policy.  
+     * copy a Policy.
      * @param pol   the policy to copy
      * @param deep  if true, do a deep copy.  Otherwise, Policy data will
      *                 be shared.
@@ -251,27 +251,27 @@ public:
     Policy(Policy& pol, bool deep=false);
 
     /**
-     * deep-copy a Policy.  
+     * deep-copy a Policy.
      */
     Policy(const Policy& pol);
 
     //@{
     /**
      * create a Policy from a file.  The caller is responsible for deleting
-     * the returned value.  This is the preferred way to obtain a Policy file 
-     * if you don't care to know if the input file is an actual policy 
-     * file or a policy dictionary.  If it turns out to be a dictionary 
+     * the returned value.  This is the preferred way to obtain a Policy file
+     * if you don't care to know if the input file is an actual policy
+     * file or a policy dictionary.  If it turns out to be a dictionary
      * file, the defined defaults will be loaded into the return policy.
      * @param input       the input file or stream to load data from.
-     * @param doIncludes  if true, any references found to external Policy 
-     *                    files will be resolved into sub-policy values.  
-     *                    The files will be looked for in a directory 
+     * @param doIncludes  if true, any references found to external Policy
+     *                    files will be resolved into sub-policy values.
+     *                    The files will be looked for in a directory
      *                    relative the current directory.
      * @param validate    if true and the input file is a policy dictionary,
-     *                    it will be given to the returned policy and 
+     *                    it will be given to the returned policy and
      *                    used to validate future updates to the Policy.
      */
-    static Policy *createPolicy(PolicySource& input, bool doIncludes=true, 
+    static Policy *createPolicy(PolicySource& input, bool doIncludes=true,
                                 bool validate=true);
     static Policy *createPolicy(const std::string& input, bool doIncludes=true,
                                 bool validate=true);
@@ -288,7 +288,7 @@ public:
      *                    "urn:eupspkg:\<package\>[:\<repository\>]:\<path\> to
      *                    load data from, as described in UrnPolicyFile.
      * @param validate    if true and the input file is a policy dictionary,
-     *                    it will be given to the returned policy and 
+     *                    it will be given to the returned policy and
      *                    used to validate future updates to the Policy.
      */
     static Policy *createPolicyFromUrn(const std::string& urn,
@@ -297,31 +297,31 @@ public:
     //@{
     /**
      * create a Policy from a file.  The caller is responsible for deleting
-     * the returned value.  This is the preferred way to obtain a Policy file 
-     * if you don't care to know if the input file is an actual policy 
-     * file or a policy dictionary.  If it turns out to be a dictionary 
-     * file, the defined defaults will be loaded into the return policy.  
+     * the returned value.  This is the preferred way to obtain a Policy file
+     * if you don't care to know if the input file is an actual policy
+     * file or a policy dictionary.  If it turns out to be a dictionary
+     * file, the defined defaults will be loaded into the return policy.
      * @param input       the input file or stream to load data from.
-     * @param repos       a directory to look in for the referenced files.  
+     * @param repos       a directory to look in for the referenced files.
      *                    Only when the name of the file to be included is an
-     *                    absolute path will this.  
+     *                    absolute path will this.
      * @param validate    if true and the input file is a policy dictionary,
-     *                    it will be given to the returned policy and 
+     *                    it will be given to the returned policy and
      *                    used to validate future updates to the Policy.
      */
     static Policy *createPolicy(PolicySource& input,
-                                const boost::filesystem::path& repos, 
-                                bool validate=true);
-    static Policy *createPolicy(PolicySource& input, const std::string& repos, 
-                                bool validate=true);
-    static Policy *createPolicy(PolicySource& input, const char *repos, 
-                                bool validate=true);
-    static Policy *createPolicy(const std::string& input, 
                                 const boost::filesystem::path& repos,
                                 bool validate=true);
-    static Policy *createPolicy(const std::string& input, 
+    static Policy *createPolicy(PolicySource& input, const std::string& repos,
+                                bool validate=true);
+    static Policy *createPolicy(PolicySource& input, const char *repos,
+                                bool validate=true);
+    static Policy *createPolicy(const std::string& input,
+                                const boost::filesystem::path& repos,
+                                bool validate=true);
+    static Policy *createPolicy(const std::string& input,
                                 const std::string& repos, bool validate=true);
-    static Policy *createPolicy(const std::string& input, const char *repos, 
+    static Policy *createPolicy(const std::string& input, const char *repos,
                                 bool validate=true);
     //@}
 
@@ -343,7 +343,7 @@ public:
      */
     template <typename T> static ValueType getValueType();
 
-    /** 
+    /**
      * Given the human-readable name of a type ("bool", "int", "policy", etc),
      * what is its ValueType (BOOL, STRING, etc.)?  Throws BadNameError if
      * unknown.
@@ -367,30 +367,30 @@ public:
     /**
      * load the names of parameters into a given list.  \c names() returns
      * all names, \c paramNames() only returns the names that resolve to
-     * non-Policy and non-PolicyFile type parameters, \c policyNames() 
+     * non-Policy and non-PolicyFile type parameters, \c policyNames()
      * only returns the Policy names, and fileNames() only returns PolicyFile
      * names.  These versions are provided for backward compatibility but are
-     * deprecated; use the versions that return vector values.  
-     * 
+     * deprecated; use the versions that return vector values.
+     *
      * @param names         the list object to be loaded
-     * @param topLevelOnly  if true, only parameter names at the top of the 
-     *                         hierarchy will be returned; no hierarchical 
+     * @param topLevelOnly  if true, only parameter names at the top of the
+     *                         hierarchy will be returned; no hierarchical
      *                         names will be included.
-     * @param append        if false, the contents of the given list will 
-     *                         be erased before loading the names.  
+     * @param append        if false, the contents of the given list will
+     *                         be erased before loading the names.
      * @return int  the number of names added
      */
-    int names(std::list<std::string>& names, 
-              bool topLevelOnly=false, 
+    int names(std::list<std::string>& names,
+              bool topLevelOnly=false,
               bool append=false) const;                      // inlined below
-    int paramNames(std::list<std::string>& names, 
-                   bool topLevelOnly=false, 
+    int paramNames(std::list<std::string>& names,
+                   bool topLevelOnly=false,
                    bool append=false) const;                 // inlined below
-    int policyNames(std::list<std::string>& names, 
-                    bool topLevelOnly=false, 
+    int policyNames(std::list<std::string>& names,
+                    bool topLevelOnly=false,
                     bool append=false) const;                // inlined below
-    int fileNames(std::list<std::string>& names, 
-                  bool topLevelOnly=false, 
+    int fileNames(std::list<std::string>& names,
+                  bool topLevelOnly=false,
                   bool append=false) const;                  // inlined below
     //@}
 
@@ -398,12 +398,12 @@ public:
     /**
      * return the names of parameters.  \c names() returns
      * all names, \c paramNames() only returns the names that resolve to
-     * non-Policy and non-PolicyFile type parameters, \c policyNames() 
+     * non-Policy and non-PolicyFile type parameters, \c policyNames()
      * only returns the Policy names, and fileNames() only returns PolicyFile
-     * names.  
-     * 
-     * @param topLevelOnly  if true, only parameter names at the top of the 
-     *                         hierarchy will be returned; no hierarchical 
+     * names.
+     *
+     * @param topLevelOnly  if true, only parameter names at the top of the
+     *                         hierarchy will be returned; no hierarchical
      *                         names will be included.
      */
     StringArray names(bool topLevelOnly=false) const;        // inlined below
@@ -452,7 +452,7 @@ public:
 
     /**
      * return the number of values currently associated with a given name
-     * @param name   the (possibly) hierarchical name of the property of 
+     * @param name   the (possibly) hierarchical name of the property of
      *                  interest.
      */
     size_t valueCount(const std::string& name) const;        // inlined below
@@ -461,16 +461,16 @@ public:
      * return true if multiple values can be retrieved via the given name.
      * False is returned if the name does not exist.  This is equivalent to
      * (valueCount(name) > 1).
-     * @param name   the (possibly) hierarchical name of the property of 
+     * @param name   the (possibly) hierarchical name of the property of
      *                  interest.
      */
     bool isArray(const std::string& name) const;             // inlined below
 
     /**
-     * return true if a value exists in this policy for the given name. 
+     * return true if a value exists in this policy for the given name.
      * This is semantically equivalent to (valuecount(name) > 0) (though
      * its implementation is slightly more efficient).
-     * @param name   the (possibly) hierarchical name of the property of 
+     * @param name   the (possibly) hierarchical name of the property of
      *                  interest.
      */
     bool exists(const std::string& name) const;              // inlined below
@@ -514,22 +514,22 @@ public:
 
     /**
      * return the type information for the underlying type associated with
-     * a given name.  This is equivalent to getTypeInfo() and is provided 
+     * a given name.  This is equivalent to getTypeInfo() and is provided
      * for consistency with PropertySet.
      */
     const std::type_info& typeOf(const std::string& name) const;     // inlined
 
     /**
-     * return the ValueType enum identifier for the underlying type associated 
-     * with a given name.  If a parameter with that name has not been set, 
-     * Policy::UNDEF is returned.  
+     * return the ValueType enum identifier for the underlying type associated
+     * with a given name.  If a parameter with that name has not been set,
+     * Policy::UNDEF is returned.
      */
     ValueType getValueType(const std::string& name) const;
 
     /**
      * return a string name for the type associated with the parameter of
-     * a given name.  If a parameter with that name has not been set, the 
-     * returned string will be "undefined".  
+     * a given name.  If a parameter with that name has not been set, the
+     * returned string will be "undefined".
      */
     const char *getTypeName(const std::string& name) const {
         try { return typeName[getValueType(name)]; }
@@ -554,115 +554,115 @@ public:
 
     //@{
     /**
-     * return a "sub-Policy" identified by a given name.  
+     * return a "sub-Policy" identified by a given name.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a Policy type.  
+     *                             a Policy type.
      */
     ConstPtr getPolicy(const std::string& name) const;       // inlined below
     Ptr getPolicy(const std::string& name);                  // inlined below
     //@}
 
     /**
-     * return a PolicyFile (a reference to a file with "sub-Policy" data) 
-     * identified by a given name.  
+     * return a PolicyFile (a reference to a file with "sub-Policy" data)
+     * identified by a given name.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a Policy type.  
+     *                             a Policy type.
      */
     FilePtr getFile(const std::string& name) const;
 
     /**
-     * return a boolean value associated with the given name.  If the 
-     * underlying value is an array, only the last value added will be 
-     * returned.  
+     * return a boolean value associated with the given name.  If the
+     * underlying value is an array, only the last value added will be
+     * returned.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a boolean type.  
+     *                             a boolean type.
      */
-    bool getBool(const std::string& name) const { 
-        POL_GETSCALAR(name, bool, BOOL) 
+    bool getBool(const std::string& name) const {
+        POL_GETSCALAR(name, bool, BOOL)
     }
 
     /**
-     * return an integer value associated with the given name.  If the 
-     * underlying value is an array, only the last value added will be 
-     * returned.  
+     * return an integer value associated with the given name.  If the
+     * underlying value is an array, only the last value added will be
+     * returned.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             an integer type.  
+     *                             an integer type.
      */
-    int getInt(const std::string& name) const { 
-        POL_GETSCALAR(name, int, INT) 
+    int getInt(const std::string& name) const {
+        POL_GETSCALAR(name, int, INT)
     }
 
     /**
-     * return a double value associated with the given name.  If the 
-     * underlying value is an array, only the last value added will be 
-     * returned.  
+     * return a double value associated with the given name.  If the
+     * underlying value is an array, only the last value added will be
+     * returned.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a double type.  
+     *                             a double type.
      */
-    double getDouble(const std::string& name) const { 
-        POL_GETSCALAR(name, double, DOUBLE) 
+    double getDouble(const std::string& name) const {
+        POL_GETSCALAR(name, double, DOUBLE)
     }
 
     /**
-     * return a string value associated with the given name .  If the 
-     * underlying value is an array, only the last value added will be 
-     * returned.  
+     * return a string value associated with the given name .  If the
+     * underlying value is an array, only the last value added will be
+     * returned.
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             an integer type.  
+     *                             an integer type.
      */
-    const std::string getString(const std::string& name) const { 
-        POL_GETSCALAR(name, std::string, STRING) 
+    const std::string getString(const std::string& name) const {
+        POL_GETSCALAR(name, std::string, STRING)
     }
 
     //@{
     /**
-     * return an array of Policy pointers associated with the given name.  
-     * 
-     * Adding an element to the returned array (using push_back()) is 
-     * equivalent adding a value with add(const string&, const Policy::Ptr&). 
-     * 
+     * return an array of Policy pointers associated with the given name.
+     *
+     * Adding an element to the returned array (using push_back()) is
+     * equivalent adding a value with add(const string&, const Policy::Ptr&).
+     *
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a Policy type.  
+     *                             a Policy type.
      */
     PolicyPtrArray getPolicyArray(const std::string& name) const;
     ConstPolicyPtrArray getConstPolicyArray(const std::string& name) const;
     //@}
 
     /**
-     * return an array of PolicyFile pointers associated with the given name.  
-     * 
-     * Adding an element to the returned array (using push_back()) is 
-     * equivalent adding a value with 
-     * add(const string&, const Policy::FilePtr&). 
-     * 
+     * return an array of PolicyFile pointers associated with the given name.
+     *
+     * Adding an element to the returned array (using push_back()) is
+     * equivalent adding a value with
+     * add(const string&, const Policy::FilePtr&).
+     *
      * @param name     the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
      * @exception NameNotFound  if no value is associated with the given name.
      * @exception TypeError     if the value associated the given name is not
-     *                             a Policy type.  
+     *                             a Policy type.
      */
-    FilePtrArray getFileArray(const std::string& name) const; 
+    FilePtrArray getFileArray(const std::string& name) const;
 
     //@{
     /**
@@ -681,9 +681,9 @@ public:
 
     //@{
     /**
-     * Set a value with the given name.  
+     * Set a value with the given name.
      *
-     * Any previous value set with the same name will be overwritten.  In 
+     * Any previous value set with the same name will be overwritten.  In
      * particular, if the property previously pointed to an array of values,
      * all those values will be forgotten.
      *
@@ -694,16 +694,16 @@ public:
      * minimum number of values (in the case of an array) will *not* be checked,
      * in case this will be followed by \code add \endcode operations.
      *
-     * Note that \code set(const string&, const string&) \endcode and 
+     * Note that \code set(const string&, const string&) \endcode and
      * \code set(const string&, const char *) \endcode are equivalent.
      *
      * @param name       the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
-     * @param value      the value--int, double, string or Policy--to 
-     *                    associate with the name.  
-     * @exception TypeError  if this Policy is controlled by a Dictionary but 
-     *                    the value type does not match the definition 
-     *                    associated with the name. 
+     * @param value      the value--int, double, string or Policy--to
+     *                    associate with the name.
+     * @exception TypeError  if this Policy is controlled by a Dictionary but
+     *                    the value type does not match the definition
+     *                    associated with the name.
      */
     template <typename T> void setValue(const std::string& name, const T& value);
     void set(const std::string& name, const Ptr& value);      // inlined below
@@ -717,7 +717,7 @@ public:
 
     //@{
     /**
-     * Add a value to an array of values with a given name.  
+     * Add a value to an array of values with a given name.
      *
      * If a value was previously set using the set() function, that previous
      * value will be retained as the first value of the array.
@@ -729,17 +729,17 @@ public:
      * minimum number of values (in the case of an array) will *not* be checked,
      * in case this is part of a sequence of \code add \endcode operations.
      *
-     * Note that \code add(const string&, const string&) \endcode and 
+     * Note that \code add(const string&, const string&) \endcode and
      * \code add(const string&, const char *) \endcode are equivalent.
      * @param name       the name of the parameter.  This can be a hierarchical
      *                    name with fields delimited with "."
-     * @param value      the value--int, double, string or Policy--to 
-     *                    associate with the name.  
-     * @exception TypeError  if the existing array of values is not of the 
-     *                    requested type, or 
-     *                    if this Policy is controlled by a Dictionary but 
-     *                    the value type does not match the definition 
-     *                    associated with the name. 
+     * @param value      the value--int, double, string or Policy--to
+     *                    associate with the name.
+     * @exception TypeError  if the existing array of values is not of the
+     *                    requested type, or
+     *                    if this Policy is controlled by a Dictionary but
+     *                    the value type does not match the definition
+     *                    associated with the name.
      */
     // avoid name confusion with appended T
     template <typename T> void addValue(const std::string& name, const T& value);
@@ -760,12 +760,12 @@ public:
     void remove(const std::string& name); // inlined below
 
     /**
-     * Recursively replace all PolicyFile values with the contents of the 
+     * Recursively replace all PolicyFile values with the contents of the
      * files they refer to.  The type of a parameter containing a PolicyFile
      * will consequently change to a Policy upon successful completion.  If
      * the value is an array, all PolicyFiles in the array must load without
      * error before the PolicyFile values themselves are erased.
-     * @param strict      If true, throw an exception if an error occurs 
+     * @param strict      If true, throw an exception if an error occurs
      *                    while reading and/or parsing the file (probably an
      *                    IoError or ParseError).  Otherwise, replace
      *                    the file reference with a partial or empty sub-policy
@@ -778,7 +778,7 @@ public:
 
     /**
      * \copydoc loadPolicyFiles()
-     * @param repository  a directory to look in for the referenced files.  
+     * @param repository  a directory to look in for the referenced files.
      *                    Only when the name of the file to be included is an
      *                    absolute path will this.  If empty or not provided,
      *                    the directorywill be assumed to be the current one.
@@ -792,8 +792,8 @@ public:
      * parameter names in the given policy, and if the name is not found in this
      * policy, the value from the given one will be copied into this one.  No
      * attempt is made to match the number of values available per name.
-     * @param defaultPol  the policy to pull default values from.  This may 
-     *                    be a Dictionary; if so, the default values will 
+     * @param defaultPol  the policy to pull default values from.  This may
+     *                    be a Dictionary; if so, the default values will
      *                    drawn from the appropriate default keyword.
      * @param keepForValidation if true, and if defaultPol is a Dictionary, keep
      *                    a reference to it for validation future updates to
@@ -814,26 +814,26 @@ public:
      * return a string representation of the value given by a name.  The
      * string "<null>" is printed if the name does not exist.
      * @param name     the name of the parameter to string-ify
-     * @param indent  a string to prepend each line with.  If the string 
-     *                 includes embedded newline characters, each line 
+     * @param indent  a string to prepend each line with.  If the string
+     *                 includes embedded newline characters, each line
      *                 should be preceded by this indent string.
      */
-    virtual std::string str(const std::string& name, 
+    virtual std::string str(const std::string& name,
                             const std::string& indent="") const;
 
     /**
-     * print the contents of this policy to an output stream.  This 
-     * is mainly intended for debugging purposes.  
+     * print the contents of this policy to an output stream.  This
+     * is mainly intended for debugging purposes.
      * @param out     the output stream to write contents to
      * @param label   a labeling string to lead the listing with.
      * @param indent  a string to prepend each line with.
      */
-    virtual void print(std::ostream& out, const std::string& label="Policy", 
+    virtual void print(std::ostream& out, const std::string& label="Policy",
                        const std::string& indent="") const;
 
     /**
-     * convert the entire contents of this policy to a string.  This 
-     * is mainly intended for debugging purposes.  
+     * convert the entire contents of this policy to a string.  This
+     * is mainly intended for debugging purposes.
      */
     std::string toString() const;
 
@@ -847,8 +847,8 @@ protected:
     /**
      * use a PropertySet as the data for a new Policy object
      */
-    Policy(const lsst::daf::base::PropertySet::Ptr ps) 
-        : Citizen(typeid(this)), lsst::daf::base::Persistable(), _data(ps) 
+    Policy(const lsst::daf::base::PropertySet::Ptr ps)
+        : Citizen(typeid(this)), lsst::daf::base::Persistable(), _data(ps)
     { }
 
 private:
@@ -856,25 +856,25 @@ private:
 
     DictPtr _dictionary;
 
-    int _names(std::list<std::string>& names, bool topLevelOnly=false, 
+    int _names(std::list<std::string>& names, bool topLevelOnly=false,
                bool append=false, int want=3) const;
-    int _names(std::vector<std::string>& names, bool topLevelOnly=false, 
+    int _names(std::vector<std::string>& names, bool topLevelOnly=false,
                bool append=false, int want=3) const;
 
     /**
      * If _dictionary is non-null, validate value against it, assuming curCount
      * current values for name.
      */
-    template <typename T> 
+    template <typename T>
     void _validate(const std::string& name, const T& value, int curCount=0);
 
-    std::vector<lsst::daf::base::Persistable::Ptr> 
-        _getPersistList(const std::string& name) const 
+    std::vector<lsst::daf::base::Persistable::Ptr>
+        _getPersistList(const std::string& name) const
     {
         POL_GETLIST(name, Persistable::Ptr, FILE)
     }
-    std::vector<lsst::daf::base::PropertySet::Ptr> 
-        _getPropSetList(const std::string& name) const 
+    std::vector<lsst::daf::base::PropertySet::Ptr>
+        _getPropSetList(const std::string& name) const
     {
         POL_GETLIST(name, lsst::daf::base::PropertySet::Ptr, POLICY)
     }
@@ -894,7 +894,7 @@ inline std::ostream& operator<<(std::ostream& os, const Policy& p) {
 
 /*  ************** Inline Class functions ********************  */
 
-inline int Policy::names(std::list<std::string>& names, bool topLevelOnly, 
+inline int Policy::names(std::list<std::string>& names, bool topLevelOnly,
                          bool append) const
 {
     return _names(names, topLevelOnly, append, 7);
@@ -904,20 +904,20 @@ inline int Policy::paramNames(std::list<std::string>& names, bool topLevelOnly,
 {
     return _names(names, topLevelOnly, append, 4);
 }
-inline int Policy::policyNames(std::list<std::string>& names, 
+inline int Policy::policyNames(std::list<std::string>& names,
                                bool topLevelOnly,
                                bool append) const
 {
     return _names(names, topLevelOnly, append, 1);
 }
-inline int Policy::fileNames(std::list<std::string>& names, bool topLevelOnly, 
+inline int Policy::fileNames(std::list<std::string>& names, bool topLevelOnly,
                              bool append) const
 {
     return _names(names, topLevelOnly, append, 2);
 }
 
-inline Policy::StringArray Policy::names(bool topLevelOnly) const { 
-    return _data->names(); 
+inline Policy::StringArray Policy::names(bool topLevelOnly) const {
+    return _data->names();
 }
 inline Policy::StringArray Policy::paramNames(bool topLevelOnly) const {
     StringArray out;
@@ -933,16 +933,16 @@ inline Policy::StringArray Policy::fileNames(bool topLevelOnly) const {
     return out;
 }
 
-inline size_t Policy::valueCount(const std::string& name) const { 
-    return _data->valueCount(name); 
+inline size_t Policy::valueCount(const std::string& name) const {
+    return _data->valueCount(name);
 }
 
-inline bool Policy::isArray(const std::string& name) const { 
-    return _data->isArray(name); 
+inline bool Policy::isArray(const std::string& name) const {
+    return _data->isArray(name);
 }
 
-inline bool Policy::exists(const std::string& name) const { 
-    return _data->exists(name); 
+inline bool Policy::exists(const std::string& name) const {
+    return _data->exists(name);
 }
 
 inline bool Policy::isBool(const std::string& name) const {
@@ -991,7 +991,7 @@ inline bool Policy::isPolicy(const std::string& name) const {
 }
 
 inline bool Policy::isFile(const std::string& name) const {
-    
+
     try {
         return (getValueType(name) == FILE);
     }
@@ -1009,7 +1009,7 @@ inline const std::type_info& Policy::getTypeInfo(const std::string& name) const
 }
 
 inline const std::type_info& Policy::typeOf(const std::string& name) const {
-    return getTypeInfo(name); 
+    return getTypeInfo(name);
 }
 
 inline Policy::ConstPtr Policy::getPolicy(const std::string& name) const {
@@ -1019,51 +1019,51 @@ inline Policy::Ptr Policy::getPolicy(const std::string& name) {
     return Ptr(new Policy(_data->get<lsst::daf::base::PropertySet::Ptr>(name)));
 }
 
-inline 
+inline
 Policy::StringArray Policy::getStringArray(const std::string& name) const {
     return _data->getArray<std::string>(name);
 }
 
 inline Policy::BoolArray Policy::getBoolArray(const std::string& name) const {
-    POL_GETLIST(name, bool, BOOL) 
+    POL_GETLIST(name, bool, BOOL)
 }
 
 inline Policy::IntArray Policy::getIntArray(const std::string& name) const {
-    POL_GETLIST(name, int, INT) 
+    POL_GETLIST(name, int, INT)
 }
 
-inline 
+inline
 Policy::DoubleArray Policy::getDoubleArray(const std::string& name) const {
-    POL_GETLIST(name, double, DOUBLE) 
+    POL_GETLIST(name, double, DOUBLE)
 }
 
 inline void Policy::set(const std::string& name, const Ptr& value) {
     _validate(name, value);
     _data->set(name, value->asPropertySet());
 }
-inline void Policy::set(const std::string& name, bool value) { 
+inline void Policy::set(const std::string& name, bool value) {
     _validate(name, value);
-    _data->set(name, value); 
+    _data->set(name, value);
 }
-inline void Policy::set(const std::string& name, int value) { 
+inline void Policy::set(const std::string& name, int value) {
     _validate(name, value);
-    _data->set(name, value); 
+    _data->set(name, value);
 }
-inline void Policy::set(const std::string& name, double value) { 
+inline void Policy::set(const std::string& name, double value) {
     _validate(name, value);
-    _data->set(name, value); 
+    _data->set(name, value);
 }
-inline void Policy::set(const std::string& name, const std::string& value) { 
+inline void Policy::set(const std::string& name, const std::string& value) {
     _validate(name, value);
-    _data->set(name, value); 
+    _data->set(name, value);
 }
-inline void Policy::set(const std::string& name, const char *value) { 
+inline void Policy::set(const std::string& name, const char *value) {
     if (value == NULL)
         throw LSST_EXCEPT(lsst::pex::exceptions::InvalidParameterError,
                           std::string("Attempted to assign NULL value to ")
                           + name + ".");
     _validate(name, std::string(value));
-    _data->set(name, std::string(value)); 
+    _data->set(name, std::string(value));
 }
 
 #define POL_ADD(name, value) \
@@ -1076,26 +1076,26 @@ inline void Policy::add(const std::string& name, const Ptr& value) {
     _validate(name, value, valueCount(name));
     POL_ADD(name, value->asPropertySet())
 }
-inline void Policy::add(const std::string& name, bool value) { 
+inline void Policy::add(const std::string& name, bool value) {
     _validate(name, value, valueCount(name));
-    POL_ADD(name, value); 
+    POL_ADD(name, value);
 }
-inline void Policy::add(const std::string& name, int value) { 
+inline void Policy::add(const std::string& name, int value) {
     _validate(name, value, valueCount(name));
-    POL_ADD(name, value); 
+    POL_ADD(name, value);
 }
-inline void Policy::add(const std::string& name, double value) { 
+inline void Policy::add(const std::string& name, double value) {
     _validate(name, value, valueCount(name));
-    POL_ADD(name, value); 
+    POL_ADD(name, value);
 }
-inline void Policy::add(const std::string& name, const std::string& value) { 
+inline void Policy::add(const std::string& name, const std::string& value) {
     _validate(name, value, valueCount(name));
-    POL_ADD(name, value); 
+    POL_ADD(name, value);
 }
-inline void Policy::add(const std::string& name, const char *value) { 
+inline void Policy::add(const std::string& name, const char *value) {
     std::string v(value);
     _validate(name, v, valueCount(name));
-    POL_ADD(name, v); 
+    POL_ADD(name, v);
 }
 
 // TODO: validate if required value?
@@ -1103,56 +1103,56 @@ inline void Policy::remove(const std::string& name) {
     _data->remove(name);
 }
 
-inline Policy* Policy::createPolicy(PolicySource& input, bool doIncludes, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(PolicySource& input, bool doIncludes,
+                                    bool validate)
 {
     return _createPolicy(input, doIncludes, boost::filesystem::path(), validate);
-} 
+}
 
-inline Policy* Policy::createPolicy(const std::string& input, bool doIncludes, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(const std::string& input, bool doIncludes,
+                                    bool validate)
 {
     return _createPolicy(input, doIncludes, boost::filesystem::path(), validate);
-} 
+}
 
-inline Policy* Policy::createPolicy(PolicySource& input, 
+inline Policy* Policy::createPolicy(PolicySource& input,
                                     const boost::filesystem::path& repository,
-                                    bool validate) 
+                                    bool validate)
 {
     return _createPolicy(input, true, repository, validate);
 }
 
-inline Policy* Policy::createPolicy(PolicySource& input, 
-                                    const std::string& repository, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(PolicySource& input,
+                                    const std::string& repository,
+                                    bool validate)
 {
     return _createPolicy(input, true, boost::filesystem::path(repository), validate);
 }
 
-inline Policy* Policy::createPolicy(PolicySource& input, 
-                                    const char *repository, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(PolicySource& input,
+                                    const char *repository,
+                                    bool validate)
 {
     return _createPolicy(input, true, boost::filesystem::path(repository), validate);
 }
 
-inline Policy* Policy::createPolicy(const std::string& input, 
+inline Policy* Policy::createPolicy(const std::string& input,
                                     const boost::filesystem::path& repository,
-                                    bool validate) 
+                                    bool validate)
 {
     return _createPolicy(input, true, repository, validate);
 }
 
-inline Policy* Policy::createPolicy(const std::string& input, 
-                                    const std::string& repository, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(const std::string& input,
+                                    const std::string& repository,
+                                    bool validate)
 {
     return _createPolicy(input, true, boost::filesystem::path(repository), validate);
 }
 
-inline Policy* Policy::createPolicy(const std::string& input, 
-                                    const char *repository, 
-                                    bool validate) 
+inline Policy* Policy::createPolicy(const std::string& input,
+                                    const char *repository,
+                                    bool validate)
 {
     return _createPolicy(input, true, boost::filesystem::path(repository), validate);
 }

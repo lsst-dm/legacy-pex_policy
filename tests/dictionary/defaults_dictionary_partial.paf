@@ -3,7 +3,7 @@ target: types
 definitions: {
     bool_set_count: {
         type: bool
-        description: "a boolean with both a max allowed 
+        description: "a boolean with both a max allowed
                       and a list of permitted values"
         maxOccurs: 1
         allowed: { value: true }

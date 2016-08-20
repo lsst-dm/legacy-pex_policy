@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Policy_1.cc
  *
@@ -82,7 +82,7 @@ int main() {
         p.getTypeInfo("foo");
         Assert(false, "type info available for non-existent value");
     }
-    catch (NameNotFound& e) { 
+    catch (NameNotFound& e) {
         cout << "foo confirmed not to exist: " << e.what() << endl;
     }
 
@@ -92,7 +92,7 @@ int main() {
 
     // test out our newly added parameter
     try {  p.getInt("doall"); }
-    catch (TypeError& e) { 
+    catch (TypeError& e) {
         cout << "doall confirmed not an Int: " << e.what() << endl;
     }
     try {  p.getDoubleArray("doall"); }
@@ -120,7 +120,7 @@ int main() {
     // test array access
     ary = p.getStringArray("doall");
     cout << "doall (" << ary.size() << "):";
-    for(vector<std::string>::iterator pi=ary.begin();pi!=ary.end();++pi) 
+    for(vector<std::string>::iterator pi=ary.begin();pi!=ary.end();++pi)
         cout << ' ' << *pi;
     cout << endl;
     Assert(ary.size() == 2, "scalar property has wrong number of values");
@@ -131,7 +131,7 @@ int main() {
     p.set("pint", 5);
     Assert(p.getInt("pint") == 5, "support for type int failed");
     p.set("pdbl", 5.1);
-    Assert(abs(p.getDouble("pdbl") - 5.1) < 0.0000001, 
+    Assert(abs(p.getDouble("pdbl") - 5.1) < 0.0000001,
            "support for type double failed");
     p.set("ptrue", true);
     Assert(p.getBool("ptrue"), "support for boolean true failed");
@@ -141,12 +141,12 @@ int main() {
     // test PolicyFile type
     string pfile("test.paf");
     p.add("test", Policy::FilePtr(new PolicyFile(pfile)));
-    Assert(p.getValueType("test") == Policy::FILE, 
+    Assert(p.getValueType("test") == Policy::FILE,
            "Wrong ValueType for PolicyFile");
     Assert(p.isFile("test"), "PolicyFile's type not recognized");
     Policy::FilePtr pf = p.getFile("test");
     Assert(pf->getPath() == pfile, "Corrupted PolicyFile name");
-        
+
     // test hierarchical access
     string standalone("Dictionary.definition.standalone");
     string minOccurs = standalone+".minOccurs";
@@ -158,18 +158,18 @@ int main() {
 
     Policy::Ptr sp = p.getPolicy(standalone);
     sp->set("type", "int");
-    cout <<  standalone+".type"<< ": " << p.getString(standalone+".type") 
+    cout <<  standalone+".type"<< ": " << p.getString(standalone+".type")
          << endl;
     Assert(p.getString(standalone+".type") == "int", "encapsulated set failed");
     sp->set("required", false);
-    cout << standalone+".required"<< ": " << p.getBool(standalone+".required") 
+    cout << standalone+".required"<< ": " << p.getBool(standalone+".required")
          << endl;
     Assert(!p.getBool(standalone+".required"), "boolean set failed");
 
     sp->add("score", 3.4);
-    cout <<  standalone+".score"<< ": " << p.getDouble(standalone+".score") 
+    cout <<  standalone+".score"<< ": " << p.getDouble(standalone+".score")
          << endl;
-    Assert(sp->getDouble("score") - 3.4 < 0.0000000000001, 
+    Assert(sp->getDouble("score") - 3.4 < 0.0000000000001,
            "double type set failed");
 
     // list names
@@ -180,7 +180,7 @@ int main() {
     int nall = p.names(names);
     cout << "policy now has " << nall << " names (" << npol << " policies, "
          << nprm << " parameters):" << endl;
-    for(list<string>::iterator i=names.begin(); i!=names.end(); ++i) 
+    for(list<string>::iterator i=names.begin(); i!=names.end(); ++i)
         cout << "   " << *i << ": " << p.getTypeName(*i) << endl;
     Assert(npol + nfile + nprm == nall, "name listing failed");
 
@@ -190,7 +190,7 @@ int main() {
     cout << "\tminOccurs: " << sp->getTypeInfo("minOccurs").name() << endl;
     cout << "\tscore: " << sp->getTypeInfo("score").name() << endl;
     cout << "\trequired: " << sp->getTypeInfo("required").name() << endl;
-    cout << "\tstandalone: " 
+    cout << "\tstandalone: "
          << p.getTypeInfo("Dictionary.definition.standalone").name() << endl;
     cout << "\ttest: " << p.getTypeInfo("test").name() << endl;
 

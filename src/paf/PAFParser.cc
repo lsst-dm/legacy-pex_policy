@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PAFParser.cc
  * @ingroup pex
@@ -77,17 +77,17 @@ const regex PAFParser::FILE_VALUE("^@");
 /*
  * create a parser to load a Policy
  */
-PAFParser::PAFParser(Policy& policy) 
+PAFParser::PAFParser(Policy& policy)
     : PolicyParser(policy), _buffer(), _lineno(0), _depth(0)
 { }
-PAFParser::PAFParser(Policy& policy, bool strict) 
+PAFParser::PAFParser(Policy& policy, bool strict)
     : PolicyParser(policy, strict), _buffer(), _lineno(0), _depth(0)
 { }
 
 /*
  * delete this parser
  */
-PAFParser::~PAFParser() { } 
+PAFParser::~PAFParser() { }
 
 /*
  * parse the data found on the given stream
@@ -103,7 +103,7 @@ int PAFParser::parse(istream& is) {
 
 ios::iostate PAFParser::_nextLine(istream& is, string& line) {
     if (_buffer.size() > 0) {
-        line = _buffer.front(); 
+        line = _buffer.front();
         _buffer.pop_front();
     }
     else {
@@ -128,7 +128,7 @@ int PAFParser::_parseIntoPolicy(istream& is, Policy& policy) {
     int count = 0;
 
     while (!_nextLine(is, line)) {
-        if (regex_search(line, COMMENT_LINE)) 
+        if (regex_search(line, COMMENT_LINE))
             continue;
 
         if (regex_search(line, matched, CLOSE_SRCH)) {
@@ -148,7 +148,7 @@ int PAFParser::_parseIntoPolicy(istream& is, Policy& policy) {
             if (! regex_search(name, NAME_MTCH)) {
                 string msg = "Not a legal names designation: ";
                 msg.append(name);
-                if (_strict) 
+                if (_strict)
                     throw LSST_EXCEPT(FormatSyntaxError, msg, _lineno);
                 // log warning
                 continue;
@@ -170,8 +170,8 @@ int PAFParser::_parseIntoPolicy(istream& is, Policy& policy) {
     return count;
 }
 
-int PAFParser::_addValue(const string& propname, string& value, 
-                         Policy& policy, istream& is) 
+int PAFParser::_addValue(const string& propname, string& value,
+                         Policy& policy, istream& is)
 {
     string element, msg;
     smatch matched;
@@ -190,7 +190,7 @@ int PAFParser::_addValue(const string& propname, string& value,
 
         // look for extra stuff on the line
         value = matched.suffix();
-        if (value.size() > 0 && ! regex_search(value, COMMENT_LINE)) 
+        if (value.size() > 0 && ! regex_search(value, COMMENT_LINE))
             _pushBackLine(value);
 
         // fill in the sub-policy
@@ -222,7 +222,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     return count;
                 }
             }
-            else 
+            else
                 break;
         } while (regex_search(value, matched, DOUBLE_VALUE));
 
@@ -269,7 +269,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     return count;
                 }
             }
-            else 
+            else
                 break;
         } while (regex_search(value, matched, INT_VALUE));
 
@@ -281,7 +281,7 @@ int PAFParser::_addValue(const string& propname, string& value,
         }
     }
     else if (regex_search(value, matched, ATRUE_VALUE) ||
-             regex_search(value, matched, AFALSE_VALUE))   
+             regex_search(value, matched, AFALSE_VALUE))
     {
         do {
             element = matched.str(1);
@@ -302,7 +302,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     return count;
                 }
             }
-            else 
+            else
                 break;
         } while (regex_search(value, matched, ATRUE_VALUE) ||
                  regex_search(value, matched, AFALSE_VALUE));
@@ -310,7 +310,7 @@ int PAFParser::_addValue(const string& propname, string& value,
         if (value.size() > 0) {
             msg = "Expecting boolean value, found: ";
             msg.append(value);
-            if (_strict) 
+            if (_strict)
                 throw LSST_EXCEPT(FormatSyntaxError, msg, _lineno);
             // log message
         }
@@ -319,7 +319,7 @@ int PAFParser::_addValue(const string& propname, string& value,
         // we are starting a string
         do {
             if (regex_search(value, matched, QQSTRING_VALUE) ||
-                regex_search(value, matched, QSTRING_VALUE))   
+                regex_search(value, matched, QSTRING_VALUE))
             {
                 element = matched.str(1);
                 value = matched.suffix();
@@ -327,7 +327,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                 policy.add(propname, element);
                 count++;
 
-                if (value.size() > 0 && regex_search(value, COMMENT_LINE)) 
+                if (value.size() > 0 && regex_search(value, COMMENT_LINE))
                     value.erase();
             }
             else if (regex_search(value, matched, QQSTRING_EMPTYSTART) ||
@@ -351,7 +351,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     if (_strict) throw LSST_EXCEPT(EOFError, _lineno);
                     // log message
                 }
-                if (is.fail()) 
+                if (is.fail())
                     throw LSST_EXCEPT(ParserError, "read error", _lineno);
             }
             else if (regex_search(value, matched, QSTRING_EMPTYSTART) ||
@@ -375,7 +375,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     if (_strict) throw LSST_EXCEPT(EOFError, _lineno);
                     // log message
                 }
-                if (is.fail()) 
+                if (is.fail())
                     throw LSST_EXCEPT(ParserError, "read error", _lineno);
             }
 
@@ -389,7 +389,7 @@ int PAFParser::_addValue(const string& propname, string& value,
                     return count;
                 }
             }
-            else 
+            else
                 break;
         } while (value.size() > 0 &&
                  (value.at(0) == '\'' || value.at(0) == '"'));
@@ -411,7 +411,7 @@ int PAFParser::_addValue(const string& propname, string& value,
 		       Policy::FilePtr(new UrnPolicyFile(trimmed)));
 	}
         else if (regex_search(trimmed, matched, FILE_VALUE)) {
-            policy.add(propname, 
+            policy.add(propname,
 		       Policy::FilePtr(new PolicyFile(matched.suffix().str())));
         }
         else {

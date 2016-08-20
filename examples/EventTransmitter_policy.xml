@@ -1,13 +1,13 @@
-<!-- 
+<!--
   -  NOTE:  XML format support is not yet supported!!
   -->
 <!-- this is a comment -->
 <Policy target="EventTransmitter" pversion="1.0">
 
-   <!-- 
-     -  the 't' attribute gives the type.  The type might be provided by 
-     -  an external dictionary.  With no dictionary and no t attribute, 
-     -  string is assumed.  
+   <!--
+     -  the 't' attribute gives the type.  The type might be provided by
+     -  an external dictionary.  With no dictionary and no t attribute,
+     -  string is assumed.
      -->
    <standalone t="b"> true </standalone>
 

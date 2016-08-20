@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file Policy_4.cc
  *
@@ -31,6 +31,7 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include "lsst/utils/Utils.h"
 #include "lsst/pex/policy.h"
 #include "lsst/pex/policy/Dictionary.h"
 
@@ -54,8 +55,9 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 
 int main(int argc, char** argv) {
 
-    string files[] = { 
-        string("examples/EventTransmitter_dict.paf"),
+    std::string rootDir = lsst::utils::getPackageDir("pex_policy") + "/";
+    string files[] = {
+        rootDir + string("examples/EventTransmitter_dict.paf"),
     };
     int nfiles = 1;
 
@@ -82,14 +84,14 @@ int main(int argc, char** argv) {
         Assert(defp->getMaxOccurs() == 1, "wrong maxOccurs");
         Assert(defp->getMinOccurs() == 0, "wrong minOccurs");
 
-        d->loadPolicyFiles("examples", false);
+        d->loadPolicyFiles(rootDir + "examples", false);
         p.reset(new Policy(false, *d, "examples"));
         cout << *p << endl;
         Assert(p->getInt("standalone") == 0, "default loading error");
 
         p.reset(Policy::createPolicy(files[i]));
         cout << *p << endl;
-        Assert(p->getInt("standalone") == 0, 
+        Assert(p->getInt("standalone") == 0,
                "Policy factory creation method failed");
     }
 

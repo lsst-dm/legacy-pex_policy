@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,17 +11,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file lsst/pex/policy/exceptions.h
  * @ingroup pex
@@ -48,19 +48,19 @@ namespace policy {
 
 /**
  * an exception thrown when Policy parameter name has an illegal form.  This
- * usually means that it contains zero-length fields.  In other words, it 
+ * usually means that it contains zero-length fields.  In other words, it
  * either starts with a period, ends with a period, or contains two or more
  * consecutive periods.
  */
 class BadNameError : public lsst::pex::exceptions::RuntimeError {
 public:
-    BadNameError(POL_EARGS_TYPED) 
+    BadNameError(POL_EARGS_TYPED)
         : lsst::pex::exceptions::RuntimeError(
-                POL_EARGS_UNTYPED, "Illegal Policy parameter name") 
+                POL_EARGS_UNTYPED, "Illegal Policy parameter name")
     { }
-    BadNameError(POL_EARGS_TYPED, const std::string& badname) 
-        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, 
-              std::string("Illegal Policy parameter name: ") + badname) 
+    BadNameError(POL_EARGS_TYPED, const std::string& badname)
+        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED,
+              std::string("Illegal Policy parameter name: ") + badname)
     { }
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
@@ -89,13 +89,13 @@ public:
  */
 class NameNotFound : public lsst::pex::exceptions::NotFoundError {
 public:
-    NameNotFound(POL_EARGS_TYPED) 
+    NameNotFound(POL_EARGS_TYPED)
         : lsst::pex::exceptions::NotFoundError(
-                POL_EARGS_UNTYPED, "Policy parameter name not found") 
+                POL_EARGS_UNTYPED, "Policy parameter name not found")
     { }
-    NameNotFound(POL_EARGS_TYPED, const std::string& parameter) 
+    NameNotFound(POL_EARGS_TYPED, const std::string& parameter)
         : lsst::pex::exceptions::NotFoundError(POL_EARGS_UNTYPED,
-                std::string("Policy parameter name not found: ") + parameter) 
+                std::string("Policy parameter name not found: ") + parameter)
     { }
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
@@ -107,14 +107,14 @@ public:
  */
 class TypeError : public lsst::pex::exceptions::DomainError {
 public:
-    TypeError(POL_EARGS_TYPED) 
+    TypeError(POL_EARGS_TYPED)
         : lsst::pex::exceptions::DomainError(
-                POL_EARGS_UNTYPED, "Parameter has wrong type") 
+                POL_EARGS_UNTYPED, "Parameter has wrong type")
     { }
-    TypeError(POL_EARGS_TYPED, 
-              const std::string& parameter, const std::string& expected)  
-        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED, 
-              std::string("Parameter \"") + parameter + 
+    TypeError(POL_EARGS_TYPED,
+              const std::string& parameter, const std::string& expected)
+        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED,
+              std::string("Parameter \"") + parameter +
               "\" has wrong type; expecting " + expected + ".")
     { }
     virtual char const *getType(void) const throw();

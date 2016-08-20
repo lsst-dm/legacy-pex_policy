@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008-2016 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /*
  * Dictionary
  */
@@ -82,7 +82,7 @@ string ValidationError::describe(string prefix) const {
     list<string> names;
     paramNames(names);
     for (list<string>::const_iterator i = names.begin(); i != names.end(); ++i)
-        os << prefix << *i << ": " 
+        os << prefix << *i << ": "
            << getErrorMessageFor((ErrorType)getErrors(*i)) << endl;
     return os.str();
 }
@@ -131,25 +131,25 @@ Policy::ValueType Definition::_determineType() const {
     }
     else if (_policy->exists(Dictionary::KW_TYPE)) {
         throw LSST_EXCEPT
-            (DictionaryError, string("Expected string for \"type\"; found ") 
+            (DictionaryError, string("Expected string for \"type\"; found ")
              + _policy->getTypeName(Dictionary::KW_TYPE) + " instead.");
     }
 
     else return Policy::UNDEF;
 }
-    
+
 /**
  * Return the semantic definition for the parameter, empty string if none is
  * specified, or throw a TypeError if it is the wrong type.
  */
 const string Definition::getDescription() const {
-    if (_policy->exists(Dictionary::KW_DESCRIPTION)) 
+    if (_policy->exists(Dictionary::KW_DESCRIPTION))
         return _policy->getString(Dictionary::KW_DESCRIPTION);
     else return "";
 }
 
 /**
- * return the maximum number of occurrences allowed for this parameter, 
+ * return the maximum number of occurrences allowed for this parameter,
  * or -1 if there is no limit.
  */
 const int Definition::getMaxOccurs() const {
@@ -172,22 +172,22 @@ const int Definition::getMinOccurs() const {
 /*
  * the default value into the given policy
  * @param policy   the policy object update
- * @param withName the name to look for the value under.  This must be 
+ * @param withName the name to look for the value under.  This must be
  *                    a non-hierarchical name.
  * @exception ValidationError if the value does not conform to this definition.
  */
 void Definition::setDefaultIn(Policy& policy, const string& withName,
-                              ValidationError* errs) const 
+                              ValidationError* errs) const
 {
     if (! _policy->exists("default")) return;
 /*
     Policy::ValueType type = getType();
-    if (type == Policy::UNDEF) 
+    if (type == Policy::UNDEF)
         type = _policy->getValueType("default");
 */
     Policy::ValueType type = _policy->getValueType("default");
 
-    if (type == Policy::BOOL) 
+    if (type == Policy::BOOL)
         setDefaultIn<bool>(policy, withName, errs);
     else if (type == Policy::INT)
         setDefaultIn<int>(policy, withName, errs);
@@ -212,8 +212,8 @@ void Definition::setDefaultIn(Policy& policy, const string& withName,
  *                 should explain why.
  */
 void Definition::validate(const Policy& policy, const string& name,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
@@ -228,7 +228,7 @@ void Definition::validate(const Policy& policy, const string& name,
     Policy::ValueType type = policy.getValueType(name);
 
     switch (type) {
-    case Policy::BOOL: 
+    case Policy::BOOL:
         validateBasic<bool>(name, policy, use);
         break;
 
@@ -255,7 +255,7 @@ void Definition::validate(const Policy& policy, const string& name,
 
     default:
         throw LSST_EXCEPT(pexExcept::LogicError,
-                          string("Unknown type for \"") + getPrefix() + name 
+                          string("Unknown type for \"") + getPrefix() + name
                           + "\": \"" + policy.getTypeName(name) + "\"");
     }
 
@@ -264,7 +264,7 @@ void Definition::validate(const Policy& policy, const string& name,
 
 /**
  * Validate the number of values for a field. Used internally by the
- * validate() functions. 
+ * validate() functions.
  * @param name   the name of the parameter being checked
  * @param count  the number of values this name actually has
  * @param errs   report validation errors here
@@ -272,14 +272,14 @@ void Definition::validate(const Policy& policy, const string& name,
 void Definition::validateCount(const string& name, int count,
                                ValidationError *errs) const {
     int max = getMaxOccurs(); // -1 means no limit / undefined
-    if (max >= 0 && count > max) 
+    if (max >= 0 && count > max)
         errs->addError(getPrefix() + name, ValidationError::TOO_MANY_VALUES);
     if (count < getMinOccurs()) {
-        if (count == 0) 
+        if (count == 0)
             errs->addError(getPrefix() + name, ValidationError::MISSING_REQUIRED);
-        else if (count == 1) 
+        else if (count == 1)
             errs->addError(getPrefix() + name, ValidationError::NOT_AN_ARRAY);
-        else 
+        else
             errs->addError(getPrefix() + name, ValidationError::ARRAY_TOO_SHORT);
     }
 }
@@ -310,15 +310,15 @@ void Definition::validateRecurse(const string& name, const Policy& value,
 {
     if (!getType() == Policy::POLICY) // should have checked this at a higher level
         throw LSST_EXCEPT
-            (pexExcept::LogicError, string("Wrong type: expected ") 
-             + Policy::typeName[Policy::POLICY] + " for " + getPrefix() + name 
+            (pexExcept::LogicError, string("Wrong type: expected ")
+             + Policy::typeName[Policy::POLICY] + " for " + getPrefix() + name
              + " but found " + getTypeName() + ". // recurse if we have a sub-definition");
     // recurse if we have a sub-definition
     else if (_policy->exists(Dictionary::KW_DICT)) {
         if (!_policy->isPolicy(Dictionary::KW_DICT))
             throw LSST_EXCEPT
-                (DictionaryError, string("Wrong type for ") + getPrefix() + name 
-                 + " \"" + Dictionary::KW_DICT + "\": expected Policy, but found " 
+                (DictionaryError, string("Wrong type for ") + getPrefix() + name
+                 + " \"" + Dictionary::KW_DICT + "\": expected Policy, but found "
                  + _policy->getTypeName(Dictionary::KW_DICT) + ".");
         else {
             Dictionary subdict(*(_policy->getPolicy(Dictionary::KW_DICT)));
@@ -350,7 +350,7 @@ void Definition::validateBasic(const string& name, const T& value,
     // check if we're going to get too many
     if (curcount >= 0) {
         int maxOccurs = getMaxOccurs();
-        if (maxOccurs >= 0 && curcount + 1 > maxOccurs) 
+        if (maxOccurs >= 0 && curcount + 1 > maxOccurs)
             use->addError(getPrefix() + name, ValidationError::TOO_MANY_VALUES);
     }
 
@@ -374,7 +374,7 @@ void Definition::validateBasic(const string& name, const T& value,
                     // Would like to catch this in Dictionary::check(), but that
                     // would require some fancy type-based logic.
                     throw LSST_EXCEPT
-                        (DictionaryError, 
+                        (DictionaryError,
                          string("Min value for ") + getPrefix() + name
                          + " already specified; additional value not allowed.");
                 }
@@ -383,9 +383,9 @@ void Definition::validateBasic(const string& name, const T& value,
                     minFound = true; // after min assign, in case of exceptions
                 } catch(TypeError& e) {
                     throw LSST_EXCEPT
-                        (DictionaryError, 
-                         string("Wrong type for ") + getPrefix() + name 
-                         + " min value: expected " + getTypeName() + ", found " 
+                        (DictionaryError,
+                         string("Wrong type for ") + getPrefix() + name
+                         + " min value: expected " + getTypeName() + ", found "
                          + a->getTypeName(Dictionary::KW_MIN) + ".");
                 } catch(...) {
                     throw;
@@ -402,15 +402,15 @@ void Definition::validateBasic(const string& name, const T& value,
                     maxFound = true; // after max assign, in case of exceptions
                 } catch(TypeError& e) {
                     throw LSST_EXCEPT
-                        (DictionaryError, 
-                         string("Wrong type for ") + getPrefix() + name 
-                         + " max value: expected " + getTypeName() + ", found " 
+                        (DictionaryError,
+                         string("Wrong type for ") + getPrefix() + name
+                         + " max value: expected " + getTypeName() + ", found "
                          + a->getTypeName(Dictionary::KW_MAX) + ".");
                 }
             }
             if (a->exists(Dictionary::KW_VALUE)) {
                 const T& value = a->getValue<T>(Dictionary::KW_VALUE);
-                
+
                 allvals.insert(value);
                 // allvals.insert(a->getValue<T>(Dictionary::KW_VALUE));
                 vector<T> values = a->getValueArray<T>(Dictionary::KW_VALUE);
@@ -435,7 +435,7 @@ template void Definition::validateBasic<Policy::Ptr>
 (std::string const &, Policy::Ptr const &, int, ValidationError*) const;
 
 /*
- * confirm that a Policy parameter name-value combination is consistent 
+ * confirm that a Policy parameter name-value combination is consistent
  * with this dictionary.  This does not check occurrence compliance
  * @param name     the name of the parameter being checked
  * @param value    the value of the parameter to check.
@@ -443,71 +443,71 @@ template void Definition::validateBasic<Policy::Ptr>
  *                 should explain why.
  */
 void Definition::validate(const string& name, bool value, int curcount,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     validateBasic<bool>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, int value, int curcount,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     validateBasic<int>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, double value, int curcount,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     validateBasic<double>(name, value, curcount, errs);
 }
 
 void Definition::validate(const string& name, string value, int curcount,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     validateBasic<string>(name, value, curcount, errs);
 }
 
-void Definition::validate(const string& name, const Policy& value, 
-                          int curcount, ValidationError *errs) const 
-{ 
+void Definition::validate(const string& name, const Policy& value,
+                          int curcount, ValidationError *errs) const
+{
     validateBasic<Policy>(name, value, curcount, errs);
     validateRecurse(name, value, errs);
 }
 
 /*
- * confirm that a Policy parameter name-array value combination is 
- * consistent with this dictionary.  Unlike the scalar version, 
- * this does check occurrence compliance.  
+ * confirm that a Policy parameter name-array value combination is
+ * consistent with this dictionary.  Unlike the scalar version,
+ * this does check occurrence compliance.
  * @param name     the name of the parameter being checked
  * @param value    the value of the parameter to check.
  * @exception ValidationError   if the value does not conform.  The message
  *                 should explain why.
  */
-void Definition::validate(const string& name, const Policy::BoolArray& value, 
-                          ValidationError *errs) const 
-{ 
+void Definition::validate(const string& name, const Policy::BoolArray& value,
+                          ValidationError *errs) const
+{
     validateBasic<bool>(name, value, errs);
 }
 
-void Definition::validate(const string& name, const Policy::IntArray& value, 
-                          ValidationError *errs) const 
-{ 
+void Definition::validate(const string& name, const Policy::IntArray& value,
+                          ValidationError *errs) const
+{
     validateBasic<int>(name, value, errs);
 }
 
 void Definition::validate(const string& name, const Policy::DoubleArray& value,
-                          ValidationError *errs) const 
-{ 
+                          ValidationError *errs) const
+{
     validateBasic<double>(name, value, errs);
 }
-void Definition::validate(const string& name, const Policy::StringArray& value, 
-                          ValidationError *errs) const 
-{ 
+void Definition::validate(const string& name, const Policy::StringArray& value,
+                          ValidationError *errs) const
+{
     validateBasic<string>(name, value, errs);
 }
 
-void Definition::validate(const string& name, const Policy::ConstPolicyPtrArray& value, 
-                          ValidationError *errs) const 
-{ 
+void Definition::validate(const string& name, const Policy::ConstPolicyPtrArray& value,
+                          ValidationError *errs) const
+{
     validateBasic<Policy::ConstPtr>(name, value, errs);
     validateRecurse(name, value, errs);
 }
@@ -529,7 +529,7 @@ void Definition::check() const {
     }
     Policy::StringArray terms = _policy->names(true);
     for (Policy::StringArray::const_iterator i = terms.begin();
-         i != terms.end(); ++i) 
+         i != terms.end(); ++i)
     {
         if (okayKeywords.count(*i) == 1) continue;
         else throw LSST_EXCEPT
@@ -561,21 +561,21 @@ const boost::regex Dictionary::FIELDSEP_RE("\\.");
 /*
  * load a dictionary from a file
  */
-Dictionary::Dictionary(const char *filePath) : Policy(filePath) { 
+Dictionary::Dictionary(const char *filePath) : Policy(filePath) {
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath) 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath)
                           + ": does not contain a Dictionary");
     check();
 }
-Dictionary::Dictionary(const string& filePath) : Policy(filePath) { 
+Dictionary::Dictionary(const string& filePath) : Policy(filePath) {
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath) 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, string(filePath)
                           + ": does not contain a Dictionary");
     check();
 }
-Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) { 
+Dictionary::Dictionary(const PolicyFile& filePath) : Policy(filePath) {
     if (!exists(KW_DEFINITIONS))
-        throw LSST_EXCEPT(pexExcept::RuntimeError, filePath.getPath() 
+        throw LSST_EXCEPT(pexExcept::RuntimeError, filePath.getPath()
                           + ": does not contain a Dictionary");
     check();
 }
@@ -598,7 +598,7 @@ Definition* Dictionary::makeDef(const string& name) const {
     while (it != end) {
         find = *it;
         if (! p->isPolicy(KW_DEFINITIONS))
-            throw LSST_EXCEPT(DictionaryError, "Definition for " + find 
+            throw LSST_EXCEPT(DictionaryError, "Definition for " + find
                               + " not found.");
         sp = p->getPolicy(KW_DEFINITIONS);
         if (sp->isPolicy(find)) {
@@ -617,7 +617,7 @@ Definition* Dictionary::makeDef(const string& name) const {
         p = sp.get();
         if (++it != end) {
             if (! sp->isPolicy(Dictionary::KW_DICT))
-                throw LSST_EXCEPT(DictionaryError, 
+                throw LSST_EXCEPT(DictionaryError,
                                   find + "." + KW_DICT + " not found.");
             sp = sp->getPolicy(Dictionary::KW_DICT);
             p = sp.get();
@@ -640,7 +640,7 @@ Policy::DictPtr Dictionary::getSubDictionary(const string& name) const {
         (pexExcept::LogicError,
          string("sub-policy \"") + subname + "\" not found.");
     if (!isPolicy(subname)) throw LSST_EXCEPT
-        (DictionaryError, subname + " is a " + getTypeName(subname) 
+        (DictionaryError, subname + " is a " + getTypeName(subname)
          + " instead of a " + Policy::typeName[Policy::POLICY] + ".");
     ConstPtr subpol = getPolicy(subname);
     Policy::DictPtr result = std::make_shared<Dictionary>(*subpol);
@@ -664,21 +664,21 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
             if (p == ni->length()-endswith.length()) {
                 string parent = ni->substr(0, p);
                 Policy::Ptr defin = getPolicy(parent);
-                
+
                 // these will get dereferenced with the call to super method
-                if (isFile(*ni)) 
+                if (isFile(*ni))
                     defin->set(Dictionary::KW_DICT, getFile(*ni));
                 else
                     defin->set(Dictionary::KW_DICT,
                                std::make_shared<PolicyFile>(getString(*ni)));
-                
+
                 toRemove.push_back(*ni);
             }
         }
-        
+
         // if no new loads, then we've loaded everything
         int newLoads = Policy::loadPolicyFiles(repository, strict);
-        
+
         // remove obsolete dictionaryFile references, to prevent re-loading
         for (list<string>::iterator i = toRemove.begin(); i != toRemove.end(); ++i)
             remove(*i);
@@ -690,8 +690,8 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
         else result += newLoads;
     }
     throw LSST_EXCEPT
-        (DictionaryError, string("Exceeded recursion limit (") 
-         + std::to_string(maxLevel) 
+        (DictionaryError, string("Exceeded recursion limit (")
+         + std::to_string(maxLevel)
          + ") loading policy files; does this dictionary contain a circular"
          " definition?");
 }
@@ -703,11 +703,11 @@ int Dictionary::loadPolicyFiles(const boost::filesystem::path& repository, bool 
 void Dictionary::check() const {
     PolicyPtrArray defs = getValueArray<Policy::Ptr>(KW_DEFINITIONS);
     if (defs.size() == 0)
-        throw LSST_EXCEPT(DictionaryError, 
+        throw LSST_EXCEPT(DictionaryError,
                           string("no \"") + KW_DEFINITIONS + "\" section found");
     if (defs.size() > 1)
         throw LSST_EXCEPT
-            (DictionaryError, string("expected a single \"") + KW_DEFINITIONS 
+            (DictionaryError, string("expected a single \"") + KW_DEFINITIONS
              + "\" section; found " + std::to_string(defs.size()));
 
     Policy::StringArray names = defs[0]->names(false);
@@ -731,7 +731,7 @@ void Dictionary::check() const {
 /*
  * validate a Policy against this Dictionary
  */
-void Dictionary::validate(const Policy& pol, ValidationError *errs) const { 
+void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
     ValidationError ve(LSST_EXCEPT_HERE);
     ValidationError *use = &ve;
     if (errs != 0) use = errs;
@@ -739,7 +739,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
 
     // validate each item in policy
     for (Policy::StringArray::const_iterator i = params.begin();
-         i != params.end(); ++i) 
+         i != params.end(); ++i)
     {
         try {
             std::unique_ptr<Definition> def(makeDef(*i));

@@ -1,9 +1,9 @@
 // -*- lsst-c++ -*-
 
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -11,17 +11,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * @file PolicyString.h
  * @brief  definition of the PolicyString class
@@ -45,9 +45,9 @@ namespace policy {
 /**
  * @brief a representation of a string containing Policy parameter data
  *
- * This class facilitates reading data from a string.  This class is 
+ * This class facilitates reading data from a string.  This class is
  * especially useful for supporting string I/O from Python.  The data is
- * encoded in a supported format (just like the contents of a policy file).  
+ * encoded in a supported format (just like the contents of a policy file).
  */
 class PolicyString : public PolicySource, public lsst::daf::base::Persistable {
 public:
@@ -56,15 +56,15 @@ public:
      * create a PolicyString that's wrapped around a given string.
      * @param data          the path to the file, either as a string or a
      *                          boost::filesystem::path instance
-     * @param fmts           a SupportedFormats object to use.  An instance 
+     * @param fmts           a SupportedFormats object to use.  An instance
      *                          encapsulates a configured set of known formats.
      */
     explicit PolicyString(const std::string& data,
                           const SupportedFormats::Ptr& fmts = defaultFormats);
 
     /**
-     * create a "null" Policy formed from an empty string.  
-     * @param fmts           a SupportedFormats object to use.  An instance 
+     * create a "null" Policy formed from an empty string.
+     * @param fmts           a SupportedFormats object to use.  An instance
      *                          encapsulates a configured set of known formats.
      */
     PolicyString(const SupportedFormats::Ptr& fmts = defaultFormats);
@@ -76,11 +76,11 @@ public:
 
     //@{
     /**
-     * return the name of the format that the data is stored in.  This may 
-     * cause the first few records of the source to be read.  In this 
+     * return the name of the format that the data is stored in.  This may
+     * cause the first few records of the source to be read.  In this
      * implementation, once the format is definitely determined, the format
-     * name is cached internally, preventing re-determination on the next 
-     * call to this function.  
+     * name is cached internally, preventing re-determination on the next
+     * call to this function.
      * @exception IOError   if an error occurs while reading the first few
      *                      characters of the source stream.
      */
@@ -95,21 +95,21 @@ public:
      * load the data from this Policy source into a Policy object
      * @param policy    the policy object to load the data into
      * @exception ParserException  if an error occurs while parsing the data
-     * @exception IOError   if an I/O error occurs while reading from the 
+     * @exception IOError   if an I/O error occurs while reading from the
      *                       source stream.
      */
     virtual void load(Policy& policy);
-    void load(Policy& policy) const { 
+    void load(Policy& policy) const {
         const_cast<PolicyString*>(this)->load(policy);
     }
     //@}
 
     static const boost::regex SPACE_RE;   //! reg-exp for an empty line
     static const boost::regex COMMENT;    //! reg-exp for the start of a comment
-    /** 
+    /**
      * reg-exp for a Policy content identifier, "<?cfg [format] [content] ?>"
      */
-    static const boost::regex CONTENTID;  
+    static const boost::regex CONTENTID;
 
 protected:
     /**

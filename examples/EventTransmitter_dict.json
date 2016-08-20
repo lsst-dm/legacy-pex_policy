@@ -1,11 +1,11 @@
-#<?cfg json dictionary ?>  
-# 
+#<?cfg json dictionary ?>
+#
 # This is a sample dictionary.
-# 
+#
 # The first line above is a content identifier.  It can be used for
 # determining both the format and distinguising between a policy file
 # and a dictionary.  It's use is not required but recommended.
-#        
+#
 {
 "target":  "EventTransmitter",
 "definitions": {

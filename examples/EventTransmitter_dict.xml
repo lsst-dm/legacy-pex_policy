@@ -1,4 +1,4 @@
-<!-- 
+<!--
   -  NOTE:  XML format support is not yet supported!!
   -->
 <?xml version="1.0" encoding="UTF-8"?>
@@ -6,10 +6,10 @@
    <parameter name="standalone" type="int" minOccurs="1" maxOccurs="1">
       <default>0</default>
       <description>
-         A boolean switch that, if true, will allow events to 
-         be sent to the transmitter interface without the     
-         underlying event services running.  These events     
-         will be ignored and remain undelivered.              
+         A boolean switch that, if true, will allow events to
+         be sent to the transmitter interface without the
+         underlying event services running.  These events
+         will be ignored and remain undelivered.
       </description>
       <allowed>
          <value>0</value>

@@ -1,4 +1,4 @@
-#<?cfg paf dictionary ?>  
+#<?cfg paf dictionary ?>
 definitions: {
     foo.type: string
     foo.default: bar

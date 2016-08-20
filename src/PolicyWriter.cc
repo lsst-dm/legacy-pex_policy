@@ -1,7 +1,7 @@
-/* 
+/*
  * LSST Data Management System
  * Copyright 2008, 2009, 2010 LSST Corporation.
- * 
+ *
  * This product includes software developed by the
  * LSST Project (http://www.lsst.org/).
  *
@@ -9,17 +9,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the LSST License Statement and 
- * the GNU General Public License along with this program.  If not, 
+ *
+ * You should have received a copy of the LSST License Statement and
+ * the GNU General Public License along with this program.  If not,
  * see <http://www.lsstcorp.org/LegalNotices/>.
  */
- 
+
 /**
  * \file PolicyWriter.cc
  */
@@ -50,12 +50,12 @@ PolicyWriter::PolicyWriter(std::ostream *out) : _myos(0), _os(out) {
 }
 
 /*
- * create a writer attached to a file.  The file will be immediately 
+ * create a writer attached to a file.  The file will be immediately
  * opened for writing.
  * @param file     the path to the output file
  */
-PolicyWriter::PolicyWriter(const std::string& file, bool append) 
-    : _myos(new std::ofstream(file.c_str(), append ? std::ios_base::app 
+PolicyWriter::PolicyWriter(const std::string& file, bool append)
+    : _myos(new std::ofstream(file.c_str(), append ? std::ios_base::app
                                                    : std::ios_base::trunc)),
       _os(0)
 {
@@ -68,7 +68,7 @@ PolicyWriter::~PolicyWriter() {
 }
 
 /*
- * return the written data as a string.  This string will be non-empty 
+ * return the written data as a string.  This string will be non-empty
  * only if this class was was instantiated without an attached stream.
  */
 std::string PolicyWriter::toString() {
@@ -78,10 +78,10 @@ std::string PolicyWriter::toString() {
 }
 
 /*
- * close the output stream.  This has no effect if the attached 
- * stream is not a file stream.  
+ * close the output stream.  This has no effect if the attached
+ * stream is not a file stream.
  */
-void PolicyWriter::close() {  
+void PolicyWriter::close() {
     std::ofstream *fs = dynamic_cast<std::ofstream*>(_os);
     if (fs) fs->close();
 }
@@ -92,7 +92,7 @@ void PolicyWriter::close() {
  * @param policy     the policy data to write
  */
 void PolicyWriter::write(const Policy& policy, bool doDecl) {
-    if (doDecl) 
+    if (doDecl)
         (*_os) << "#<?cfg paf policy ?>" << std::endl;
 
     Policy::StringArray names = policy.names(true);
@@ -130,44 +130,44 @@ void PolicyWriter::write(const Policy& policy, bool doDecl) {
 
 }
 
-void PolicyWriter::writeBool(const std::string& name, bool value) { 
+void PolicyWriter::writeBool(const std::string& name, bool value) {
     std::vector<bool> vals;
     vals.push_back(value);
     writeBools(name, vals);
 }
 
-void PolicyWriter::writeInt(const std::string& name, int value) { 
+void PolicyWriter::writeInt(const std::string& name, int value) {
     std::vector<int> vals;
     vals.push_back(value);
     writeInts(name, vals);
 }
 
-void PolicyWriter::writeDouble(const std::string& name, double value) { 
+void PolicyWriter::writeDouble(const std::string& name, double value) {
     std::vector<double> vals;
     vals.push_back(value);
     writeDoubles(name, vals);
 }
 
-void PolicyWriter::writeString(const std::string& name, 
-                               const std::string& value) 
+void PolicyWriter::writeString(const std::string& name,
+                               const std::string& value)
 {
-    std::vector<std::string> vals; 
-    vals.push_back(value); 
-    writeStrings(name, vals); 
+    std::vector<std::string> vals;
+    vals.push_back(value);
+    writeStrings(name, vals);
 }
 
 void PolicyWriter::writePolicy(const std::string& name, const Policy& value) {
-    std::vector<Policy::Ptr> vals; 
-    vals.push_back(Policy::Ptr(new Policy(value))); 
-    writePolicies(name, vals); 
+    std::vector<Policy::Ptr> vals;
+    vals.push_back(Policy::Ptr(new Policy(value)));
+    writePolicies(name, vals);
 }
 
-void PolicyWriter::writeFile(const std::string& name, 
-                             const PolicyFile& value) 
-{ 
-    std::vector<Policy::FilePtr> vals; 
-    vals.push_back(Policy::FilePtr(new PolicyFile(value))); 
-    writeFiles(name, vals); 
+void PolicyWriter::writeFile(const std::string& name,
+                             const PolicyFile& value)
+{
+    std::vector<Policy::FilePtr> vals;
+    vals.push_back(Policy::FilePtr(new PolicyFile(value)));
+    writeFiles(name, vals);
 }
 
 

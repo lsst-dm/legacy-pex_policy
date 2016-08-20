@@ -32,6 +32,7 @@
 #include <string>
 #include <stdexcept>
 #include <list>
+#include "lsst/utils/Utils.h"
 #include "lsst/pex/policy/paf/PAFParser.h"
 #include "lsst/pex/policy.h"
 #include "lsst/pex/policy/PolicyFile.h"
@@ -66,7 +67,8 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 
 int main(int argc, char** argv) {
 
-    Policy p = Policy("examples/types.paf");
+    std::string rootDir = lsst::utils::getPackageDir("pex_policy") + "/";
+    Policy p = Policy(rootDir + "examples/types.paf");
 
     Policy::IntArray vi = p.getIntArray("int");
     int i=0;

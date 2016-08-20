@@ -30,6 +30,7 @@
 #include <string>
 #include <stdexcept>
 #include <list>
+#include "lsst/utils/Utils.h"
 #include "lsst/pex/policy/paf/PAFParser.h"
 #include "lsst/pex/policy.h"
 
@@ -53,7 +54,7 @@ int main(int argc, char** argv) {
 
     Policy p2;
     PAFParser pp(p2);
-    ifstream is("examples/EventTransmitter_policy.paf");
+    ifstream is(lsst::utils::getPackageDir("pex_policy") + "/examples/EventTransmitter_policy.paf");
 
     pp.parse(is);
 

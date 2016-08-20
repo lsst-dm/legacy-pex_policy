@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string>
 #include <stdexcept>
+#include "lsst/utils/Utils.h"
 #include "lsst/pex/policy.h"
 #include "lsst/pex/policy/DefaultPolicyFile.h"
 
@@ -50,7 +51,7 @@ int main() {
 
     DefaultPolicyFile df("pex_policy", "CacheManager_dict.paf",
                          "examples", true);
-    Policy::Ptr p(Policy::createPolicy(df, "examples"));
+    Policy::Ptr p(Policy::createPolicy(df, lsst::utils::getPackageDir("pex_policy") + "/examples"));
     Assert(p->exists("freeSpaceBuffer"),
            "Failed to extract top-level defaults from Dictionary");
     Assert(p->exists("itemType.lifetimeFactor"),

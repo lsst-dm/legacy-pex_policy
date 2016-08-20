@@ -27,6 +27,8 @@
  */
 
 #include <stdexcept>
+#include <string>
+#include "lsst/utils/Utils.h"
 #include "lsst/pex/policy.h"
 
 using namespace std;
@@ -43,33 +45,34 @@ void tattle(bool mustBeTrue, const string& failureMsg, int line) {
 }
 
 int main(int argc, char** argv) {
+    std::string rootDir = lsst::utils::getPackageDir("pex_policy") + "/tests/";
 
     try {
-        Policy p = Policy("tests/PAFBadSyntax_1.paf");
+        Policy p = Policy(rootDir + "PAFBadSyntax_1.paf");
         throw runtime_error("Failed to detect bad PAF syntax (comma delimiters)");
     }
     catch (lsst::pex::policy::FormatSyntaxError e) {   }
 
     try {
-        Policy p = Policy("tests/PAFBadSyntax_2.paf");
+        Policy p = Policy(rootDir + "PAFBadSyntax_2.paf");
         throw runtime_error("Failed to detect bad PAF syntax (parameter w/spaces)");
     }
     catch (lsst::pex::policy::FormatSyntaxError e) {   }
 
     try {
-        Policy p = Policy("tests/PAFBadSyntax_3.paf");
+        Policy p = Policy(rootDir + "PAFBadSyntax_3.paf");
         throw runtime_error("Failed to detect bad PAF syntax (bad sub-policy)");
     }
     catch (lsst::pex::policy::FormatSyntaxError e) {   }
 
     try {
-        Policy p = Policy("tests/PAFBadSyntax_4.paf");
+        Policy p = Policy(rootDir + "PAFBadSyntax_4.paf");
         throw runtime_error("Failed to detect bad PAF syntax (mixed types)");
     }
     catch (lsst::pex::policy::FormatSyntaxError e) {   }
 
     try {
-        Policy p = Policy("tests/PAFBadSyntax_4.paf");
+        Policy p = Policy(rootDir + "PAFBadSyntax_4.paf");
         throw runtime_error("Failed to detect bad PAF syntax (bad sub-policy)");
     }
     catch (lsst::pex::policy::FormatSyntaxError e) {   }

@@ -42,12 +42,12 @@ class PolicyTestCase(unittest.TestCase):
         p.set("doall", "true")
 
         # non-existence tests on a non-empty policy
-        self.failUnless(not p.exists("foo"),
-                        "non-empty non-existence test failed")
+        self.assertFalse(p.exists("foo"),
+                         "non-empty non-existence test failed")
         self.assertEqual(p.valueCount("foo.bar"), 0,
                          "empty valueCount test failed")
-        self.failUnless(not p.isInt("foo"),
-                        "non-empty non-existence type test failed")
+        self.assertFalse(p.isInt("foo"),
+                         "non-empty non-existence type test failed")
         self.assertRaises(lsst.pex.exceptions.Exception, p.getTypeInfo, "foo")
 
         # existence tests
@@ -93,8 +93,8 @@ class PolicyTestCase(unittest.TestCase):
         self.assertEqual(type(p.get("pint")), type(5),
                          "auto-typing for int failed")
         p.set("pdbl", 5.1)
-        self.assertAlmostEquals(p.getDouble("pdbl"), 5.1, 7,
-                                "support for type double failed")
+        self.assertAlmostEqual(p.getDouble("pdbl"), 5.1, 7,
+                               "support for type double failed")
         self.assertEqual(type(p.get("pdbl")), type(5.1),
                          "auto-typing for double failed")
         p.set("pbool", True)

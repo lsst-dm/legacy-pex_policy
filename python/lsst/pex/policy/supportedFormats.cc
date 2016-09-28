@@ -28,10 +28,12 @@ using namespace lsst::pex::policy;
 
 namespace py = pybind11;
 
+PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+
 PYBIND11_PLUGIN(_supportedFormats) {
     py::module mod("_supportedFormats", "Access to the classes from the pex policy SupportedFormats library");
 
-    py::class_<SupportedFormats> cls(mod, "SupportedFormats");
+    py::class_<SupportedFormats, std::shared_ptr<SupportedFormats>> cls(mod, "SupportedFormats");
 
     cls.def(py::init<>());
 

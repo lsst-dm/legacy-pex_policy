@@ -1,4 +1,5 @@
-from _policy import *
+from __future__ import absolute_import
+from ._policy import *
 
 Policy.__str__ = Policy.toString
 

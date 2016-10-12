@@ -32,7 +32,7 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(_urnPolicyFile) {
     py::module mod("_urnPolicyFile", "Access to the classes from the pex policy UrnPolicyFile library");
 
-    py::class_<UrnPolicyFile> cls(mod, "UrnPolicyFile", py::base<DefaultPolicyFile>());
+    py::class_<UrnPolicyFile, DefaultPolicyFile> cls(mod, "UrnPolicyFile");
 
     cls.def(py::init<const std::string&, bool, bool>(),
         py::arg("urn"), py::arg("strictUrn")=false, py::arg("strictLoads")=true);

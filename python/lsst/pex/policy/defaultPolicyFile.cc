@@ -32,7 +32,7 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(_defaultPolicyFile) {
     py::module mod("_defaultPolicyFile", "Access to the classes from the pex policy DefaultPolicyFile library");
 
-    py::class_<DefaultPolicyFile> cls(mod, "DefaultPolicyFile", py::base<PolicyFile>());
+    py::class_<DefaultPolicyFile, PolicyFile> cls(mod, "DefaultPolicyFile");
 
     cls.def(py::init<const char* const, const std::string&, const std::string&, bool>(),
         py::arg("productName"), py::arg("filepath"), py::arg("repos")="", py::arg("strict")=true);

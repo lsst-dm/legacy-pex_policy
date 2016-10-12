@@ -36,7 +36,7 @@ PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
 PYBIND11_PLUGIN(_dictionary) {
     py::module mod("_dictionary", "Access to the classes from the pex policy Dictionary library");
 
-    py::class_<Dictionary, std::shared_ptr<Dictionary>> clsDictionary(mod, "Dictionary", py::base<Policy>());
+    py::class_<Dictionary, std::shared_ptr<Dictionary>, Policy> clsDictionary(mod, "Dictionary");
 
     clsDictionary.def(py::init<>());
     clsDictionary.def(py::init<std::string&>());

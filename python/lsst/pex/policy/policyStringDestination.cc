@@ -32,7 +32,7 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(_policyStringDestination) {
     py::module mod("_policyStringDestination", "Access to the classes from the pex policy PolicyStringDestination library");
 
-    py::class_<PolicyStringDestination> cls(mod, "PolicyStringDestination", py::base<PolicySource>());
+    py::class_<PolicyStringDestination> cls(mod, "PolicyStringDestination");
 
     cls.def(py::init<>());
     cls.def(py::init<const std::string&>());

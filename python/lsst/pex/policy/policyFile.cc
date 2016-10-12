@@ -34,7 +34,7 @@ PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
 PYBIND11_PLUGIN(_policyFile) {
     py::module mod("_policyFile", "Access to the classes from the pex policy PolicyFile library");
 
-    py::class_<PolicyFile, std::shared_ptr<PolicyFile>> cls(mod, "PolicyFile", py::base<PolicySource>());
+    py::class_<PolicyFile, std::shared_ptr<PolicyFile>, PolicySource> cls(mod, "PolicyFile");
 
     // SupportedFormats is not exposed to Python so don't export the default argument
     cls.def("__init__", [](PolicyFile &p, const std::string &filepath) {

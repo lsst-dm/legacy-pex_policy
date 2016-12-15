@@ -710,7 +710,7 @@ void Dictionary::check() const {
             (DictionaryError, string("expected a single \"") + KW_DEFINITIONS
              + "\" section; found " + std::to_string(defs.size()));
 
-    Policy::StringArray names = defs[0]->names(false);
+    Policy::StringArray names = defs[0]->names(true);
     for (Policy::StringArray::const_iterator i = names.begin();
          i != names.end(); ++i)
     {
@@ -752,7 +752,7 @@ void Dictionary::validate(const Policy& pol, ValidationError *errs) const {
 
     // check definitions of missing elements for required elements
     Policy::ConstPtr defs = getDefinitions();
-    Policy::StringArray dn = defs->names(false);
+    Policy::StringArray dn = defs->names(true);
     for (Policy::StringArray::const_iterator i = dn.begin(); i != dn.end(); ++i) {
         const string& name = *i;
         if (!pol.exists(name)) { // item in dictionary, but not in policy

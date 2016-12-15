@@ -917,7 +917,9 @@ inline int Policy::fileNames(std::list<std::string>& names, bool topLevelOnly,
 }
 
 inline Policy::StringArray Policy::names(bool topLevelOnly) const {
-    return _data->names();
+    StringArray out;
+    _names(out, topLevelOnly, true, 7);
+    return out;
 }
 inline Policy::StringArray Policy::paramNames(bool topLevelOnly) const {
     StringArray out;
@@ -925,7 +927,9 @@ inline Policy::StringArray Policy::paramNames(bool topLevelOnly) const {
     return out;
 }
 inline Policy::StringArray Policy::policyNames(bool topLevelOnly) const {
-    return _data->propertySetNames(topLevelOnly);
+    StringArray out;
+    _names(out, topLevelOnly, true, 1);
+    return out;
 }
 inline Policy::StringArray Policy::fileNames(bool topLevelOnly) const {
     StringArray out;

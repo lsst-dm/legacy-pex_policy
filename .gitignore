@@ -29,3 +29,4 @@ tests/Policy_3
 tests/Policy_4
 tests/testBadPAFWrite
 tests/testDefaults
+tests/testDm8654

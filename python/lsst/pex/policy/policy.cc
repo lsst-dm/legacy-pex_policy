@@ -25,6 +25,7 @@
 #include "pybind11/stl.h"
 
 #include "lsst/pex/policy/Policy.h"
+#include "lsst/pex/policy/PolicySource.h"
 #include "lsst/pex/policy/PolicyFile.h"
 
 #include "lsst/pex/exceptions/Exception.h"
@@ -101,6 +102,7 @@ PYBIND11_PLUGIN(_policy) {
     clsPolicy.def(py::init<const std::string&>());
     clsPolicy.def(py::init<Policy&, bool>(),
         py::arg("pol"), py::arg("deep")=false);
+    clsPolicy.def(py::init<const PolicySource&>());
 
     clsPolicy.def_static("createPolicyFromUrn", &Policy::createPolicyFromUrn,
         py::arg("urn"), py::arg("validate")=true);

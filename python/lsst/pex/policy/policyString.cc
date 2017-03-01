@@ -33,7 +33,7 @@ PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
 PYBIND11_PLUGIN(_policyString) {
     py::module mod("_policyString", "Access to the classes from the pex policy PolicyString library");
 
-    py::class_<PolicyString, PolicySource> cls(mod, "PolicyString");
+    py::class_<PolicyString, std::shared_ptr<PolicyString>, PolicySource> cls(mod, "PolicyString");
 
     cls.def(py::init<const std::string&, const SupportedFormats::Ptr&>(),
         py::arg("data"), py::arg("fmts")=PolicyString::defaultFormats);

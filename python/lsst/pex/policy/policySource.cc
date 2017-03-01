@@ -31,7 +31,7 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(_policySource) {
     py::module mod("_policySource", "Access to the classes from the pex policy PolicySource library");
 
-    py::class_<PolicySource> cls(mod, "PolicySource");
+    py::class_<PolicySource, std::shared_ptr<PolicySource>> cls(mod, "PolicySource");
 
     return mod.ptr();
 }

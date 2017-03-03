@@ -25,22 +25,30 @@
 #include "lsst/pex/policy/DefaultPolicyFile.h"
 #include "lsst/pex/policy/PolicyFile.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-PYBIND11_PLUGIN(_defaultPolicyFile) {
-    py::module mod("_defaultPolicyFile", "Access to the classes from the pex policy DefaultPolicyFile library");
+namespace lsst {
+namespace pex {
+namespace policy {
+
+PYBIND11_PLUGIN(defaultPolicyFile) {
+    py::module mod("defaultPolicyFile");
 
     py::class_<DefaultPolicyFile, std::shared_ptr<DefaultPolicyFile>, PolicyFile> cls(mod, "DefaultPolicyFile");
 
     cls.def(py::init<const char* const, const std::string&, const std::string&, bool>(),
-        py::arg("productName"), py::arg("filepath"), py::arg("repos")="", py::arg("strict")=true);
+        "productName"_a, "filepath"_a, "repos"_a="", "strict"_a=true);
 
     cls.def("load", &DefaultPolicyFile::load);
-    cls.def("getRepositoryPath", [](DefaultPolicyFile &df) -> std::string {
-        return df.getRepositoryPath().native();
+    cls.def("getRepositoryPath", [](DefaultPolicyFile const & self) -> std::string {
+        return self.getRepositoryPath().native();
     });
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

@@ -25,20 +25,20 @@
 #include "lsst/pex/policy/PolicyFile.h"
 #include "lsst/pex/policy/Dictionary.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+namespace lsst {
+namespace pex {
+namespace policy {
 
-PYBIND11_PLUGIN(_policyFile) {
-    py::module mod("_policyFile", "Access to the classes from the pex policy PolicyFile library");
+PYBIND11_PLUGIN(policyFile) {
+    py::module mod("policyFile");
 
     py::class_<PolicyFile, std::shared_ptr<PolicyFile>, PolicySource> cls(mod, "PolicyFile");
 
     // SupportedFormats is not exposed to Python so don't export the default argument
-    cls.def("__init__", [](PolicyFile &p, const std::string &filepath) {
-        new (&p) PolicyFile(filepath);
+    cls.def("__init__", [](PolicyFile & self, std::string const & filepath) {
+        new (&self) PolicyFile(filepath);
     });
 
     cls.def("getPath", &PolicyFile::getPath);
@@ -51,3 +51,8 @@ PYBIND11_PLUGIN(_policyFile) {
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

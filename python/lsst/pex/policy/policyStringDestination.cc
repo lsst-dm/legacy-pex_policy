@@ -25,12 +25,14 @@
 #include "lsst/pex/policy/PolicyStringDestination.h"
 #include "lsst/pex/policy/PolicySource.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
 
-PYBIND11_PLUGIN(_policyStringDestination) {
-    py::module mod("_policyStringDestination", "Access to the classes from the pex policy PolicyStringDestination library");
+namespace lsst {
+namespace pex {
+namespace policy {
+
+PYBIND11_PLUGIN(policyStringDestination) {
+    py::module mod("policyStringDestination");
 
     py::class_<PolicyStringDestination> cls(mod, "PolicyStringDestination");
 
@@ -40,3 +42,8 @@ PYBIND11_PLUGIN(_policyStringDestination) {
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

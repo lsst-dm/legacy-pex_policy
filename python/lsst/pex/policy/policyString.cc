@@ -24,22 +24,28 @@
 
 #include "lsst/pex/policy/PolicyString.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+namespace lsst {
+namespace pex {
+namespace policy {
 
-PYBIND11_PLUGIN(_policyString) {
-    py::module mod("_policyString", "Access to the classes from the pex policy PolicyString library");
+PYBIND11_PLUGIN(policyString) {
+    py::module mod("policyString");
 
     py::class_<PolicyString, std::shared_ptr<PolicyString>, PolicySource> cls(mod, "PolicyString");
 
     cls.def(py::init<const std::string&, const SupportedFormats::Ptr&>(),
-        py::arg("data"), py::arg("fmts")=PolicyString::defaultFormats);
+        "data"_a, "fmts"_a=PolicyString::defaultFormats);
 
     cls.def(py::init<const SupportedFormats::Ptr&>(),
-        py::arg("fmts")=PolicyString::defaultFormats);
+        "fmts"_a=PolicyString::defaultFormats);
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

@@ -25,14 +25,16 @@
 #include "lsst/pex/policy/paf/PAFWriter.h"
 #include "lsst/pex/policy/Policy.h"
 
-using namespace lsst::pex::policy::paf;
-
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+namespace lsst {
+namespace pex {
+namespace policy {
+namespace paf {
 
-PYBIND11_PLUGIN(_pafWriter) {
-    py::module mod("_pafWriter", "Access to the classes from the pex policy PAFWriter library");
+PYBIND11_PLUGIN(pafWriter) {
+    py::module mod("pafWriter");
 
     py::class_<PAFWriter> cls(mod, "PAFWriter");
 
@@ -48,9 +50,15 @@ PYBIND11_PLUGIN(_pafWriter) {
 
     /* Inherited from PolicyWriter */
     cls.def("write", (void (PAFWriter::*)(const lsst::pex::policy::Policy&, bool)) &PAFWriter::write,
-        py::arg("policy"), py::arg("doDecl")=false);
+        "policy"_a, "doDecl"_a=false);
     cls.def("close", (void (PAFWriter::*)()) &PAFWriter::close);
     cls.def("toString", (std::string (PAFWriter::*)()) &PAFWriter::toString);
 
     return mod.ptr();
 }
+
+}  // paf
+}  // policy
+}  // pex
+}  // lsst
+

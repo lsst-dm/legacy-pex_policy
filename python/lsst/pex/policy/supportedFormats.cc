@@ -24,14 +24,14 @@
 
 #include "lsst/pex/policy/SupportedFormats.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+namespace lsst {
+namespace pex {
+namespace policy {
 
-PYBIND11_PLUGIN(_supportedFormats) {
-    py::module mod("_supportedFormats", "Access to the classes from the pex policy SupportedFormats library");
+PYBIND11_PLUGIN(supportedFormats) {
+    py::module mod("supportedFormats");
 
     py::class_<SupportedFormats, std::shared_ptr<SupportedFormats>> cls(mod, "SupportedFormats");
 
@@ -44,3 +44,8 @@ PYBIND11_PLUGIN(_supportedFormats) {
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

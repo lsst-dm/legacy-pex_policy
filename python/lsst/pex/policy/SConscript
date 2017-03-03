@@ -1,5 +1,5 @@
 # -*- python -*-
 from lsst.sconsUtils import scripts
-scripts.BasicSConscript.pybind11(['policy', 'policyFile', 'policyString',
+scripts.BasicSConscript.pybind11(['policy/policy', 'policyFile', 'policyString',
 	'policyStringDestination', 'policySource', 'dictionary',
-	'supportedFormats', 'defaultPolicyFile', 'urnPolicyFile'])
+	'supportedFormats', 'defaultPolicyFile', 'urnPolicyFile'], addUnderscore=False)

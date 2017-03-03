@@ -27,14 +27,15 @@
 #include "lsst/pex/policy/Policy.h"
 #include "lsst/pex/policy/PolicyFile.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+namespace lsst {
+namespace pex {
+namespace policy {
 
-PYBIND11_PLUGIN(_dictionary) {
-    py::module mod("_dictionary", "Access to the classes from the pex policy Dictionary library");
+PYBIND11_PLUGIN(dictionary) {
+    py::module mod("dictionary");
 
     py::class_<Dictionary, std::shared_ptr<Dictionary>, Policy> clsDictionary(mod, "Dictionary");
 
@@ -47,7 +48,7 @@ PYBIND11_PLUGIN(_dictionary) {
     clsDictionary.def("getDefinitions", (Policy::Ptr (Dictionary::*)()) &Dictionary::getDefinitions);
     clsDictionary.def("check", &Dictionary::check);
     clsDictionary.def("definedNames", (int (Dictionary::*)(std::list<std::string>&, bool) const) &Dictionary::definedNames,
-        py::arg("names"), py::arg("append")=false);
+        "names"_a, "append"_a=false);
     clsDictionary.def("definedNames", (Dictionary::StringArray (Dictionary::*)() const) &Dictionary::definedNames);
     clsDictionary.def("getDef", &Dictionary::getDef);
     clsDictionary.def("makeDef", &Dictionary::makeDef);
@@ -55,27 +56,27 @@ PYBIND11_PLUGIN(_dictionary) {
     clsDictionary.def("getSubDictionary", &Dictionary::getSubDictionary);
 
     // For some strange reason pybind11 doesn't like it if we use the default argument here
-    clsDictionary.def("validate", [](Dictionary &d, const Policy& p){
-        return d.validate(p);
-    }, py::arg("pol"));
-    clsDictionary.def("validate", [](Dictionary &d, const Policy& p, ValidationError *errs){
-        d.validate(p, errs);
-    }, py::arg("pol"), py::arg("errs"));
+    clsDictionary.def("validate", [](Dictionary const & self, Policy const & pol){
+        return self.validate(pol);
+    }, "pol"_a);
+    clsDictionary.def("validate", [](Dictionary const & self, Policy const & pol, ValidationError *errs){
+        self.validate(pol, errs);
+    }, "pol"_a, "errs"_a);
 
     clsDictionary.def("loadPolicyFiles", (int (Dictionary::*)(bool)) &Dictionary::loadPolicyFiles,
-        py::arg("strict")=true);
-    clsDictionary.def("loadPolicyFiles", [](Dictionary &d, const std::string& repository){
-        return d.loadPolicyFiles(repository);
+        "strict"_a=true);
+    clsDictionary.def("loadPolicyFiles", [](Dictionary & self, std::string const & repository){
+        return self.loadPolicyFiles(repository);
     });
-    clsDictionary.def("loadPolicyFiles", [](Dictionary &d, const std::string& repository, bool strict){
-        return d.loadPolicyFiles(repository, strict);
+    clsDictionary.def("loadPolicyFiles", [](Dictionary & self , std::string const & repository, bool strict){
+        return self.loadPolicyFiles(repository, strict);
     });
 
     clsDictionary.def("getPrefix", &Dictionary::getPrefix);
 
     py::class_<Definition> clsDefinition(mod, "Definition");
 
-    clsDefinition.def(py::init<const std::string&>(), py::arg("paramName")="");
+    clsDefinition.def(py::init<const std::string&>(), "paramName"_a="");
 
     clsDefinition.def("getName", &Definition::getName);
     clsDefinition.def("getPrefix", &Definition::getPrefix);
@@ -97,3 +98,8 @@ PYBIND11_PLUGIN(_dictionary) {
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

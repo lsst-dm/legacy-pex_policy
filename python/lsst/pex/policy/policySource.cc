@@ -24,14 +24,21 @@
 
 #include "lsst/pex/policy/PolicySource.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
 
-PYBIND11_PLUGIN(_policySource) {
-    py::module mod("_policySource", "Access to the classes from the pex policy PolicySource library");
+namespace lsst {
+namespace pex {
+namespace policy {
+
+PYBIND11_PLUGIN(policySource) {
+    py::module mod("policySource");
 
     py::class_<PolicySource, std::shared_ptr<PolicySource>> cls(mod, "PolicySource");
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

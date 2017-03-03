@@ -21,7 +21,6 @@
  */
 
 #include "pybind11/pybind11.h"
-#include "pybind11/operators.h"
 #include "pybind11/stl.h"
 
 #include "lsst/pex/policy/Policy.h"
@@ -33,25 +32,20 @@
 #include "lsst/pex/policy/Dictionary.h"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-using namespace lsst::pex::policy;
+namespace lsst {
+namespace pex {
+namespace policy {
 
-PYBIND11_DECLARE_HOLDER_TYPE(MyType, std::shared_ptr<MyType>);
+PYBIND11_PLUGIN(policy) {
+    py::module mod("policy");
 
-PYBIND11_PLUGIN(_policy) {
-    using lsst::pex::policy::BadNameError;
-    using lsst::pex::policy::DictionaryError;
-    using lsst::pex::policy::NameNotFound;
-    using lsst::pex::policy::TypeError;
-    using lsst::pex::policy::ValidationError;
-
-    py::module mod("_policy", "Access to the classes from the pex policy Policy library");
-
-    lsst::pex::exceptions::python::declareException<BadNameError, lsst::pex::exceptions::RuntimeError>(mod, "BadNameError", "RuntimeError");
-    lsst::pex::exceptions::python::declareException<DictionaryError, lsst::pex::exceptions::DomainError>(mod, "DictionaryError", "DomainError");
-    lsst::pex::exceptions::python::declareException<NameNotFound, lsst::pex::exceptions::NotFoundError>(mod, "NameNotFound", "NotFoundError");
-    lsst::pex::exceptions::python::declareException<TypeError, lsst::pex::exceptions::DomainError>(mod, "TypeError", "DomainError");
-    auto clsValidationError = lsst::pex::exceptions::python::declareException<ValidationError>(mod, "ValidationError", "LogicError");
+    exceptions::python::declareException<BadNameError, exceptions::RuntimeError>(mod, "BadNameError", "RuntimeError");
+    exceptions::python::declareException<DictionaryError, exceptions::DomainError>(mod, "DictionaryError", "DomainError");
+    exceptions::python::declareException<NameNotFound, exceptions::NotFoundError>(mod, "NameNotFound", "NotFoundError");
+    exceptions::python::declareException<TypeError, exceptions::DomainError>(mod, "TypeError", "DomainError");
+    auto clsValidationError = exceptions::python::declareException<ValidationError>(mod, "ValidationError", "LogicError");
 
     py::enum_<ValidationError::ErrorType>(clsValidationError, "ErrorType")
         .value("OK", ValidationError::ErrorType::OK)
@@ -101,43 +95,43 @@ PYBIND11_PLUGIN(_policy) {
     clsPolicy.def(py::init<bool, const Dictionary&>());
     clsPolicy.def(py::init<const std::string&>());
     clsPolicy.def(py::init<Policy&, bool>(),
-        py::arg("pol"), py::arg("deep")=false);
+        "pol"_a, "deep"_a=false);
     clsPolicy.def(py::init<const PolicySource&>());
 
     clsPolicy.def_static("createPolicyFromUrn", &Policy::createPolicyFromUrn,
-        py::arg("urn"), py::arg("validate")=true);
+        "urn"_a, "validate"_a=true);
     clsPolicy.def_static("createPolicy", (Policy* (*)(PolicySource&, bool, bool)) &Policy::createPolicy,
-        py::arg("input"), py::arg("doIncludes")=true, py::arg("validate")=true);
+        "input"_a, "doIncludes"_a=true, "validate"_a=true);
     clsPolicy.def_static("createPolicy", (Policy* (*)(const std::string&, bool, bool)) &Policy::createPolicy,
-        py::arg("input"), py::arg("doIncludes")=true, py::arg("validate")=true);
+        "input"_a, "doIncludes"_a=true, "validate"_a=true);
     clsPolicy.def_static("createPolicy", (Policy* (*)(PolicySource&, const std::string&, bool)) &Policy::createPolicy,
-        py::arg("input"), py::arg("repos"), py::arg("validate")=true);
+        "input"_a, "repos"_a, "validate"_a=true);
     clsPolicy.def_static("createPolicy", (Policy* (*)(const std::string&, const std::string&, bool)) &Policy::createPolicy,
-        py::arg("input"), py::arg("repos"), py::arg("validate")=true);
+        "input"_a, "repos"_a, "validate"_a=true);
     clsPolicy.def("getValueType", (Policy::ValueType (Policy::*)(const std::string&) const) &Policy::getValueType);
     clsPolicy.def("nameCount", &Policy::nameCount);
     clsPolicy.def("names", (int (Policy::*)(std::list<std::string>&, bool, bool) const) &Policy::names,
-        py::arg("names"), py::arg("topLevelOnly")=false, py::arg("append")=false);
+        "names"_a, "topLevelOnly"_a=false, "append"_a=false);
     clsPolicy.def("paramNames", (int (Policy::*)(std::list<std::string>&, bool, bool) const) &Policy::paramNames,
-        py::arg("names"), py::arg("topLevelOnly")=false, py::arg("append")=false);
+        "names"_a, "topLevelOnly"_a=false, "append"_a=false);
     clsPolicy.def("policyNames", (int (Policy::*)(std::list<std::string>&, bool, bool) const) &Policy::policyNames,
-        py::arg("names"), py::arg("topLevelOnly")=false, py::arg("append")=false);
+        "names"_a, "topLevelOnly"_a=false, "append"_a=false);
     clsPolicy.def("fileNames", (int (Policy::*)(std::list<std::string>&, bool, bool) const) &Policy::fileNames,
-        py::arg("names"), py::arg("topLevelOnly")=false, py::arg("append")=false);
-    clsPolicy.def("names", (Policy::StringArray (Policy::*)(bool) const) &Policy::names, py::arg("topLevelOnly")=false);
-    clsPolicy.def("paramNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::paramNames, py::arg("topLevelOnly")=false);
-    clsPolicy.def("policyNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::policyNames, py::arg("topLevelOnly")=false);
-    clsPolicy.def("fileNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::fileNames, py::arg("topLevelOnly")=false);
+        "names"_a, "topLevelOnly"_a=false, "append"_a=false);
+    clsPolicy.def("names", (Policy::StringArray (Policy::*)(bool) const) &Policy::names, "topLevelOnly"_a=false);
+    clsPolicy.def("paramNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::paramNames, "topLevelOnly"_a=false);
+    clsPolicy.def("policyNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::policyNames, "topLevelOnly"_a=false);
+    clsPolicy.def("fileNames", (Policy::StringArray (Policy::*)(bool) const) &Policy::fileNames, "topLevelOnly"_a=false);
     clsPolicy.def("isDictionary", &Policy::isDictionary);
     clsPolicy.def("canValidate", &Policy::canValidate);
     clsPolicy.def("getDictionary", &Policy::getDictionary);
     clsPolicy.def("setDictionary", &Policy::setDictionary);
     // Somehow default arguments don't work here
-    clsPolicy.def("validate", [](Policy& p){
-        return p.validate();
+    clsPolicy.def("validate", [](Policy const & self){
+        return self.validate();
     });
-    clsPolicy.def("validate", [](Policy& p, ValidationError *errs){
-        return p.validate(errs);
+    clsPolicy.def("validate", [](Policy const & self, ValidationError *errs){
+        return self.validate(errs);
     });
     clsPolicy.def("valueCount", &Policy::valueCount);
     clsPolicy.def("isArray", &Policy::isArray);
@@ -161,29 +155,36 @@ PYBIND11_PLUGIN(_policy) {
     clsPolicy.def("getIntArray", &Policy::getIntArray);
     clsPolicy.def("getDoubleArray", &Policy::getDoubleArray);
     clsPolicy.def("getStringArray", &Policy::getStringArray);
-    clsPolicy.def("set", (void (Policy::*)(const std::string&, const Policy::Ptr&)) &Policy::set);
-    clsPolicy.def("set", (void (Policy::*)(const std::string&, bool)) &Policy::set);
-    clsPolicy.def("set", (void (Policy::*)(const std::string&, int)) &Policy::set);
-    clsPolicy.def("set", (void (Policy::*)(const std::string&, double)) &Policy::set);
-    clsPolicy.def("set", (void (Policy::*)(const std::string&, const std::string&)) &Policy::set);
+    // _set is called from Python set
+    clsPolicy.def("_set", (void (Policy::*)(const std::string&, const Policy::Ptr&)) &Policy::set);
+    clsPolicy.def("_set", (void (Policy::*)(const std::string&, bool)) &Policy::set);
+    clsPolicy.def("_set", (void (Policy::*)(const std::string&, int)) &Policy::set);
+    clsPolicy.def("_set", (void (Policy::*)(const std::string&, double)) &Policy::set);
+    clsPolicy.def("_set", (void (Policy::*)(const std::string&, const std::string&)) &Policy::set);
     clsPolicy.def("add", (void (Policy::*)(const std::string&, const Policy::Ptr&)) &Policy::add);
     clsPolicy.def("add", (void (Policy::*)(const std::string&, bool)) &Policy::add);
     clsPolicy.def("add", (void (Policy::*)(const std::string&, int)) &Policy::add);
     clsPolicy.def("add", (void (Policy::*)(const std::string&, double)) &Policy::add);
     clsPolicy.def("add", (void (Policy::*)(const std::string&, const std::string&)) &Policy::add);
     clsPolicy.def("remove", &Policy::remove);
-    clsPolicy.def("loadPolicyFiles", (int (Policy::*)(bool)) &Policy::loadPolicyFiles, py::arg("strict")=true);
+    clsPolicy.def("loadPolicyFiles", (int (Policy::*)(bool)) &Policy::loadPolicyFiles, "strict"_a=true);
 
     // boost::filesystem::path is equivalent to str in Python
-    clsPolicy.def("loadPolicyFiles", [](Policy &p, const std::string& path, bool strict=true) -> int {
-            return p.loadPolicyFiles(boost::filesystem::path(path), strict);
-        }, py::arg("repository"), py::arg("strict")=true);
+    clsPolicy.def("loadPolicyFiles", [](Policy & self, const std::string& path, bool strict=true) -> int {
+            return self.loadPolicyFiles(boost::filesystem::path(path), strict);
+        }, "repository"_a, "strict"_a=true);
 
-    clsPolicy.def("mergeDefaults", &Policy::mergeDefaults, py::arg("defaultPol"), py::arg("keepForValidation")=true,
-        py::arg("errs")=nullptr);
-    clsPolicy.def("str", &Policy::str, py::arg("name"), py::arg("indent")="");
+    clsPolicy.def("mergeDefaults", &Policy::mergeDefaults, "defaultPol"_a, "keepForValidation"_a=true,
+        "errs"_a=nullptr);
+    clsPolicy.def("str", &Policy::str, "name"_a, "indent"_a="");
     clsPolicy.def("toString", &Policy::toString);
+    clsPolicy.def("__str__", &Policy::toString);  // Cleanup stringification later
     clsPolicy.def("asPropertySet", &Policy::asPropertySet);
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

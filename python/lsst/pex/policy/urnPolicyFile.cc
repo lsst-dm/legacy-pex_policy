@@ -25,17 +25,20 @@
 #include "lsst/pex/policy/UrnPolicyFile.h"
 #include "lsst/pex/policy/DefaultPolicyFile.h"
 
-using namespace lsst::pex::policy;
-
 namespace py = pybind11;
+using namespace pybind11::literals;
 
-PYBIND11_PLUGIN(_urnPolicyFile) {
-    py::module mod("_urnPolicyFile", "Access to the classes from the pex policy UrnPolicyFile library");
+namespace lsst {
+namespace pex {
+namespace policy {
+
+PYBIND11_PLUGIN(urnPolicyFile) {
+    py::module mod("urnPolicyFile");
 
     py::class_<UrnPolicyFile, std::shared_ptr<UrnPolicyFile>, DefaultPolicyFile> cls(mod, "UrnPolicyFile");
 
     cls.def(py::init<const std::string&, bool, bool>(),
-        py::arg("urn"), py::arg("strictUrn")=false, py::arg("strictLoads")=true);
+        "urn"_a, "strictUrn"_a=false, "strictLoads"_a=true);
 
     cls.def_static("productNameFromUrn", &UrnPolicyFile::productNameFromUrn);
     cls.def_static("filePathFromUrn", &UrnPolicyFile::filePathFromUrn);
@@ -46,3 +49,8 @@ PYBIND11_PLUGIN(_urnPolicyFile) {
 
     return mod.ptr();
 }
+
+}  // policy
+}  // pex
+}  // lsst
+

@@ -21,5 +21,15 @@
 #
 from __future__ import absolute_import
 
-from .policyLib import *
+from .policySource import *
+from .supportedFormats import *
+from .policyString import *
+from .policyStringDestination import *
+from .policyFile import *
+from .defaultPolicyFile import *
+from .policy import *
+from .dictionary import *
+from .urnPolicyFile import *
+from .paf import *
+
 from .version import *

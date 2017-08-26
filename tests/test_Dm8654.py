@@ -27,9 +27,9 @@ Regression tests for https://jira.lsstcorp.org/browse/DM-8654
 See testDm8654.cc for tests of the C++ interface.
 
 Run with:
-   python testDm8654.py
+   python test_Dm8654.py
 or
-   pytest testDm8654.py
+   pytest test_Dm8654.py
 """
 
 from __future__ import absolute_import, division, print_function

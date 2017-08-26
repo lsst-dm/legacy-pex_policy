@@ -75,6 +75,7 @@ __all__ = "BigBoolTestCase".split()
 def setup_module(module):
     lsst.utils.tests.init()
 
+
 if __name__ == "__main__":
     lsst.utils.tests.init()
     unittest.main()

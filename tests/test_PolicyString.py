@@ -53,11 +53,13 @@ dbl: -1.0
 class TestMemory(lsst.utils.tests.MemoryTestCase):
     pass
 
+
 __all__ = "PolicyStringTestCase".split()
 
 
 def setup_module(module):
     lsst.utils.tests.init()
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

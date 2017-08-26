@@ -32,8 +32,6 @@ from past.builtins import long
 
 proddir = lsst.utils.getPackageDir('pex_policy')
 
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
 
 class PolicyTestCase(unittest.TestCase):
     def testPolicySetget(self):
@@ -94,9 +92,9 @@ class PolicyTestCase(unittest.TestCase):
 
         # test types
         p.set("pint", 5)
-        self.assertEquals(p.getInt("pint"), 5, "support for type int failed")
+        self.assertEqual(p.getInt("pint"), 5, "support for type int failed")
         self.assertIsInstance(p.get("pint"), (int, long),
-                          "auto-typing for int failed")
+                              "auto-typing for int failed")
         p.set("pdbl", 5.1)
         self.assertAlmostEqual(p.getDouble("pdbl"), 5.1, 7,
                                "support for type double failed")
@@ -148,6 +146,7 @@ class TestMemory(lsst.utils.tests.MemoryTestCase):
 
 def setup_module(module):
     lsst.utils.tests.init()
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

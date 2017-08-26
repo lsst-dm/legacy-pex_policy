@@ -30,8 +30,6 @@ from lsst.pex.policy import Policy, Dictionary, PolicyFile, DefaultPolicyFile
 from lsst.pex.policy import ValidationError, DictionaryError
 import lsst.pex.exceptions
 
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
 
 class DictionaryTestCase(unittest.TestCase):
     testDictDir = None
@@ -654,6 +652,7 @@ class TestMemory(lsst.utils.tests.MemoryTestCase):
 
 def setup_module(module):
     lsst.utils.tests.init()
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

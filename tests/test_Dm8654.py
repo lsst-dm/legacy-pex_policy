@@ -71,9 +71,9 @@ class Dm8654TestSuite(lsst.utils.tests.TestCase):
         """Test if `Policy::names(bool)` returns heirarchical names if and
         only if they are requested.
         """
-        self.assertEquals(set(self._diversePolicy.names()), self._fullNames)
-        self.assertEquals(set(self._diversePolicy.names(True)), self._topNames)
-        self.assertEquals(set(self._diversePolicy.names(False)), self._fullNames)
+        self.assertEqual(set(self._diversePolicy.names()), self._fullNames)
+        self.assertEqual(set(self._diversePolicy.names(True)), self._topNames)
+        self.assertEqual(set(self._diversePolicy.names(False)), self._fullNames)
 
 
 class MemoryTester(lsst.utils.tests.MemoryTestCase):

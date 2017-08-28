@@ -27,9 +27,9 @@ Regression tests for https://jira.lsstcorp.org/browse/DM-8654
 See testDm8654.cc for tests of the C++ interface.
 
 Run with:
-   python testDm8654.py
+   python test_Dm8654.py
 or
-   pytest testDm8654.py
+   pytest test_Dm8654.py
 """
 
 from __future__ import absolute_import, division, print_function
@@ -71,9 +71,9 @@ class Dm8654TestSuite(lsst.utils.tests.TestCase):
         """Test if `Policy::names(bool)` returns heirarchical names if and
         only if they are requested.
         """
-        self.assertEquals(set(self._diversePolicy.names()), self._fullNames)
-        self.assertEquals(set(self._diversePolicy.names(True)), self._topNames)
-        self.assertEquals(set(self._diversePolicy.names(False)), self._fullNames)
+        self.assertEqual(set(self._diversePolicy.names()), self._fullNames)
+        self.assertEqual(set(self._diversePolicy.names(True)), self._topNames)
+        self.assertEqual(set(self._diversePolicy.names(False)), self._fullNames)
 
 
 class MemoryTester(lsst.utils.tests.MemoryTestCase):

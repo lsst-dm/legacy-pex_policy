@@ -177,6 +177,7 @@ class PolicyValidator(object):
         if len(args) != 0:
             self.parser.error("too many arguments: " + str(args) + " were not parsed.")
 
+
 if __name__ == "__main__":
     pv = PolicyValidator()
     pv.main()

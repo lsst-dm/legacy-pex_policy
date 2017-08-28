@@ -6,14 +6,15 @@ from .policy import Policy
 
 from lsst.utils import continueClass
 
-@continueClass
+
+@continueClass  # noqa F811 redefinition
 class Policy:
     def get(self, name):
-        type = self.getValueType(name);
+        type = self.getValueType(name)
         if (type == self.UNDEF):
-            return self.getInt(name) # will raise an exception
+            return self.getInt(name)  # will raise an exception
             # raise NameNotFound("Policy parameter name not found: " + name)
-    
+
         if (type == self.INT):
             return self.getInt(name)
         elif (type == self.DOUBLE):
@@ -26,13 +27,13 @@ class Policy:
             return self.getPolicy(name)
         elif (type == self.FILE):
             return self.getFile(name)
-    
+
     def getArray(self, name):
-        type = self.getValueType(name);
+        type = self.getValueType(name)
         if (type == self.UNDEF):
-            return self.getIntArray(name) # will raise an exception
+            return self.getIntArray(name)  # will raise an exception
             # raise NameNotFound("Policy parameter name not found: " + name)
-    
+
         if (type == self.INT):
             return self.getIntArray(name)
         elif (type == self.DOUBLE):
@@ -45,10 +46,10 @@ class Policy:
             return self.getPolicyArray(name)
         elif (type == self.FILE):
             return self.getFileArray(name)
-    
+
     def set(self, name, value):
-        if (value == None):
-            raise RuntimeError("Attempt to set value of \"" + name + "\" to None.  Values must be non-None.  Use remove() instead.")
+        if (value is None):
+            raise RuntimeError("Attempt to set value of \"" + name +
+                               "\" to None.  Values must be non-None.  Use remove() instead.")
         else:
             self._set(name, value)
-

@@ -5,6 +5,7 @@ import lsst.utils.tests
 class UtilsBinaryTester(lsst.utils.tests.ExecutablesTestCase):
     pass
 
+
 EXECUTABLES = ("DefaultPolicyFile_1", "PAFBadSyntax", "PAFtypes",
                "PolicyString_1", "Policy_1", "Policy_2", "Policy_3",
                "Policy_4", "testDefaults")

@@ -25,43 +25,56 @@
 """
 Comprehensive tests reading and retrieving data of all types
 """
+from __future__ import print_function
+
+from builtins import range
 
 import unittest
+
+import lsst.utils
 import lsst.utils.tests
+from lsst.pex.policy import Policy
 
-from lsst.pex.policy import Policy, PolicyStringDestination, PAFWriter
+proddir = lsst.utils.getPackageDir('pex_policy')
 
 
-class PolicyOutStringTestCase(unittest.TestCase):
+class BigBoolTestCase(unittest.TestCase):
 
     def setUp(self):
         self.policy = Policy()
-        self.policy.set("answer", 42)
-        self.policy.set("name", "ray")
 
     def tearDown(self):
         del self.policy
 
-    def testDest(self):
-        dest = PolicyStringDestination("#<?cfg paf policy ?>")
-        self.assertEqual(dest.getData(), "#<?cfg paf policy ?>")
+    def testBigBoolArray(self):
+        biglen = 1000
+        self.policy.isBool("true")
+        for i in range(biglen):
+            self.policy.add("true", True)
 
-    def testWrite(self):
-        writer = PAFWriter()
-        writer.write(self.policy, True)
-        out = writer.toString()
-        self.assertTrue(out.startswith("#<?cfg paf policy ?>"))
+        v = self.policy.getArray("true")
+        self.assertEqual(len(v), biglen, "wrong big number of values in array")
+        for i in range(biglen):
+            self.assertTrue(v[i], "big array with bad value")
+
+        del v
+        self.assertTrue(True, "Blew up True")
+
+        fd = open("/dev/null", "w")
+        print("look: %s" % True, file=fd)
+        fd.close()
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):
     pass
 
 
-__all__ = "PolicyOutStringTestCase".split()
+__all__ = "BigBoolTestCase".split()
 
 
 def setup_module(module):
     lsst.utils.tests.init()
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

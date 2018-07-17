@@ -34,9 +34,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(dictionary) {
-    py::module mod("dictionary");
-
+PYBIND11_MODULE(dictionary, mod) {
     py::class_<Dictionary, std::shared_ptr<Dictionary>, Policy> clsDictionary(mod, "Dictionary");
 
     clsDictionary.def(py::init<>());
@@ -96,8 +94,6 @@ PYBIND11_PLUGIN(dictionary) {
     clsDefinition.def("getMaxOccurs", &Definition::getMaxOccurs);
     clsDefinition.def("getMinOccurs", &Definition::getMinOccurs);
     clsDefinition.def("check", &Definition::check);
-
-    return mod.ptr();
 }
 
 }  // policy

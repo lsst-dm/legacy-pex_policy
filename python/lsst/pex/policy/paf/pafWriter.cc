@@ -33,9 +33,7 @@ namespace pex {
 namespace policy {
 namespace paf {
 
-PYBIND11_PLUGIN(pafWriter) {
-    py::module mod("pafWriter");
-
+PYBIND11_MODULE(pafWriter, mod) {
     py::class_<PAFWriter> cls(mod, "PAFWriter");
 
     cls.def(py::init<>());
@@ -53,8 +51,6 @@ PYBIND11_PLUGIN(pafWriter) {
             "policy"_a, "doDecl"_a = false);
     cls.def("close", (void (PAFWriter::*)()) & PAFWriter::close);
     cls.def("toString", (std::string (PAFWriter::*)()) & PAFWriter::toString);
-
-    return mod.ptr();
 }
 
 }  // paf

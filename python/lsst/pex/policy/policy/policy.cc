@@ -38,9 +38,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(policy) {
-    py::module mod("policy");
-
+PYBIND11_MODULE(policy, mod) {
     exceptions::python::declareException<BadNameError, exceptions::RuntimeError>(mod, "BadNameError",
                                                                                  "RuntimeError");
     exceptions::python::declareException<DictionaryError, exceptions::DomainError>(mod, "DictionaryError",
@@ -192,8 +190,6 @@ PYBIND11_PLUGIN(policy) {
     clsPolicy.def("toString", &Policy::toString);
     clsPolicy.def("__str__", &Policy::toString);  // Cleanup stringification later
     clsPolicy.def("asPropertySet", &Policy::asPropertySet);
-
-    return mod.ptr();
 }
 
 }  // policy

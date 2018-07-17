@@ -31,16 +31,12 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(policyStringDestination) {
-    py::module mod("policyStringDestination");
-
+PYBIND11_MODULE(policyStringDestination, mod) {
     py::class_<PolicyStringDestination> cls(mod, "PolicyStringDestination");
 
     cls.def(py::init<>());
     cls.def(py::init<const std::string&>());
     cls.def("getData", &PolicyStringDestination::getData);
-
-    return mod.ptr();
 }
 
 }  // policy

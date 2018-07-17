@@ -31,17 +31,13 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(policyString) {
-    py::module mod("policyString");
-
+PYBIND11_MODULE(policyString, mod) {
     py::class_<PolicyString, std::shared_ptr<PolicyString>, PolicySource> cls(mod, "PolicyString");
 
     cls.def(py::init<const std::string&, const SupportedFormats::Ptr&>(), "data"_a,
             "fmts"_a = PolicyString::defaultFormats);
 
     cls.def(py::init<const SupportedFormats::Ptr&>(), "fmts"_a = PolicyString::defaultFormats);
-
-    return mod.ptr();
 }
 
 }  // policy

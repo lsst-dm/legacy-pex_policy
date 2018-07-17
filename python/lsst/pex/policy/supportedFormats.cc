@@ -30,9 +30,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(supportedFormats) {
-    py::module mod("supportedFormats");
-
+PYBIND11_MODULE(supportedFormats, mod) {
     py::class_<SupportedFormats, std::shared_ptr<SupportedFormats>> cls(mod, "SupportedFormats");
 
     cls.def(py::init<>());
@@ -41,8 +39,6 @@ PYBIND11_PLUGIN(supportedFormats) {
     cls.def("recognizeType", &SupportedFormats::recognizeType);
     cls.def("supports", &SupportedFormats::supports);
     cls.def("size", &SupportedFormats::size);
-
-    return mod.ptr();
 }
 
 }  // policy

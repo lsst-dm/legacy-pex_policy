@@ -32,9 +32,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(urnPolicyFile) {
-    py::module mod("urnPolicyFile");
-
+PYBIND11_MODULE(urnPolicyFile, mod) {
     py::class_<UrnPolicyFile, std::shared_ptr<UrnPolicyFile>, DefaultPolicyFile> cls(mod, "UrnPolicyFile");
 
     cls.def(py::init<const std::string&, bool, bool>(), "urn"_a, "strictUrn"_a = false,
@@ -46,8 +44,6 @@ PYBIND11_PLUGIN(urnPolicyFile) {
     cls.def_readonly_static("URN_PREFIX", &UrnPolicyFile::URN_PREFIX);
     cls.def_readonly_static("URN_PREFIX_ABBREV", &UrnPolicyFile::URN_PREFIX_ABBREV);
     cls.def_static("looksLikeUrn", &UrnPolicyFile::looksLikeUrn);
-
-    return mod.ptr();
 }
 
 }  // policy

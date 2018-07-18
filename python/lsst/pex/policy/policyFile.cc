@@ -37,8 +37,7 @@ PYBIND11_PLUGIN(policyFile) {
     py::class_<PolicyFile, std::shared_ptr<PolicyFile>, PolicySource> cls(mod, "PolicyFile");
 
     // SupportedFormats is not exposed to Python so don't export the default argument
-    cls.def("__init__",
-            [](PolicyFile& self, std::string const& filepath) { new (&self) PolicyFile(filepath); });
+    cls.def(py::init([](std::string const& filepath) { return new PolicyFile(filepath); }));
 
     cls.def("getPath", &PolicyFile::getPath);
     cls.def("exists", &PolicyFile::exists);

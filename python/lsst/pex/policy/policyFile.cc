@@ -31,14 +31,11 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(policyFile) {
-    py::module mod("policyFile");
-
+PYBIND11_MODULE(policyFile, mod) {
     py::class_<PolicyFile, std::shared_ptr<PolicyFile>, PolicySource> cls(mod, "PolicyFile");
 
     // SupportedFormats is not exposed to Python so don't export the default argument
-    cls.def("__init__",
-            [](PolicyFile& self, std::string const& filepath) { new (&self) PolicyFile(filepath); });
+    cls.def(py::init([](std::string const& filepath) { return new PolicyFile(filepath); }));
 
     cls.def("getPath", &PolicyFile::getPath);
     cls.def("exists", &PolicyFile::exists);
@@ -47,8 +44,6 @@ PYBIND11_PLUGIN(policyFile) {
 
     cls.def_readonly_static("EXT_PAF", &PolicyFile::EXT_PAF);
     cls.def_readonly_static("EXT_XML", &PolicyFile::EXT_XML);
-
-    return mod.ptr();
 }
 
 }  // policy

@@ -30,13 +30,9 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(policySource) {
+PYBIND11_MODULE(policySource, mod) {
     py::module::import("lsst.pex.exceptions");
-    py::module mod("policySource");
-
     py::class_<PolicySource, std::shared_ptr<PolicySource>> cls(mod, "PolicySource");
-
-    return mod.ptr();
 }
 
 }  // policy

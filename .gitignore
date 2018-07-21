@@ -1,4 +1,7 @@
 .cache
+.pytest_cache
+pytest_session.txt
+.coverage
 _build.*
 .sconsign.dblite
 config.log

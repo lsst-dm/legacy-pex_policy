@@ -32,9 +32,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PYBIND11_PLUGIN(defaultPolicyFile) {
-    py::module mod("defaultPolicyFile");
-
+PYBIND11_MODULE(defaultPolicyFile, mod) {
     py::class_<DefaultPolicyFile, std::shared_ptr<DefaultPolicyFile>, PolicyFile> cls(mod,
                                                                                       "DefaultPolicyFile");
 
@@ -44,8 +42,6 @@ PYBIND11_PLUGIN(defaultPolicyFile) {
     cls.def("load", &DefaultPolicyFile::load);
     cls.def("getRepositoryPath",
             [](DefaultPolicyFile const& self) -> std::string { return self.getRepositoryPath().native(); });
-
-    return mod.ptr();
 }
 
 }  // policy

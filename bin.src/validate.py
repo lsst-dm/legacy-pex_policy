@@ -23,8 +23,6 @@
 #
 
 #
-from builtins import str
-from builtins import object
 import optparse
 import sys
 import os

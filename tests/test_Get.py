@@ -26,8 +26,6 @@
 Comprehensive tests reading and retrieving data of all types
 """
 
-from builtins import range
-
 import os
 import unittest
 

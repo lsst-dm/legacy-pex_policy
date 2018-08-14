@@ -1,6 +1,5 @@
 setupRequired(daf_base)
 setupRequired(utils)
-setupRequired(python_future)
 setupRequired(pybind11)
 setupRequired(python)
 

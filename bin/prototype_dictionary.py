@@ -19,10 +19,6 @@
 # the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-from __future__ import print_function
-from builtins import str
-from builtins import object
-
 import optparse
 import sys
 import os
@@ -39,7 +35,7 @@ strict, and you will want to loosen it up by hand.
 """
 
 
-class PolicyValidator(object):
+class PolicyValidator:
     def __init__(self):
         self.verbose = False
 

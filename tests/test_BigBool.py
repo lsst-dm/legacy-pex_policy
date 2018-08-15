@@ -25,9 +25,6 @@
 """
 Comprehensive tests reading and retrieving data of all types
 """
-from __future__ import print_function
-
-from builtins import range
 
 import unittest
 

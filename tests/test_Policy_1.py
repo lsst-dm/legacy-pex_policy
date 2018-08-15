@@ -27,7 +27,6 @@ import os.path
 import lsst.utils.tests
 from lsst.pex.policy import Policy, NameNotFound
 import lsst.pex.exceptions
-from past.builtins import long
 
 
 proddir = lsst.utils.getPackageDir('pex_policy')
@@ -93,7 +92,7 @@ class PolicyTestCase(unittest.TestCase):
         # test types
         p.set("pint", 5)
         self.assertEqual(p.getInt("pint"), 5, "support for type int failed")
-        self.assertIsInstance(p.get("pint"), (int, long),
+        self.assertIsInstance(p.get("pint"), int,
                               "auto-typing for int failed")
         p.set("pdbl", 5.1)
         self.assertAlmostEqual(p.getDouble("pdbl"), 5.1, 7,

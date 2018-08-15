@@ -37,7 +37,7 @@ Validate a policy file against a dictionary (policy schema).
 """
 
 
-class PolicyValidator(object):
+class PolicyValidator:
     def __init__(self):
         self.verbose = False
 

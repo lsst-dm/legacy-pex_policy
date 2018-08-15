@@ -35,7 +35,7 @@ strict, and you will want to loosen it up by hand.
 """
 
 
-class PolicyValidator(object):
+class PolicyValidator:
     def __init__(self):
         self.verbose = False
 

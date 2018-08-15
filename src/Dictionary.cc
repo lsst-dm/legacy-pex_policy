@@ -308,13 +308,7 @@ void Definition::validateRecurse(const string& name,
 void Definition::validateRecurse(const string& name, const Policy& value,
                                  ValidationError *errs) const
 {
-    if (!getType() == Policy::POLICY) // should have checked this at a higher level
-        throw LSST_EXCEPT
-            (pexExcept::LogicError, string("Wrong type: expected ")
-             + Policy::typeName[Policy::POLICY] + " for " + getPrefix() + name
-             + " but found " + getTypeName() + ". // recurse if we have a sub-definition");
-    // recurse if we have a sub-definition
-    else if (_policy->exists(Dictionary::KW_DICT)) {
+    if (_policy->exists(Dictionary::KW_DICT)) {
         if (!_policy->isPolicy(Dictionary::KW_DICT))
             throw LSST_EXCEPT
                 (DictionaryError, string("Wrong type for ") + getPrefix() + name

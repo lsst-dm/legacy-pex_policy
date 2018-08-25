@@ -32,6 +32,7 @@
 #ifndef LSST_PEX_POLICY_EXCEPTIONS_H
 #define LSST_PEX_POLICY_EXCEPTIONS_H
 
+#include "lsst/base.h"
 #include "lsst/pex/exceptions.h"
 
 #define POL_EARGS_TYPED char const* ex_file, int ex_line, char const* ex_func
@@ -52,7 +53,7 @@ namespace policy {
  * either starts with a period, ends with a period, or contains two or more
  * consecutive periods.
  */
-class BadNameError : public lsst::pex::exceptions::RuntimeError {
+class LSST_EXPORT BadNameError : public lsst::pex::exceptions::RuntimeError {
 public:
     BadNameError(POL_EARGS_TYPED)
         : lsst::pex::exceptions::RuntimeError(
@@ -69,7 +70,7 @@ public:
 /**
  * There is a problem with a dictionary.
  */
-class DictionaryError : public lsst::pex::exceptions::DomainError {
+class LSST_EXPORT DictionaryError : public lsst::pex::exceptions::DomainError {
 public:
     DictionaryError(POL_EARGS_TYPED)
         : lsst::pex::exceptions::DomainError(
@@ -87,7 +88,7 @@ public:
  * an exception indicating that a policy parameter of a given name can
  * not be found in a Policy object.
  */
-class NameNotFound : public lsst::pex::exceptions::NotFoundError {
+class LSST_EXPORT NameNotFound : public lsst::pex::exceptions::NotFoundError {
 public:
     NameNotFound(POL_EARGS_TYPED)
         : lsst::pex::exceptions::NotFoundError(
@@ -105,7 +106,7 @@ public:
  * an exception indicating that a policy parameter with a given name has a
  * type different from the one that was requested.
  */
-class TypeError : public lsst::pex::exceptions::DomainError {
+class LSST_EXPORT TypeError : public lsst::pex::exceptions::DomainError {
 public:
     TypeError(POL_EARGS_TYPED)
         : lsst::pex::exceptions::DomainError(

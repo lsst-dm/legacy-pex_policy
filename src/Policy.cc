@@ -432,7 +432,7 @@ Policy::ValueType Policy::getValueType(const string& name) const {
         const std::type_info& tp = _data->typeOf(name);
 
         // handle the special case of FilePtr first
-        if (tp == typeid(Persistable::Ptr)) {
+        if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::Persistable>>()) {
             try {
                 getFile(name);
                 return FILE;
@@ -451,7 +451,7 @@ Policy::ValueType Policy::getValueType(const string& name) const {
         else if (tp == typeid(string)) {
             return STRING;
         }
-        else if (tp == typeid(PropertySet::Ptr)) {
+        else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::PropertySet>>()) {
             return POLICY;
         }
         else {
@@ -822,7 +822,7 @@ string Policy::str(const string& name, const string& indent) const {
                 if (vi+1 != s.end()) out << ", ";
             }
         }
-        else if (tp == typeid(PropertySet::Ptr)) {
+        else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::PropertySet>>()) {
             vector<PropertySet::Ptr> p =
                 _data->getArray<PropertySet::Ptr>(name);
             vector<PropertySet::Ptr>::iterator vi;
@@ -834,7 +834,7 @@ string Policy::str(const string& name, const string& indent) const {
                 out.flush();
             }
         }
-        else if (tp == typeid(Persistable::Ptr)) {
+        else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::Persistable>>()) {
             FilePtrArray f = getFileArray(name);
             FilePtrArray::iterator vi;
             for(vi= f.begin(); vi != f.end(); ++vi) {

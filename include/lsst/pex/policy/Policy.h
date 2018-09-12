@@ -987,7 +987,7 @@ inline bool Policy::isString(const std::string& name) const {
 
 inline bool Policy::isPolicy(const std::string& name) const {
     try {
-        return (_data->typeOf(name) == typeid(lsst::daf::base::PropertySet::Ptr));
+        return _data->isPropertySetPtr(name);
     }
     catch (...) {
         return false;

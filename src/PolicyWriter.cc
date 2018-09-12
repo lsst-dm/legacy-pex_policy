@@ -112,10 +112,10 @@ void PolicyWriter::write(const Policy& policy, bool doDecl) {
             else if (tp == typeid(std::string)) {
                 writeStrings(*ni, policy.getStringArray(*ni));
             }
-            else if (tp == typeid(PropertySet::Ptr)) {
+            else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::PropertySet>>()) {
                 writePolicies(*ni, policy.getPolicyArray(*ni));
             }
-            else if (tp == typeid(Persistable::Ptr)) {
+            else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::Persistable>>()) {
                 writeFiles(*ni, policy.getFileArray(*ni));
             }
             else {

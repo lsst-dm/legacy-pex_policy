@@ -35,15 +35,15 @@ namespace pex {
 namespace policy {
 
 //@cond
-using lsst::daf::base::PropertySet;
 using lsst::daf::base::Persistable;
+using lsst::daf::base::PropertySet;
 
 /*
  * create a writer attached to an output stream
  * @param out     the output stream to write data to
  */
-PolicyWriter::PolicyWriter(std::ostream *out) : _myos(0), _os(out) {
-    if (! out) {
+PolicyWriter::PolicyWriter(std::ostream* out) : _myos(0), _os(out) {
+    if (!out) {
         _myos = new std::ostringstream();
         _os = _myos;
     }
@@ -55,10 +55,7 @@ PolicyWriter::PolicyWriter(std::ostream *out) : _myos(0), _os(out) {
  * @param file     the path to the output file
  */
 PolicyWriter::PolicyWriter(const std::string& file, bool append)
-    : _myos(new std::ofstream(file.c_str(), append ? std::ios_base::app
-                                                   : std::ios_base::trunc)),
-      _os(0)
-{
+        : _myos(new std::ofstream(file.c_str(), append ? std::ios_base::app : std::ios_base::trunc)), _os(0) {
     _myos->exceptions(std::ofstream::failbit | std::ofstream::badbit);
     _os = _myos;
 }
@@ -72,7 +69,7 @@ PolicyWriter::~PolicyWriter() {
  * only if this class was was instantiated without an attached stream.
  */
 std::string PolicyWriter::toString() {
-    std::ostringstream *ss = dynamic_cast<std::ostringstream*>(_os);
+    std::ostringstream* ss = dynamic_cast<std::ostringstream*>(_os);
     if (ss) return ss->str();
     return std::string();
 }
@@ -82,7 +79,7 @@ std::string PolicyWriter::toString() {
  * stream is not a file stream.
  */
 void PolicyWriter::close() {
-    std::ofstream *fs = dynamic_cast<std::ofstream*>(_os);
+    std::ofstream* fs = dynamic_cast<std::ofstream*>(_os);
     if (fs) fs->close();
 }
 
@@ -92,42 +89,33 @@ void PolicyWriter::close() {
  * @param policy     the policy data to write
  */
 void PolicyWriter::write(const Policy& policy, bool doDecl) {
-    if (doDecl)
-        (*_os) << "#<?cfg paf policy ?>" << std::endl;
+    if (doDecl) (*_os) << "#<?cfg paf policy ?>" << std::endl;
 
     Policy::StringArray names = policy.names(true);
     Policy::StringArray::const_iterator ni;
-    for(ni=names.begin(); ni != names.end(); ++ni) {
+    for (ni = names.begin(); ni != names.end(); ++ni) {
         try {
             const std::type_info& tp = policy.typeOf(*ni);
             if (tp == typeid(bool)) {
                 writeBools(*ni, policy.getBoolArray(*ni));
-            }
-            else if (tp == typeid(int)) {
+            } else if (tp == typeid(int)) {
                 writeInts(*ni, policy.getIntArray(*ni));
-            }
-            else if (tp == typeid(double)) {
+            } else if (tp == typeid(double)) {
                 writeDoubles(*ni, policy.getDoubleArray(*ni));
-            }
-            else if (tp == typeid(std::string)) {
+            } else if (tp == typeid(std::string)) {
                 writeStrings(*ni, policy.getStringArray(*ni));
-            }
-            else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::PropertySet>>()) {
+            } else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::PropertySet>>()) {
                 writePolicies(*ni, policy.getPolicyArray(*ni));
-            }
-            else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::Persistable>>()) {
+            } else if (tp == daf::base::PropertySet::typeOfT<std::shared_ptr<daf::base::Persistable>>()) {
                 writeFiles(*ni, policy.getFileArray(*ni));
-            }
-            else {
+            } else {
                 throw LSST_EXCEPT(pexExcept::LogicError, "Policy: unexpected type for name=" + *ni);
             }
-        }
-        catch (NameNotFound&) {
+        } catch (NameNotFound&) {
             // shouldn't happen
             writeString(*ni, "<missing data>");
         }
     }
-
 }
 
 void PolicyWriter::writeBool(const std::string& name, bool value) {
@@ -148,9 +136,7 @@ void PolicyWriter::writeDouble(const std::string& name, double value) {
     writeDoubles(name, vals);
 }
 
-void PolicyWriter::writeString(const std::string& name,
-                               const std::string& value)
-{
+void PolicyWriter::writeString(const std::string& name, const std::string& value) {
     std::vector<std::string> vals;
     vals.push_back(value);
     writeStrings(name, vals);
@@ -162,15 +148,14 @@ void PolicyWriter::writePolicy(const std::string& name, const Policy& value) {
     writePolicies(name, vals);
 }
 
-void PolicyWriter::writeFile(const std::string& name,
-                             const PolicyFile& value)
-{
+void PolicyWriter::writeFile(const std::string& name, const PolicyFile& value) {
     std::vector<Policy::FilePtr> vals;
     vals.push_back(Policy::FilePtr(new PolicyFile(value)));
     writeFiles(name, vals);
 }
 
-
 //@endcond
 
-}}}  // end lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

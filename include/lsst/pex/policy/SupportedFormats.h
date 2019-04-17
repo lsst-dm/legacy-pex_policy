@@ -51,12 +51,11 @@ namespace policy {
  */
 class SupportedFormats {
 public:
-
     typedef std::shared_ptr<SupportedFormats> Ptr;
 
-//    SupportedFormats() : _formats() { }
+    //    SupportedFormats() : _formats() { }
 
-    SupportedFormats() : _formats() { }
+    SupportedFormats() : _formats() {}
 
     /**
      * register a factory method for policy format parsers
@@ -74,9 +73,7 @@ public:
     /**
      * return true if the name resolves to a registered format
      */
-    bool supports(const std::string& name) const {
-        return (_formats.find(name) != _formats.end());
-    }
+    bool supports(const std::string& name) const { return (_formats.find(name) != _formats.end()); }
 
     /**
      * get a pointer to a factory with a given name.  A null pointer is
@@ -100,8 +97,8 @@ private:
     Lookup _formats;
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_SUPPORTEDFORMATS_H
-
-
+#endif  // LSST_PEX_POLICY_SUPPORTEDFORMATS_H

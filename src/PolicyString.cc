@@ -40,21 +40,19 @@ namespace policy {
 
 //@cond
 
-using std::string;
-using std::ifstream;
 using boost::regex;
 using boost::regex_match;
 using boost::regex_search;
-using std::unique_ptr;
 using lsst::pex::policy::paf::PAFParserFactory;
+using std::ifstream;
+using std::string;
+using std::unique_ptr;
 
 namespace pexExcept = lsst::pex::exceptions;
 
 const regex PolicyString::SPACE_RE("^\\s*$");
 const regex PolicyString::COMMENT("^\\s*#");
-const regex
-        PolicyString::CONTENTID("^\\s*#\\s*<\\?cfg\\s+\\w+(\\s+\\w+)*\\s*\\?>",
-                                regex::icase);
+const regex PolicyString::CONTENTID("^\\s*#\\s*<\\?cfg\\s+\\w+(\\s+\\w+)*\\s*\\?>", regex::icase);
 
 /*
  * create a "null" Policy formed from an empty string.
@@ -62,26 +60,23 @@ const regex
  *                          encapsulates a configured set of known formats.
  */
 PolicyString::PolicyString(const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _data(), _pfact()
-{ }
+        : PolicySource(fmts), Persistable(), _data(), _pfact() {}
 
 /*
  * create a "null" Policy formed from an empty string.
  * @param fmts           a SupportedFormats object to use.  An instance
  *                          encapsulates a configured set of known formats.
  */
-PolicyString::PolicyString(const std::string& data,
-                           const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _data(data), _pfact()
-{ }
+PolicyString::PolicyString(const std::string& data, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _data(data), _pfact() {}
 
-#define PolStr_ERROR_MSG(use, msg, input)   \
-    std::ostringstream use;                 \
-    use << msg << ": '";                    \
-    if (input.length() > 40)                \
-        use << input;                       \
-    else                                    \
-        use << input.substr(0,40) << "..."; \
+#define PolStr_ERROR_MSG(use, msg, input)    \
+    std::ostringstream use;                  \
+    use << msg << ": '";                     \
+    if (input.length() > 40)                 \
+        use << input;                        \
+    else                                     \
+        use << input.substr(0, 40) << "..."; \
     use << "'";
 
 /*
@@ -91,7 +86,6 @@ PolicyString::PolicyString(const std::string& data,
  *                      characters of the source stream.
  */
 const string& PolicyString::getFormatName() {
-
     // try reading the initial characters
     std::istringstream is(_data);
     if (is.fail()) {
@@ -103,18 +97,15 @@ const string& PolicyString::getFormatName() {
     string line;
     getline(is, line);
     while (is.good() &&
-           (regex_match(line, SPACE_RE) ||
-            (regex_search(line, COMMENT) && !regex_search(line, COMMENT))))
-    { }
+           (regex_match(line, SPACE_RE) || (regex_search(line, COMMENT) && !regex_search(line, COMMENT)))) {
+    }
 
     if (is.fail()) {
         PolStr_ERROR_MSG(msg, "failure reading input Policy string", _data);
         throw LSST_EXCEPT(pexExcept::IoError, msg.str());
     }
     if (is.eof() &&
-        (regex_match(line, SPACE_RE) ||
-         (regex_search(line, COMMENT) && !regex_search(line, COMMENT))))
-    {
+        (regex_match(line, SPACE_RE) || (regex_search(line, COMMENT) && !regex_search(line, COMMENT)))) {
         // empty file; let's just assume PAF (but don't cache the name).
         return PAFParserFactory::FORMAT_NAME;
     }
@@ -129,12 +120,11 @@ const string& PolicyString::getFormatName() {
  *                       source stream.
  */
 void PolicyString::load(Policy& policy) {
-
     PolicyParserFactory::Ptr pfactory = _pfact;
-    if (! pfactory.get()) {
+    if (!pfactory.get()) {
         const string& fmtname = getFormatName();
         if (fmtname.empty()) {
-            PolStr_ERROR_MSG(ms,"Unknown Policy format for string data",_data);
+            PolStr_ERROR_MSG(ms, "Unknown Policy format for string data", _data);
             throw LSST_EXCEPT(pexExcept::IoError, ms.str());
         }
         pfactory = _formats->getFactory(fmtname);
@@ -152,4 +142,6 @@ void PolicyString::load(Policy& policy) {
 
 //@endcond
 
-}}}   // end lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

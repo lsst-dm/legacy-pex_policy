@@ -48,7 +48,6 @@ namespace policy {
  */
 class PolicyStreamDestination : public PolicyDestination {
 public:
-
     typedef std::shared_ptr<std::ostream> StreamPtr;
 
     /**
@@ -68,9 +67,10 @@ public:
 
 protected:
     StreamPtr _ostrm;
-
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_STRMDEST_H
+#endif  // LSST_PEX_POLICY_STRMDEST_H

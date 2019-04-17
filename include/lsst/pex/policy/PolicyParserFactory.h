@@ -56,15 +56,14 @@ class PolicyParser;
  */
 class PolicyParserFactory {
 public:
-
     typedef std::shared_ptr<PolicyParserFactory> Ptr;
 
     /**
      * create a factory
      */
-    PolicyParserFactory() { }
+    PolicyParserFactory() {}
 
-//    PolicyParserFactory() { }
+    //    PolicyParserFactory() { }
 
     /**
      * destroy this factory
@@ -81,8 +80,7 @@ public:
      *                   result in some data not getting loaded.  The
      *                   default is true.
      */
-    virtual PolicyParser* createParser(Policy& policy,
-                                       bool strict=true) const = 0;
+    virtual PolicyParser* createParser(Policy& policy, bool strict = true) const = 0;
 
     /**
      * analyze the given string assuming contains the leading characters
@@ -103,8 +101,8 @@ public:
     static const std::string UNRECOGNIZED;
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_PARSERFACTORY_H
-
-
+#endif  // LSST_PEX_POLICY_PARSERFACTORY_H

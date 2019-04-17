@@ -54,7 +54,6 @@ class PolicyFile;
  */
 class ValidationError : public lsst::pex::exceptions::LogicError {
 public:
-
     /**
      * the possible validation errors that could be encountered.  Theses
      * are intended to be bit-wise compared with the error value held in
@@ -128,59 +127,55 @@ public:
         else {
             // if it's a compound error that we don't have a pre-written
             // description of, then compile a description
-	    static std::string result; // avoid memory issues
-	    // TODO: at cost of concurrence?
+            static std::string result;  // avoid memory issues
+                                        // TODO: at cost of concurrence?
             std::ostringstream os;
-	    bool first = true;
-            for (std::map<int,std::string>::const_iterator j = _errmsgs.begin();
-                 j != _errmsgs.end(); ++j) {
+            bool first = true;
+            for (std::map<int, std::string>::const_iterator j = _errmsgs.begin(); j != _errmsgs.end(); ++j) {
                 if (j->first != OK && (err & j->first) == j->first) {
                     os << (first ? "" : "; ") << j->second;
-		    first = false;
-		}
-	    }
-	    result = os.str();
+                    first = false;
+                }
+            }
+            result = os.str();
             return result;
-	}
+        }
     }
 
     static const std::string EMPTY;
 
-    ValidationError(std::string const & message) : lsst::pex::exceptions::LogicError(message), _errors()
-    { }
+    ValidationError(std::string const& message) : lsst::pex::exceptions::LogicError(message), _errors() {}
 
     // TODO: create way to change message when an error actually occurs
     /**
      * create an empty ValidationError message
      */
     ValidationError(char const* ex_file, int ex_line, char const* ex_func)
-	: lsst::pex::exceptions::LogicError(ex_file, ex_line, ex_func,
-					             "Policy has unknown validation errors"),
-       _errors()
-    { }
+            : lsst::pex::exceptions::LogicError(ex_file, ex_line, ex_func,
+                                                "Policy has unknown validation errors"),
+              _errors() {}
 
-    virtual lsst::pex::exceptions::Exception *clone() const;
-    virtual char const *getType(void) const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
+    virtual char const* getType(void) const throw();
 
     /**
      * Copy constructor.
      */
     ValidationError(const ValidationError& that)
-	: lsst::pex::exceptions::LogicError(that), _errors(that._errors)
-    { }
+            : lsst::pex::exceptions::LogicError(that), _errors(that._errors) {}
 
     ValidationError& operator=(const ValidationError& that) {
-	LogicError::operator=(that);
-	_errors = that._errors;
-	return *this;
+        LogicError::operator=(that);
+        _errors = that._errors;
+        return *this;
     }
 
-// Swig is having trouble with this macro
-//    ValidationError(POL_EARGS_TYPED)
-//       : lsst::pex::exceptions::LogicError(POL_EARGS_UNTYPED,
-//                                                    "policy has unknown validation errors"),
-//       _errors()
-//    { }
+    // Swig is having trouble with this macro
+    //    ValidationError(POL_EARGS_TYPED)
+    //       : lsst::pex::exceptions::LogicError(POL_EARGS_UNTYPED,
+    //                                                    "policy has unknown validation errors"),
+    //       _errors()
+    //    { }
 
     /**
      * destroy the exception
@@ -198,8 +193,7 @@ public:
      */
     void paramNames(std::list<std::string>& names) const {
         ParamLookup::const_iterator it;
-        for(it = _errors.begin(); it != _errors.end(); it++)
-            names.push_back(it->first);
+        for (it = _errors.begin(); it != _errors.end(); it++) names.push_back(it->first);
     }
 
     /**
@@ -222,9 +216,7 @@ public:
     /**
      * add an error code to this exception
      */
-    void addError(const std::string& name, ErrorType e) {
-        _errors[name] |= e;
-    }
+    void addError(const std::string& name, ErrorType e) { _errors[name] |= e; }
 
     /**
      * get all the errors collectively encountered for all parameters
@@ -233,8 +225,7 @@ public:
     int getErrors() const {
         int out = 0;
         ParamLookup::const_iterator it;
-        for(it = _errors.begin(); it != _errors.end(); it++)
-            out |= it->second;
+        for (it = _errors.begin(); it != _errors.end(); it++) out |= it->second;
         return out;
     }
 
@@ -267,15 +258,12 @@ protected:
  */
 class Definition {
 public:
-
     /**
      * create an empty definition
      * @param paramName   the name of the parameter being defined.
      */
     Definition(const std::string& paramName = "")
-        : _type(Policy::UNDETERMINED),
-	_name(paramName), _policy(), _wildcard(false)
-    {
+            : _type(Policy::UNDETERMINED), _name(paramName), _policy(), _wildcard(false) {
         _policy.reset(new Policy());
     }
 
@@ -285,26 +273,20 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const std::string& paramName, const Policy::Ptr& defn)
-        : _type(Policy::UNDETERMINED),
-          _name(paramName), _policy(defn), _wildcard(false)
-    { }
+            : _type(Policy::UNDETERMINED), _name(paramName), _policy(defn), _wildcard(false) {}
 
     /**
      * create a definition from a data contained in a Policy
      * @param defn        the policy containing the definition data
      */
     Definition(const Policy::Ptr& defn)
-        : _type(Policy::UNDETERMINED),
-          _name(), _policy(defn), _wildcard(false)
-    { }
+            : _type(Policy::UNDETERMINED), _name(), _policy(defn), _wildcard(false) {}
 
     /**
      * create a copy of a definition
      */
     Definition(const Definition& that)
-        : _type(Policy::UNDETERMINED),
-          _name(that._name), _policy(that._policy), _wildcard(false)
-    { }
+            : _type(Policy::UNDETERMINED), _name(that._name), _policy(that._policy), _wildcard(false) {}
 
     /**
      * reset this definition to another one
@@ -313,8 +295,8 @@ public:
         _type = Policy::UNDETERMINED;
         _name = that._name;
         _policy = that._policy;
-	_prefix = that._prefix;
-	_wildcard = that._wildcard;
+        _prefix = that._prefix;
+        _wildcard = that._wildcard;
         return *this;
     }
 
@@ -385,16 +367,12 @@ public:
      * The human-readable name of this definition's type
      * ("string", "double", etc.).
      */
-    std::string getTypeName() const {
-	return Policy::typeName[getType()];
-    }
+    std::string getTypeName() const { return Policy::typeName[getType()]; }
 
     /**
      * return the default value as a string
      */
-    std::string getDefault() const {
-        return _policy->str("default");
-    }
+    std::string getDefault() const { return _policy->str("default"); }
 
     /**
      * Return the semantic definition for the parameter, empty string if none is
@@ -420,24 +398,20 @@ public:
      * @param errs  a validation error to add complaints to, if there are any.
      * @exception ValidationError if the value does not conform to this definition.
      */
-    void setDefaultIn(Policy& policy, ValidationError* errs=0) const {
-        setDefaultIn(policy, _name, errs);
-    }
+    void setDefaultIn(Policy& policy, ValidationError* errs = 0) const { setDefaultIn(policy, _name, errs); }
 
     /**
      * @copydoc setDefaultIn(Policy&) const
      * @param withName  the name to look for the value under.  If not given
      *                    the name set in this definition will be used.
      */
-    void setDefaultIn(Policy& policy, const std::string& withName,
-		      ValidationError* errs=0) const;
+    void setDefaultIn(Policy& policy, const std::string& withName, ValidationError* errs = 0) const;
 
     /**
      * @copydoc setDefaultIn(Policy&) const
      */
-    template <typename T> void setDefaultIn(Policy& policy,
-					    const std::string& withName,
-					    ValidationError* errs=0) const;
+    template <typename T>
+    void setDefaultIn(Policy& policy, const std::string& withName, ValidationError* errs = 0) const;
 
     /**
      * confirm that a Policy parameter conforms to this definition.
@@ -452,8 +426,7 @@ public:
      * @exception ValidationError   if errs is not provided and the value
      *                 does not conform.
      */
-    void validate(const Policy& policy, const std::string& name,
-                  ValidationError *errs=0) const;
+    void validate(const Policy& policy, const std::string& name, ValidationError* errs = 0) const;
 
     /**
      * confirm that a Policy parameter conforms to this definition.
@@ -467,9 +440,7 @@ public:
      * @exception ValidationError   if errs is not provided and the value
      *                  does not conform.
      */
-    void validate(const Policy& policy, ValidationError *errs=0) const {
-        validate(policy, _name, errs);
-    }
+    void validate(const Policy& policy, ValidationError* errs = 0) const { validate(policy, _name, errs); }
 
     //@{
     /**
@@ -495,16 +466,13 @@ public:
      *                 should explain why.
      */
 
-    void validate(const std::string& name, bool value, int curcount=-1,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, int value, int curcount=-1,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, double value, int curcount=-1,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, std::string value, int curcount=-1,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy& value, int curcount=-1,
-                  ValidationError *errs=0) const;
+    void validate(const std::string& name, bool value, int curcount = -1, ValidationError* errs = 0) const;
+    void validate(const std::string& name, int value, int curcount = -1, ValidationError* errs = 0) const;
+    void validate(const std::string& name, double value, int curcount = -1, ValidationError* errs = 0) const;
+    void validate(const std::string& name, std::string value, int curcount = -1,
+                  ValidationError* errs = 0) const;
+    void validate(const std::string& name, const Policy& value, int curcount = -1,
+                  ValidationError* errs = 0) const;
     //@}
 
     //@{
@@ -525,18 +493,12 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    void validate(const std::string& name, const Policy::BoolArray& value,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy::IntArray& value,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name, const Policy::DoubleArray& value,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name,
-                  const Policy::StringArray& value,
-                  ValidationError *errs=0) const;
-    void validate(const std::string& name,
-                  const Policy::ConstPolicyPtrArray& value,
-                  ValidationError *errs=0) const;
+    void validate(const std::string& name, const Policy::BoolArray& value, ValidationError* errs = 0) const;
+    void validate(const std::string& name, const Policy::IntArray& value, ValidationError* errs = 0) const;
+    void validate(const std::string& name, const Policy::DoubleArray& value, ValidationError* errs = 0) const;
+    void validate(const std::string& name, const Policy::StringArray& value, ValidationError* errs = 0) const;
+    void validate(const std::string& name, const Policy::ConstPolicyPtrArray& value,
+                  ValidationError* errs = 0) const;
     //@}
 
     /**
@@ -558,9 +520,8 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    template <typename T> void validateBasic
-	(const std::string& name, const Policy& policy,
-	 ValidationError *errs=0) const;
+    template <typename T>
+    void validateBasic(const std::string& name, const Policy& policy, ValidationError* errs = 0) const;
 
     //@{
     /**
@@ -572,12 +533,11 @@ public:
      * Equivalent to <tt>validate(name, value, errs)</tt> for basic types, but
      * not for Policies.
      */
-    template <typename T> void validateBasic
-	(const std::string& name, const T& value, int curcount=-1,
-	 ValidationError *errs=0) const;
-    template <typename T> void validateBasic
-	(const std::string& name, const std::vector<T>& value,
-	 ValidationError *errs=0) const;
+    template <typename T>
+    void validateBasic(const std::string& name, const T& value, int curcount = -1,
+                       ValidationError* errs = 0) const;
+    template <typename T>
+    void validateBasic(const std::string& name, const std::vector<T>& value, ValidationError* errs = 0) const;
     //@}
 
     //@{
@@ -589,10 +549,9 @@ public:
      * @param errs  used to store errors that are found (not allowed to be null)
      */
     void validateRecurse(const std::string& name, Policy::ConstPolicyPtrArray value,
-			 ValidationError *errs) const;
+                         ValidationError* errs) const;
 
-    void validateRecurse(const std::string& name, const Policy& value,
-			 ValidationError *errs) const;
+    void validateRecurse(const std::string& name, const Policy& value, ValidationError* errs) const;
     //@}
 
     /**
@@ -611,14 +570,13 @@ protected:
      * @param count  the number of values this name actually has
      * @param errs   report validation errors here (must exist)
      */
-    void validateCount(const std::string& name, int count,
-		       ValidationError *errs) const;
+    void validateCount(const std::string& name, int count, ValidationError* errs) const;
 
     static const std::string EMPTY;
 
 private:
     mutable Policy::ValueType _type;
-    std::string _prefix; // for recursive validation, eg "foo.bar."
+    std::string _prefix;  // for recursive validation, eg "foo.bar."
     std::string _name;
     Policy::Ptr _policy;
     bool _wildcard;
@@ -721,27 +679,26 @@ inline std::ostream& operator<<(std::ostream& os, const Definition& d) {
  */
 class Dictionary : public Policy {
 public:
-
     // keywords
-    static const char *KW_DICT;
-    static const char *KW_DICT_FILE;
-    static const char *KW_TYPE;
-    static const char *KW_DESCRIPTION;
-    static const char *KW_DEFAULT;
-    static const char *KW_DEFINITIONS;
-    static const char *KW_CHILD_DEF;
-    static const char *KW_ALLOWED;
-    static const char *KW_MIN_OCCUR;
-    static const char *KW_MAX_OCCUR;
-    static const char *KW_MIN;
-    static const char *KW_MAX;
-    static const char *KW_VALUE;
+    static const char* KW_DICT;
+    static const char* KW_DICT_FILE;
+    static const char* KW_TYPE;
+    static const char* KW_DESCRIPTION;
+    static const char* KW_DEFAULT;
+    static const char* KW_DEFINITIONS;
+    static const char* KW_CHILD_DEF;
+    static const char* KW_ALLOWED;
+    static const char* KW_MIN_OCCUR;
+    static const char* KW_MAX_OCCUR;
+    static const char* KW_MIN;
+    static const char* KW_MAX;
+    static const char* KW_VALUE;
 
     /**
      * return an empty dictionary.  This can be passed to a parser to be
      * filled.
      */
-    Dictionary() : Policy() { }
+    Dictionary() : Policy() {}
 
     /**
      * Check that the given Policy follows the Dictionary schema and return a
@@ -750,24 +707,20 @@ public:
      * copied into this dictionary.
      */
     Dictionary(const Policy& pol)
-        : Policy( (pol.isPolicy("dictionary")) ? *(pol.getPolicy("dictionary"))
-                                               : pol )
-    {
-	check();
+            : Policy((pol.isPolicy("dictionary")) ? *(pol.getPolicy("dictionary")) : pol) {
+        check();
     }
 
     /**
      * return a dictionary that is a copy of another dictionary
      */
-    Dictionary(const Dictionary& dict) : Policy(dict) {
-	check();
-    }
+    Dictionary(const Dictionary& dict) : Policy(dict) { check(); }
 
     //@{
     /**
      * load a dictionary from a file
      */
-    explicit Dictionary(const char *filePath);
+    explicit Dictionary(const char* filePath);
     explicit Dictionary(const std::string& filePath);
     explicit Dictionary(const PolicyFile& filePath);
     //@}
@@ -776,12 +729,8 @@ public:
     /**
      * return the parameter name definitions as a Policy object
      */
-    Policy::ConstPtr getDefinitions() const {
-        return getPolicy("definitions");
-    }
-    Policy::Ptr getDefinitions() {
-        return getPolicy("definitions");
-    }
+    Policy::ConstPtr getDefinitions() const { return getPolicy("definitions"); }
+    Policy::Ptr getDefinitions() { return getPolicy("definitions"); }
     //@}
 
     /**
@@ -794,23 +743,21 @@ public:
      * load the top-level parameter names defined in this Dictionary into
      * a given list.
      */
-    int definedNames(std::list<std::string>& names, bool append=false) const {
+    int definedNames(std::list<std::string>& names, bool append = false) const {
         return getDefinitions()->names(names, true, append);
     }
 
     /**
      * return the top-level parameter names defined in this Dictionary
      */
-    StringArray definedNames() const {
-        return getDefinitions()->names(true);
-    }
+    StringArray definedNames() const { return getDefinitions()->names(true); }
 
     /**
      * return a definition for the named parameter
      * @param name    the hierarchical name for the parameter
      */
     Definition getDef(const std::string& name) {
-        Definition *def = makeDef(name);
+        Definition* def = makeDef(name);
         Definition out(*def);
         delete def;
         return out;
@@ -832,11 +779,11 @@ public:
      * @see getSubDictionary
      */
     bool hasSubDictionary(const std::string& name) const {
-	std::string key = std::string("definitions.") + name + "." + KW_DICT;
-	// could also check isPolicy(key), but we would rather have
-	// getSubDictionary(name) fail with a DictionaryError if the
-	// sub-dictionary is the wrong type
-	return exists(key);
+        std::string key = std::string("definitions.") + name + "." + KW_DICT;
+        // could also check isPolicy(key), but we would rather have
+        // getSubDictionary(name) fail with a DictionaryError if the
+        // sub-dictionary is the wrong type
+        return exists(key);
     }
 
     //@{
@@ -865,7 +812,7 @@ public:
      * @exception ValidationError   if the value does not conform.  The message
      *                 should explain why.
      */
-    void validate(const Policy& pol, ValidationError *errs=0) const;
+    void validate(const Policy& pol, ValidationError* errs = 0) const;
 
     // C++ inheritance & function overloading limitations require us to
     // re-declare this here, even though an identical function is declared in
@@ -883,9 +830,7 @@ public:
      *                    (that is, "{}").
      * @return            the number of files loaded
      */
-    int loadPolicyFiles(bool strict=true) {
-	return loadPolicyFiles(boost::filesystem::path(), strict);
-    }
+    int loadPolicyFiles(bool strict = true) { return loadPolicyFiles(boost::filesystem::path(), strict); }
 
     /**
      * \copydoc loadPolicyFiles()
@@ -895,8 +840,7 @@ public:
      *                    the directorywill be assumed to be the current one.
      * @return            the number of files loaded
      */
-    virtual int loadPolicyFiles(const boost::filesystem::path& repository,
-                                bool strict=true);
+    virtual int loadPolicyFiles(const boost::filesystem::path& repository, bool strict = true);
 
     //@{
     /**
@@ -907,61 +851,53 @@ public:
     void setPrefix(const std::string& prefix) { _prefix = prefix; }
     //@}
 
-
 protected:
     static const boost::regex FIELDSEP_RE;
 
 private:
-    std::string _prefix; // for recursive validation, eg "foo.bar."
+    std::string _prefix;  // for recursive validation, eg "foo.bar."
 };
 
 template <typename T>
-void Definition::validateBasic(const std::string& name, const Policy& policy,
-			       ValidationError *errs) const
-{
+void Definition::validateBasic(const std::string& name, const Policy& policy, ValidationError* errs) const {
     validateBasic(name, policy.getValueArray<T>(name), errs);
 }
 
 template <typename T>
 void Definition::validateBasic(const std::string& name, const std::vector<T>& value,
-			       ValidationError *errs) const
-{
+                               ValidationError* errs) const {
     ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = &ve;
+    ValidationError* use = &ve;
     if (errs != 0) use = errs;
 
     validateCount(name, value.size(), use);
 
-    for (typename std::vector<T>::const_iterator i = value.begin();
-	 i != value.end();
-	 ++i)
-	validateBasic<T>(name, *i, -1, use);
+    for (typename std::vector<T>::const_iterator i = value.begin(); i != value.end(); ++i)
+        validateBasic<T>(name, *i, -1, use);
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
 template <typename T>
-void Definition::setDefaultIn(Policy& policy, const std::string& withName,
-			      ValidationError *errs) const
-{
+void Definition::setDefaultIn(Policy& policy, const std::string& withName, ValidationError* errs) const {
     ValidationError ve(LSST_EXCEPT_HERE);
-    ValidationError *use = (errs == 0 ? &ve : errs);
+    ValidationError* use = (errs == 0 ? &ve : errs);
 
     if (_policy->exists("default")) {
-	const std::vector<T> defs = _policy->getValueArray<T>("default");
-	validateBasic(withName, defs, use);
-	if (use->getErrors(withName) == ValidationError::OK) {
-	    policy.remove(withName);
-	    for (typename std::vector<T>::const_iterator i = defs.begin();
-		 i != defs.end();
-		 ++i)
-		policy.addValue<T>(withName, *i);
-	}
+        const std::vector<T> defs = _policy->getValueArray<T>("default");
+        validateBasic(withName, defs, use);
+        if (use->getErrors(withName) == ValidationError::OK) {
+            policy.remove(withName);
+            for (typename std::vector<T>::const_iterator i = defs.begin(); i != defs.end(); ++i)
+                policy.addValue<T>(withName, *i);
+        }
     }
 
     if (errs == 0 && ve.getParamCount() > 0) throw ve;
 }
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_POLICY_H
+#endif  // LSST_PEX_POLICY_POLICY_H

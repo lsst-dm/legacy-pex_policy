@@ -49,11 +49,10 @@ namespace policy {
  */
 class PolicyDestination {
 public:
-
     /**
      * create a destination
      */
-    PolicyDestination() { }
+    PolicyDestination() {}
 
     /**
      * release resource associated with the destination
@@ -70,11 +69,10 @@ protected:
      * create a copy of this destination
      */
     PolicyDestination(const PolicyDestination& that) {}
-
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_DEST_H
-
-
+#endif  // LSST_PEX_POLICY_DEST_H

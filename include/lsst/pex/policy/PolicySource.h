@@ -51,16 +51,12 @@ namespace policy {
  */
 class PolicySource {
 public:
-
     /**
      * create a Policy file that points a file with given path.
      * @param fmts   the list of formats to support
      */
-    PolicySource(SupportedFormats::Ptr fmts=defaultFormats)
-        : _formats(fmts)
-    {
-        if (defaultFormats->size() == 0)
-            SupportedFormats::initDefaultFormats(*defaultFormats);
+    PolicySource(SupportedFormats::Ptr fmts = defaultFormats) : _formats(fmts) {
+        if (defaultFormats->size() == 0) SupportedFormats::initDefaultFormats(*defaultFormats);
     }
 
     /**
@@ -68,35 +64,35 @@ public:
      */
     virtual ~PolicySource();
 
-//     /**
-//      * identifiers for the different supported formats
-//      */
-//     enum FormatType {
+    //     /**
+    //      * identifiers for the different supported formats
+    //      */
+    //     enum FormatType {
 
-//         /**  Unknown and unsupported */
-//         UNSUPPORTED,
+    //         /**  Unknown and unsupported */
+    //         UNSUPPORTED,
 
-//         /**  XML format  */
-//         XML,
+    //         /**  XML format  */
+    //         XML,
 
-//         /**  Policy authoring format (PAF)  */
-//         PAF,
+    //         /**  Policy authoring format (PAF)  */
+    //         PAF,
 
-//         /**  Supported format but unknown  */
-//         UNKNOWN
-//     };
+    //         /**  Supported format but unknown  */
+    //         UNKNOWN
+    //     };
 
-//     /**
-//      * determine the format that the data is stored in and return its format
-//      * type identifier.  Note that UNKNOWN will be returned
-//      * if the format is supported--that is, the data can be read into a
-//      * Policy object--but otherwise does not have a defined type identifier
-//      * defined.  This may cause the first few records of the source to
-//      * be read.
-//      * @exception IOError   if an error occurs while reading the first few
-//      *                      characters of the source stream.
-//      */
-//     virtual FormatType getFormatType();
+    //     /**
+    //      * determine the format that the data is stored in and return its format
+    //      * type identifier.  Note that UNKNOWN will be returned
+    //      * if the format is supported--that is, the data can be read into a
+    //      * Policy object--but otherwise does not have a defined type identifier
+    //      * defined.  This may cause the first few records of the source to
+    //      * be read.
+    //      * @exception IOError   if an error occurs while reading the first few
+    //      *                      characters of the source stream.
+    //      */
+    //     virtual FormatType getFormatType();
 
     /**
      * return the name of the format that the data is stored in.  This may
@@ -118,32 +114,29 @@ public:
     virtual void load(Policy& policy) = 0;
     //@}
 
-//     /**
-//      * returns true if the given string containing a content identifier
-//      * indicates that it contains dictionary data.  Dictionary data has
-//      * a content id of "<?cfg ... dictionary ?>" (where ... indicates
-//      * the format); policy data has an id of "<?cfg ... policy ?>".
-//      */
-//     static bool indicatesDictionary(const std::string& contentid) {
-//         return regex_search(contentid, DICTIONARY_CONTENT);
-//     }
+    //     /**
+    //      * returns true if the given string containing a content identifier
+    //      * indicates that it contains dictionary data.  Dictionary data has
+    //      * a content id of "<?cfg ... dictionary ?>" (where ... indicates
+    //      * the format); policy data has an id of "<?cfg ... policy ?>".
+    //      */
+    //     static bool indicatesDictionary(const std::string& contentid) {
+    //         return regex_search(contentid, DICTIONARY_CONTENT);
+    //     }
 
     /**
      * a default set of formats
      */
     static SupportedFormats::Ptr defaultFormats;
 
-//     static const regex DICTIONARY_CONTENT;
+    //     static const regex DICTIONARY_CONTENT;
 
 protected:
-
-
     SupportedFormats::Ptr _formats;
 };
 
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-}}}  // end namespace lsst::pex::policy
-
-#endif // LSST_PEX_POLICY_SOURCE_H
-
-
+#endif  // LSST_PEX_POLICY_SOURCE_H

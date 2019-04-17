@@ -45,22 +45,19 @@ namespace policy {
  */
 class ParserError : public lsst::pex::exceptions::RuntimeError {
 public:
-
     /**
      * Create an exception the exception with a default message.
      */
     ParserError(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::RuntimeError(
-                POL_EARGS_UNTYPED, "Unspecified parsing error encountered")
-    { }
+            : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED,
+                                                  "Unspecified parsing error encountered") {}
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
     ParserError(POL_EARGS_TYPED, const std::string& msg)
-        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, msg)
-    { }
+            : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, msg) {}
 
     /**
      * Create an exception the exception with a given message.
@@ -70,9 +67,7 @@ public:
      *                  file is typically line 1.
      */
     ParserError(POL_EARGS_TYPED, const std::string& msg, int lineno)
-        : lsst::pex::exceptions::RuntimeError(
-                POL_EARGS_UNTYPED, makeLocatedMessage(msg,lineno))
-    { }
+            : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, makeLocatedMessage(msg, lineno)) {}
 
     static std::string makeLocatedMessage(const std::string& msg, int lineno) {
         std::ostringstream out;
@@ -80,8 +75,8 @@ public:
         return out.str();
     }
 
-    virtual char const *getType() const throw();
-    virtual lsst::pex::exceptions::Exception *clone() const;
+    virtual char const* getType() const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
 };
 
 /**
@@ -89,21 +84,16 @@ public:
  */
 class EOFError : public ParserError {
 public:
-
     /**
      * Create an exception the exception with a default message.
      */
-    EOFError(POL_EARGS_TYPED)
-        : ParserError(POL_EARGS_UNTYPED,
-                      "Unexpected end of Policy data stream")
-    { }
+    EOFError(POL_EARGS_TYPED) : ParserError(POL_EARGS_UNTYPED, "Unexpected end of Policy data stream") {}
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    EOFError(POL_EARGS_TYPED, const std::string& msg)
-        : ParserError(POL_EARGS_UNTYPED, msg) { }
+    EOFError(POL_EARGS_TYPED, const std::string& msg) : ParserError(POL_EARGS_UNTYPED, msg) {}
 
     /**
      * Create an exception the exception with a default message.
@@ -112,9 +102,7 @@ public:
      *                  file is typically line 1.
      */
     EOFError(POL_EARGS_TYPED, int lineno)
-        : ParserError(POL_EARGS_UNTYPED,
-                      "Unexpected end of Policy data stream", lineno)
-    { }
+            : ParserError(POL_EARGS_UNTYPED, "Unexpected end of Policy data stream", lineno) {}
 
     /**
      * Create an exception the exception with a given message.
@@ -124,10 +112,10 @@ public:
      *                  file is typically line 1.
      */
     EOFError(POL_EARGS_TYPED, const std::string& msg, int lineno)
-        : ParserError(POL_EARGS_UNTYPED, msg, lineno) { }
+            : ParserError(POL_EARGS_UNTYPED, msg, lineno) {}
 
-    virtual char const *getType() const throw();
-    virtual lsst::pex::exceptions::Exception *clone() const;
+    virtual char const* getType() const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
 };
 
 /**
@@ -135,19 +123,16 @@ public:
  */
 class SyntaxError : public ParserError {
 public:
-
     /**
      * Create an exception the exception with a default message.
      */
-    SyntaxError(POL_EARGS_TYPED)
-        : ParserError(POL_EARGS_UNTYPED, "Unknonwn syntax error") { }
+    SyntaxError(POL_EARGS_TYPED) : ParserError(POL_EARGS_UNTYPED, "Unknonwn syntax error") {}
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    SyntaxError(POL_EARGS_TYPED, const std::string& msg)
-        : ParserError(POL_EARGS_UNTYPED, msg) { }
+    SyntaxError(POL_EARGS_TYPED, const std::string& msg) : ParserError(POL_EARGS_UNTYPED, msg) {}
 
     /**
      * Create an exception the exception with a given message.
@@ -157,10 +142,10 @@ public:
      *                  file is typically line 1.
      */
     SyntaxError(POL_EARGS_TYPED, const std::string& msg, int lineno)
-        : ParserError(POL_EARGS_UNTYPED, msg, lineno) { }
+            : ParserError(POL_EARGS_UNTYPED, msg, lineno) {}
 
-    virtual char const *getType() const throw();
-    virtual lsst::pex::exceptions::Exception *clone() const;
+    virtual char const* getType() const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
 };
 
 /**
@@ -169,19 +154,16 @@ public:
  */
 class FormatSyntaxError : public SyntaxError {
 public:
-
     /**
      * Create an exception the exception with a default message.
      */
-    FormatSyntaxError(POL_EARGS_TYPED)
-        : SyntaxError(POL_EARGS_UNTYPED, "Unknonwn syntax error") { }
+    FormatSyntaxError(POL_EARGS_TYPED) : SyntaxError(POL_EARGS_UNTYPED, "Unknonwn syntax error") {}
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    FormatSyntaxError(POL_EARGS_TYPED, const std::string& msg)
-        : SyntaxError(POL_EARGS_UNTYPED, msg) { }
+    FormatSyntaxError(POL_EARGS_TYPED, const std::string& msg) : SyntaxError(POL_EARGS_UNTYPED, msg) {}
 
     /**
      * Create an exception the exception with a given message.
@@ -191,10 +173,10 @@ public:
      *                  file is typically line 1.
      */
     FormatSyntaxError(POL_EARGS_TYPED, const std::string& msg, int lineno)
-        : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) { }
+            : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) {}
 
-    virtual char const *getType() const throw();
-    virtual lsst::pex::exceptions::Exception *clone() const;
+    virtual char const* getType() const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
 };
 
 /**
@@ -203,19 +185,16 @@ public:
  */
 class UnsupportedSyntax : public SyntaxError {
 public:
-
     /**
      * Create an exception the exception with a default message.
      */
-    UnsupportedSyntax(POL_EARGS_TYPED)
-        : SyntaxError(POL_EARGS_UNTYPED, "Unsupported syntax error") { }
+    UnsupportedSyntax(POL_EARGS_TYPED) : SyntaxError(POL_EARGS_UNTYPED, "Unsupported syntax error") {}
 
     /**
      * Create an exception the exception with a given message.
      * @param msg     a message describing the problem.
      */
-    UnsupportedSyntax(POL_EARGS_TYPED, const std::string& msg)
-        : SyntaxError(POL_EARGS_UNTYPED, msg) { }
+    UnsupportedSyntax(POL_EARGS_TYPED, const std::string& msg) : SyntaxError(POL_EARGS_UNTYPED, msg) {}
 
     /**
      * Create an exception the exception with a given message.
@@ -225,16 +204,14 @@ public:
      *                  file is typically line 1.
      */
     UnsupportedSyntax(POL_EARGS_TYPED, const std::string& msg, int lineno)
-        : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) { }
+            : SyntaxError(POL_EARGS_UNTYPED, msg, lineno) {}
 
-    virtual char const *getType() const throw();
-    virtual lsst::pex::exceptions::Exception *clone() const;
+    virtual char const* getType() const throw();
+    virtual lsst::pex::exceptions::Exception* clone() const;
 };
 
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-
-
-}}}  // end namespace lsst::pex::policy
-
-
-#endif // LSST_PEX_POLICY_PARSER_EXCEPTIONS_H
+#endif  // LSST_PEX_POLICY_PARSER_EXCEPTIONS_H

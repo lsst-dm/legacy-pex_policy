@@ -40,7 +40,8 @@ static void execTrace( string s, int level = EXEC_TRACE ){
 }
 */
 
-PolicyParser::~PolicyParser() { }
+PolicyParser::~PolicyParser() {}
 
-}}}  // end namespace lsst::pex::policy
-
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

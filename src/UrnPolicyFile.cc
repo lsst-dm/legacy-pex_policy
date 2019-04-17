@@ -52,20 +52,19 @@ string stripPrefixes(string urn, bool strict) {
     // strip @'s
     int numAts = 0;
     while (urn.length() > 0 && urn.find(UrnPolicyFile::URN_PREFIX_ABBREV) == 0) {
-	urn = urn.substr(UrnPolicyFile::URN_PREFIX_ABBREV.length());
-	++numAts;
+        urn = urn.substr(UrnPolicyFile::URN_PREFIX_ABBREV.length());
+        ++numAts;
     }
 
     // strip urn:eupspkg:
     string lowered(urn);
     transform(lowered.begin(), lowered.end(), lowered.begin(), ::tolower);
     bool hasPrefix = (lowered.find(UrnPolicyFile::URN_PREFIX) == 0);
-    if (hasPrefix)
-	urn = urn.substr(UrnPolicyFile::URN_PREFIX.length());
+    if (hasPrefix) urn = urn.substr(UrnPolicyFile::URN_PREFIX.length());
 
     // validate, if requested
     if (strict && (numAts > 1 || !hasPrefix))
-	throw LSST_EXCEPT(BadNameError, ("URN must start with \"urn:eupspkg:\" or \"@urn:eupspkg:\""));
+        throw LSST_EXCEPT(BadNameError, ("URN must start with \"urn:eupspkg:\" or \"@urn:eupspkg:\""));
 
     return urn;
 }
@@ -86,28 +85,25 @@ void splitAndValidate(const string& urn, vector<string>& a, bool strict) {
 
     // split
     while (true) {
-	size_t i = stripped.find(":");
-	if (i == string::npos) {
-	    if (stripped.length() > 0) a.push_back(stripped);
-	    break;
-	}
-	else {
-	    a.push_back(stripped.substr(0, i));
-	    stripped = stripped.substr(i + 1);
-	}
+        size_t i = stripped.find(":");
+        if (i == string::npos) {
+            if (stripped.length() > 0) a.push_back(stripped);
+            break;
+        } else {
+            a.push_back(stripped.substr(0, i));
+            stripped = stripped.substr(i + 1);
+        }
     }
 
     // validate
     // - min size is 2 -- product:file
     // - max size is 3 -- product:repos:file
     if (a.size() < 2 || a.size() > 3)
-	throw LSST_EXCEPT
-	    (BadNameError,
-	     "Wrong number of terms in policy file urn \"" + urn + "\".  "
-	     + "The expected form is "
-	     + "@urn:eupspkg:<product>:[<repository>:]<file> or "
-	     + "@@<product>:[<repository>:]<file>.  "
-	     + "Is there a typo in the urn?");
+        throw LSST_EXCEPT(BadNameError, "Wrong number of terms in policy file urn \"" + urn + "\".  " +
+                                                "The expected form is " +
+                                                "@urn:eupspkg:<product>:[<repository>:]<file> or " +
+                                                "@@<product>:[<repository>:]<file>.  " +
+                                                "Is there a typo in the urn?");
 }
 
 /**
@@ -143,8 +139,10 @@ string UrnPolicyFile::filePathFromUrn(const string& urn, bool strictUrn) {
 string UrnPolicyFile::reposFromUrn(const string& urn, bool strictUrn) {
     vector<string> split;
     splitAndValidate(urn, split, strictUrn);
-    if (split.size() == 3) return split[1];
-    else return "";
+    if (split.size() == 3)
+        return split[1];
+    else
+        return "";
 }
 
 /**
@@ -156,10 +154,10 @@ string UrnPolicyFile::reposFromUrn(const string& urn, bool strictUrn) {
  */
 bool UrnPolicyFile::looksLikeUrn(const string& s, bool strict) {
     if (strict) {
-	string lc(s);
-	transform(lc.begin(), lc.end(), lc.begin(), ::tolower);
-	while (lc[0] == '@') lc = lc.substr(1);
-	if (lc.find(UrnPolicyFile::URN_PREFIX) != 0) return false;
+        string lc(s);
+        transform(lc.begin(), lc.end(), lc.begin(), ::tolower);
+        while (lc[0] == '@') lc = lc.substr(1);
+        if (lc.find(UrnPolicyFile::URN_PREFIX) != 0) return false;
     }
     const string& stripped = stripPrefixes(s, strict);
     return s.length() != stripped.length() && s.find(":") != s.npos;
@@ -167,6 +165,6 @@ bool UrnPolicyFile::looksLikeUrn(const string& s, bool strict) {
 
 //@endcond
 
-} // namespace policy
-} // namespace pex
-} // namespace lsst
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

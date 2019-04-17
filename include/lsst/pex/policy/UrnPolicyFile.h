@@ -67,7 +67,6 @@ namespace policy {
  */
 class UrnPolicyFile : public DefaultPolicyFile {
 public:
-
     /**
      * Construct a new policy file reference from a URN.
      * Basically, the only required element is a colon, separating the product
@@ -82,14 +81,11 @@ public:
      *            Policy will be incomplete.  This is identical to the strict
      *            argument to Policy's loadPolicyFiles().
      */
-    explicit UrnPolicyFile(const std::string& urn,
-			   bool strictUrn=false, bool strictLoads=true)
-	// TODO: oops, this is a segfault waiting to happen -- pass a string instead?
-	: DefaultPolicyFile(productNameFromUrn(urn, strictUrn).c_str(),
-			    filePathFromUrn(urn, strictUrn),
-			    reposFromUrn(urn, strictUrn),
-			    strictLoads),
-	_urn(urn) {}
+    explicit UrnPolicyFile(const std::string& urn, bool strictUrn = false, bool strictLoads = true)
+            // TODO: oops, this is a segfault waiting to happen -- pass a string instead?
+            : DefaultPolicyFile(productNameFromUrn(urn, strictUrn).c_str(), filePathFromUrn(urn, strictUrn),
+                                reposFromUrn(urn, strictUrn), strictLoads),
+              _urn(urn) {}
 
     /**
      * Extract the product name from a URN.  For example,
@@ -97,8 +93,7 @@ public:
      *  - \@\@PRODUCT:repos:path/to/file.paf
      *  - \@PRODUCT:path/to/file.paf
      */
-    static std::string productNameFromUrn(const std::string& urn,
-					  bool strictUrn=false);
+    static std::string productNameFromUrn(const std::string& urn, bool strictUrn = false);
 
     /**
      * Extract the local file path from a URN.  For example,
@@ -106,8 +101,7 @@ public:
      *  - "@@product:repos:PATH/TO/FILE.PAF"
      *  - "@product:PATH/TO/FILE.PAF"
      */
-    static std::string filePathFromUrn(const std::string& urn,
-				       bool strictUrn=false);
+    static std::string filePathFromUrn(const std::string& urn, bool strictUrn = false);
 
     /**
      * Extract the repository name from a URN, or "" if none.  For example,
@@ -115,17 +109,15 @@ public:
      *  - "@@product:REPOS:path/to/file.paf"
      *  - "@product:path/to/file.paf" -- no repository, returns ""
      */
-    static std::string reposFromUrn(const std::string& urn,
-				    bool strictUrn=false);
+    static std::string reposFromUrn(const std::string& urn, bool strictUrn = false);
 
     //@{
     /**
      * The prefix that a Policy URN starts with.  May be abbreviated as "@".
      */
-    static const std::string URN_PREFIX; // "urn:eupspkg:";
-    static const std::string URN_PREFIX_ABBREV; // "@";
+    static const std::string URN_PREFIX;         // "urn:eupspkg:";
+    static const std::string URN_PREFIX_ABBREV;  // "@";
     //@}
-
 
     /**
      * Does `s` look like a URN?  That is, does it start with URN_PREFIX or
@@ -134,12 +126,14 @@ public:
      * @param strict if false, "@" will be accepted as a substitute for
      *               "urn:eupspkg:"; if true, urn:eupspkg must be present.
      */
-    static bool looksLikeUrn(const std::string& s, bool strict=false);
+    static bool looksLikeUrn(const std::string& s, bool strict = false);
 
 private:
     const std::string _urn;
 };
 
-}}} // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_URNPOLICYFILE_H
+#endif  // LSST_PEX_POLICY_URNPOLICYFILE_H

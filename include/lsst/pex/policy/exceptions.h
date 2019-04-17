@@ -35,13 +35,11 @@
 #include "lsst/base.h"
 #include "lsst/pex/exceptions.h"
 
-#define POL_EARGS_TYPED char const* ex_file, int ex_line, char const* ex_func
+#define POL_EARGS_TYPED char const *ex_file, int ex_line, char const *ex_func
 #define POL_EARGS_UNTYPED ex_file, ex_line, ex_func
-#define POL_EXCEPT_VIRTFUNCS(etn) \
-char const *etn::getType(void) const throw() { return #etn " *"; } \
-lsst::pex::exceptions::Exception *etn::clone(void) const { \
-    return new etn(*this); \
-}
+#define POL_EXCEPT_VIRTFUNCS(etn)                                      \
+    char const *etn::getType(void) const throw() { return #etn " *"; } \
+    lsst::pex::exceptions::Exception *etn::clone(void) const { return new etn(*this); }
 
 namespace lsst {
 namespace pex {
@@ -56,13 +54,10 @@ namespace policy {
 class LSST_EXPORT BadNameError : public lsst::pex::exceptions::RuntimeError {
 public:
     BadNameError(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::RuntimeError(
-                POL_EARGS_UNTYPED, "Illegal Policy parameter name")
-    { }
-    BadNameError(POL_EARGS_TYPED, const std::string& badname)
-        : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED,
-              std::string("Illegal Policy parameter name: ") + badname)
-    { }
+            : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED, "Illegal Policy parameter name") {}
+    BadNameError(POL_EARGS_TYPED, const std::string &badname)
+            : lsst::pex::exceptions::RuntimeError(POL_EARGS_UNTYPED,
+                                                  std::string("Illegal Policy parameter name: ") + badname) {}
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
 };
@@ -73,13 +68,10 @@ public:
 class LSST_EXPORT DictionaryError : public lsst::pex::exceptions::DomainError {
 public:
     DictionaryError(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::DomainError(
-                POL_EARGS_UNTYPED, "Malformed dictionary")
-    { }
-    DictionaryError(POL_EARGS_TYPED, const std::string& msg)
-        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED,
-            std::string("Malformed dictionary: ") + msg)
-    { }
+            : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED, "Malformed dictionary") {}
+    DictionaryError(POL_EARGS_TYPED, const std::string &msg)
+            : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED,
+                                                 std::string("Malformed dictionary: ") + msg) {}
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
 };
@@ -91,13 +83,10 @@ public:
 class LSST_EXPORT NameNotFound : public lsst::pex::exceptions::NotFoundError {
 public:
     NameNotFound(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::NotFoundError(
-                POL_EARGS_UNTYPED, "Policy parameter name not found")
-    { }
-    NameNotFound(POL_EARGS_TYPED, const std::string& parameter)
-        : lsst::pex::exceptions::NotFoundError(POL_EARGS_UNTYPED,
-                std::string("Policy parameter name not found: ") + parameter)
-    { }
+            : lsst::pex::exceptions::NotFoundError(POL_EARGS_UNTYPED, "Policy parameter name not found") {}
+    NameNotFound(POL_EARGS_TYPED, const std::string &parameter)
+            : lsst::pex::exceptions::NotFoundError(
+                      POL_EARGS_UNTYPED, std::string("Policy parameter name not found: ") + parameter) {}
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
 };
@@ -109,20 +98,17 @@ public:
 class LSST_EXPORT TypeError : public lsst::pex::exceptions::DomainError {
 public:
     TypeError(POL_EARGS_TYPED)
-        : lsst::pex::exceptions::DomainError(
-                POL_EARGS_UNTYPED, "Parameter has wrong type")
-    { }
-    TypeError(POL_EARGS_TYPED,
-              const std::string& parameter, const std::string& expected)
-        : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED,
-              std::string("Parameter \"") + parameter +
-              "\" has wrong type; expecting " + expected + ".")
-    { }
+            : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED, "Parameter has wrong type") {}
+    TypeError(POL_EARGS_TYPED, const std::string &parameter, const std::string &expected)
+            : lsst::pex::exceptions::DomainError(POL_EARGS_UNTYPED, std::string("Parameter \"") + parameter +
+                                                                            "\" has wrong type; expecting " +
+                                                                            expected + ".") {}
     virtual char const *getType(void) const throw();
     virtual lsst::pex::exceptions::Exception *clone() const;
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-
-#endif // LSST_PEX_POLICY_EXCEPTIONS_H
+#endif  // LSST_PEX_POLICY_EXCEPTIONS_H

@@ -53,8 +53,7 @@ public:
      *                   ignored if possible; often, such errors will
      *                   result in some data not getting loaded.
      */
-    PolicyParser(Policy& policy, bool strict = true)
-            : _pol(policy), _strict(strict) {}
+    PolicyParser(Policy& policy, bool strict = true) : _pol(policy), _strict(strict) {}
 
     /**
      * destroy this factory
@@ -93,11 +92,12 @@ public:
     //@}
 
 protected:
-
     Policy& _pol;
     bool _strict;
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_PARSER_H
+#endif  // LSST_PEX_POLICY_PARSER_H

@@ -32,8 +32,10 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PolicySource::~PolicySource() { }
+PolicySource::~PolicySource() {}
 
 SupportedFormats::Ptr PolicySource::defaultFormats(new SupportedFormats());
 
-}}}   // end lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

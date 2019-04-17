@@ -32,7 +32,6 @@
 #ifndef LSST_PEX_POLICY_PARSER_H
 #define LSST_PEX_POLICY_PARSER_H
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/Policy.h"
 #include "lsst/pex/policy/PolicyParserFactory.h"
 
@@ -44,9 +43,8 @@ namespace policy {
  * @brief an abstract class for parsing serialized Policy data and loading
  * it into a Policy object.
  */
-class PolicyParser : public lsst::daf::base::Citizen {
+class PolicyParser {
 public:
-
     /**
      * Create a Parser attached to a policy object to be loaded.
      * @param policy   the Policy object to load the parsed data into
@@ -55,8 +53,8 @@ public:
      *                   ignored if possible; often, such errors will
      *                   result in some data not getting loaded.
      */
-    PolicyParser(Policy& policy, bool strict=true)
-        : lsst::daf::base::Citizen(typeid(this)), _pol(policy), _strict(strict) { }
+    PolicyParser(Policy& policy, bool strict = true)
+            : _pol(policy), _strict(strict) {}
 
     /**
      * destroy this factory

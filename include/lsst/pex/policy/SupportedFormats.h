@@ -43,7 +43,7 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-// class SupportedFormats : public Citizen { // causes problems in construction
+// class SupportedFormats { // causes problems in construction
 
 /**
  * @brief a list of supported Policy formats.  It can be used to determine
@@ -54,7 +54,7 @@ public:
 
     typedef std::shared_ptr<SupportedFormats> Ptr;
 
-//    SupportedFormats() : Citizen(typeid(this)), _formats() { }
+//    SupportedFormats() : _formats() { }
 
     SupportedFormats() : _formats() { }
 

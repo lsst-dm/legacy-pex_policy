@@ -68,14 +68,14 @@ const char * const Policy::typeName[] = {
  * Create an empty policy
  */
 Policy::Policy()
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet())
+    : Persistable(), _data(new PropertySet())
 { }
 
 /*
  * Create policy
  */
 Policy::Policy(const PolicySource& source)
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet())
+    : Persistable(), _data(new PropertySet())
 {
     source.load(*this);
 }
@@ -84,7 +84,7 @@ Policy::Policy(const PolicySource& source)
  * Create a Policy from a named file or URN.
  */
 Policy::Policy(const string& pathOrUrn)
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet())
+    : Persistable(), _data(new PropertySet())
 {
     createPolicyFile(pathOrUrn, true)->load(*this);
 }
@@ -93,7 +93,7 @@ Policy::Policy(const string& pathOrUrn)
  * Create a Policy from a named file or URN.
  */
 Policy::Policy(const char *pathOrUrn)
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet())
+    : Persistable(), _data(new PropertySet())
 {
     createPolicyFile(pathOrUrn, true)->load(*this);
 }
@@ -148,7 +148,7 @@ void extractDefaults(Policy& target, const Dictionary& dict, ValidationError& ve
  */
 Policy::Policy(bool validate, const Dictionary& dict,
                const fs::path& repository)
-    : Citizen(typeid(this)), Persistable(), _data(new PropertySet())
+    : Persistable(), _data(new PropertySet())
 {
     DictPtr loadedDict; // the dictionary that has all policy files loaded
     if (validate) { // keep loadedDict around for future validation
@@ -169,7 +169,7 @@ Policy::Policy(bool validate, const Dictionary& dict,
  * copy a Policy.  Sub-policy objects will not be shared.
  */
 Policy::Policy(const Policy& pol)
-    : Citizen(typeid(this)), Persistable(), _data()
+    : Persistable(), _data()
 {
     _data = pol._data->deepCopy();
 }
@@ -178,7 +178,7 @@ Policy::Policy(const Policy& pol)
  * copy a Policy.  Sub-policy objects will be shared unless deep is true
  */
 Policy::Policy(Policy& pol, bool deep)
-    : Citizen(typeid(this)), Persistable(), _data()
+    : Persistable(), _data()
 {
     if (deep)
         _data = pol._data->deepCopy();

@@ -34,7 +34,6 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/daf/base/Persistable.h"
 #include "lsst/daf/base/PropertySet.h"
 #include "lsst/pex/policy/exceptions.h"
@@ -166,7 +165,7 @@ class ValidationError;
  * After 3.3.3, loading default data (including from Dictionarys) was
  * improved.  This included adding mergeDefaults()
  */
-class Policy : public lsst::daf::base::Citizen, public lsst::daf::base::Persistable {
+class Policy : public lsst::daf::base::Persistable {
 public:
 
     typedef std::shared_ptr<Policy> Ptr;
@@ -848,7 +847,7 @@ protected:
      * use a PropertySet as the data for a new Policy object
      */
     Policy(const lsst::daf::base::PropertySet::Ptr ps)
-        : Citizen(typeid(this)), lsst::daf::base::Persistable(), _data(ps)
+        : lsst::daf::base::Persistable(), _data(ps)
     { }
 
 private:

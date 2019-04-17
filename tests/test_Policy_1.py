@@ -113,11 +113,9 @@ class PolicyTestCase(unittest.TestCase):
         self.assertRaises(NameNotFound, p.getDouble, "nonexistent")
 
     def testSimpleLoad(self):
-        # n = mwid.Citizen_census(0)
         p = Policy.createPolicy(os.path.join(proddir, "examples", "EventTransmitter_policy.paf"))
         self.assertEqual(p.get("transmitter.serializationFormat"), "deluxe")
         p = None
-        # self.assertEqual(mwid.Citizen_census(0), n, "Policy apparently leaked")
 
     def testEmptyPolicy(self):
         p = Policy()  # noqa F841: unused variable

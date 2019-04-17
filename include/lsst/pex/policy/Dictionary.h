@@ -265,7 +265,7 @@ protected:
  * @brief a convenience container for a single parameter definition from a
  * dictionary.
  */
-class Definition : public lsst::daf::base::Citizen {
+class Definition {
 public:
 
     /**
@@ -273,7 +273,7 @@ public:
      * @param paramName   the name of the parameter being defined.
      */
     Definition(const std::string& paramName = "")
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
+        : _type(Policy::UNDETERMINED),
 	_name(paramName), _policy(), _wildcard(false)
     {
         _policy.reset(new Policy());
@@ -285,7 +285,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const std::string& paramName, const Policy::Ptr& defn)
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
+        : _type(Policy::UNDETERMINED),
           _name(paramName), _policy(defn), _wildcard(false)
     { }
 
@@ -294,7 +294,7 @@ public:
      * @param defn        the policy containing the definition data
      */
     Definition(const Policy::Ptr& defn)
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
+        : _type(Policy::UNDETERMINED),
           _name(), _policy(defn), _wildcard(false)
     { }
 
@@ -302,7 +302,7 @@ public:
      * create a copy of a definition
      */
     Definition(const Definition& that)
-        : lsst::daf::base::Citizen(typeid(*this)), _type(Policy::UNDETERMINED),
+        : _type(Policy::UNDETERMINED),
           _name(that._name), _policy(that._policy), _wildcard(false)
     { }
 

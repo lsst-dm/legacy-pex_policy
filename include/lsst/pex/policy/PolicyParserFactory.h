@@ -34,7 +34,6 @@
 
 #include <string>
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/Policy.h"
 
 #include <memory>
@@ -46,7 +45,7 @@ namespace policy {
 // forward declaration
 class PolicyParser;
 
-// class PolicyParserFactory : public Citizen {  // causing deletion problems
+// class PolicyParserFactory {  // causing deletion problems
 
 /**
  * @brief an abstract factory class for creating PolicyParser instances.
@@ -65,7 +64,7 @@ public:
      */
     PolicyParserFactory() { }
 
-//    PolicyParserFactory() : Citizen(typeid(this)) { }
+//    PolicyParserFactory() { }
 
     /**
      * destroy this factory

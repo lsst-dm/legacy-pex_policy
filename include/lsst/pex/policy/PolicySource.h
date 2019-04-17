@@ -34,7 +34,6 @@
 #ifndef LSST_PEX_POLICY_SOURCE_H
 #define LSST_PEX_POLICY_SOURCE_H
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/Policy.h"
 #include "lsst/pex/policy/PolicyParserFactory.h"
 #include "lsst/pex/policy/SupportedFormats.h"
@@ -50,7 +49,7 @@ namespace policy {
  * data is in (which may involve reading the first few characters) and
  * load it into a Policy.
  */
-class PolicySource : public lsst::daf::base::Citizen {
+class PolicySource {
 public:
 
     /**
@@ -58,7 +57,7 @@ public:
      * @param fmts   the list of formats to support
      */
     PolicySource(SupportedFormats::Ptr fmts=defaultFormats)
-        : lsst::daf::base::Citizen(typeid(this)), _formats(fmts)
+        : _formats(fmts)
     {
         if (defaultFormats->size() == 0)
             SupportedFormats::initDefaultFormats(*defaultFormats);

@@ -37,7 +37,6 @@
 
 #include <iostream>
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/PolicyParser.h"
 #include "lsst/pex/policy/Policy.h"
 

@@ -32,7 +32,8 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PolicyDestination::~PolicyDestination() { }
+PolicyDestination::~PolicyDestination() {}
 
-
-}}}
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

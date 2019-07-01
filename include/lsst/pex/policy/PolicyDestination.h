@@ -34,7 +34,6 @@
 #ifndef LSST_PEX_POLICY_DEST_H
 #define LSST_PEX_POLICY_DEST_H
 
-#include "lsst/daf/base/Citizen.h"
 #include "lsst/pex/policy/Policy.h"
 
 namespace lsst {
@@ -48,13 +47,12 @@ namespace policy {
  * going to the destination; this is a matter for the PolicyWriter, which
  * can take a PolicyDestination as a constructor input.
  */
-class PolicyDestination : public lsst::daf::base::Citizen {
+class PolicyDestination {
 public:
-
     /**
      * create a destination
      */
-    PolicyDestination() : lsst::daf::base::Citizen(typeid(this)) { }
+    PolicyDestination() {}
 
     /**
      * release resource associated with the destination
@@ -70,13 +68,11 @@ protected:
     /**
      * create a copy of this destination
      */
-    PolicyDestination(const PolicyDestination& that)
-        : lsst::daf::base::Citizen(typeid(this)) { }
-
+    PolicyDestination(const PolicyDestination& that) {}
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_DEST_H
-
-
+#endif  // LSST_PEX_POLICY_DEST_H

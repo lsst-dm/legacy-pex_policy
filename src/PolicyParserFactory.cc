@@ -42,14 +42,13 @@ static void execTrace( string s, int level = EXEC_TRACE ){
 
 const std::string PolicyParserFactory::UNRECOGNIZED;
 
-PolicyParserFactory::~PolicyParserFactory() { }
+PolicyParserFactory::~PolicyParserFactory() {}
 
 /**
  * return the name for the format supported by the parser
  */
-const std::string& PolicyParserFactory::getFormatName() {
-    return UNRECOGNIZED;
-}
+const std::string& PolicyParserFactory::getFormatName() { return UNRECOGNIZED; }
 
-}}}  // end namespace lsst::pex::policy
-
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

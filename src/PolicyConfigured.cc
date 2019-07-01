@@ -29,12 +29,13 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-PolicyConfigured::~PolicyConfigured() { }
+PolicyConfigured::~PolicyConfigured() {}
 
 void PolicyConfigured::done() {
     configured();
     forgetPolicy();
 }
 
-}}}  // end namespace lsst::pex::policy
-
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

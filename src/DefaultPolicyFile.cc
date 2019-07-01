@@ -37,12 +37,9 @@ namespace lsst {
 namespace pex {
 namespace policy {
 
-DefaultPolicyFile::DefaultPolicyFile(const char* const productName,
-                                     const std::string& filepath,
-                                     const std::string& repos,
-                                     bool strict)
-    : PolicyFile(), _repos(), _strict(strict)
-{
+DefaultPolicyFile::DefaultPolicyFile(const char* const productName, const std::string& filepath,
+                                     const std::string& repos, bool strict)
+        : PolicyFile(), _repos(), _strict(strict) {
     _repos = getInstallPath(productName);
     if (repos.length() > 0) _repos /= repos;
     _file = _repos / filepath;
@@ -65,18 +62,16 @@ fs::path DefaultPolicyFile::installPathFor(const char* const productName) {
     std::string productName_DIR(productName);
 
     // transform to upper case
-    std::transform(productName_DIR.begin(), productName_DIR.end(),
-                   productName_DIR.begin(),
-                   std::ptr_fun<int, int>( std::toupper ));
+    std::transform(productName_DIR.begin(), productName_DIR.end(), productName_DIR.begin(),
+                   std::ptr_fun<int, int>(std::toupper));
 
     // append _DIR
     productName_DIR += "_DIR";
 
     // get installation directory from environment
-    const char *ipath = getenv(productName_DIR.c_str());
+    const char* ipath = getenv(productName_DIR.c_str());
     if (ipath == 0)
-        throw LSST_EXCEPT(pexExcept::NotFoundError,
-			  productName_DIR + ": environment variable not set");
+        throw LSST_EXCEPT(pexExcept::NotFoundError, productName_DIR + ": environment variable not set");
 
     return fs::path(ipath);
 }
@@ -95,4 +90,6 @@ void DefaultPolicyFile::load(Policy& policy) const {
     policy.loadPolicyFiles(_repos, _strict);
 }
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

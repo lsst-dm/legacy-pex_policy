@@ -48,7 +48,6 @@ namespace policy {
  */
 class PolicyStringDestination : public PolicyStreamDestination {
 public:
-
     /**
      * create the destination
      */
@@ -68,14 +67,14 @@ public:
     /**
      * return the data written so far as a string
      */
-    std::string getData() {
-        return _sstrm->str();
-    }
+    std::string getData() { return _sstrm->str(); }
 
 private:
-    std::ostringstream *_sstrm;
+    std::ostringstream* _sstrm;
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_STRDEST_H
+#endif  // LSST_PEX_POLICY_STRDEST_H

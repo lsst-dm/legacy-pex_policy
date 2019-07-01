@@ -68,7 +68,6 @@ namespace policy {
  */
 class DefaultPolicyFile : public PolicyFile {
 public:
-
     /**
      * define a default policy file
      * @param productName    the name of the product that the default
@@ -86,10 +85,8 @@ public:
      *                         be incomplete.  This is identical to the strict
      *                         argument to Policy's loadPolicyFiles().
      */
-    DefaultPolicyFile(const char* const productName,
-                      const std::string& filepath,
-                      const std::string& repos="",
-                      bool strict=true);
+    DefaultPolicyFile(const char* const productName, const std::string& filepath,
+                      const std::string& repos = "", bool strict = true);
 
     /**
      * return the file path to the installation directory of a given
@@ -115,7 +112,6 @@ public:
      */
     static boost::filesystem::path installPathFor(const char* const productName);
 
-
     /**
      * load the data from this Policy source into a Policy object.  This
      * implementation will automatically de-reference any file include
@@ -132,8 +128,8 @@ private:
     bool _strict;
 };
 
-}}}  // end namespace lsst::pex::policy
-
-
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
 #endif

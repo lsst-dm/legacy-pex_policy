@@ -85,12 +85,12 @@ public:
      * @param policy   a pointer (which may be null) pointing to a policy
      *                    that should be used to configure this class.
      */
-    PolicyConfigured(const PolicyPtr& policy) : _policy(policy) { }
+    PolicyConfigured(const PolicyPtr& policy) : _policy(policy) {}
 
     /**
      * construct without configuration from a policy
      */
-    PolicyConfigured() : _policy() { }
+    PolicyConfigured() : _policy() {}
 
     /**
      * delete this interface
@@ -118,12 +118,9 @@ public:
      * returns a null pointer.  Subclasses may override this function,
      * usually returning a pointer to a DefaultPolicyFile.
      */
-    static PolicySourcePtr getDefaultPolicySource() {
-        return PolicySourcePtr();
-    }
+    static PolicySourcePtr getDefaultPolicySource() { return PolicySourcePtr(); }
 
 protected:
-
     /**
      * return the policy that should be used to configure this object.
      * The returned pointer may be null.  This class may change it contents
@@ -153,11 +150,10 @@ protected:
 private:
     PolicyPtr _policy;
     bool _configured;
-
 };
 
-}}}  // end namespace lsst::pex::policy
-
-
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
 #endif  // LSST_PEX_POLICY_POLICYCONFIGURED_H

@@ -33,12 +33,12 @@ namespace pex {
 namespace policy {
 
 PolicyStreamDestination::PolicyStreamDestination(PolicyStreamDestination::StreamPtr ostrm)
-    : PolicyDestination(), _ostrm(ostrm) { }
+        : PolicyDestination(), _ostrm(ostrm) {}
 
-PolicyStreamDestination::~PolicyStreamDestination() { }
+PolicyStreamDestination::~PolicyStreamDestination() {}
 
-std::ostream& PolicyStreamDestination::getOutputStream() {
-    return *_ostrm;
-}
+std::ostream& PolicyStreamDestination::getOutputStream() { return *_ostrm; }
 
-}}}
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

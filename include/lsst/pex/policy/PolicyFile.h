@@ -57,7 +57,6 @@ namespace policy {
  */
 class PolicyFile : public PolicySource, public lsst::daf::base::Persistable {
 public:
-
     //@{
     /**
      * create a Policy file that points a file with given path.  Typically,
@@ -73,10 +72,8 @@ public:
      * @param fmts           a SupportedFormats object to use.  An instance
      *                          encapsulates a configured set of known formats.
      */
-    explicit PolicyFile(const std::string& filepath,
-                        const SupportedFormats::Ptr& fmts = defaultFormats);
-    explicit PolicyFile(const char *filepath,
-                        const SupportedFormats::Ptr& fmts = defaultFormats);
+    explicit PolicyFile(const std::string& filepath, const SupportedFormats::Ptr& fmts = defaultFormats);
+    explicit PolicyFile(const char* filepath, const SupportedFormats::Ptr& fmts = defaultFormats);
     explicit PolicyFile(const boost::filesystem::path& filepath,
                         const SupportedFormats::Ptr& fmts = defaultFormats);
     //@}
@@ -92,10 +89,8 @@ public:
      *                          in parsing the file, assuming a particular
      *                          format.
      */
-    PolicyFile(const std::string& filepath,
-               const PolicyParserFactory::Ptr& parserFactory);
-    PolicyFile(const boost::filesystem::path& filepath,
-               const PolicyParserFactory::Ptr& parserFactory);
+    PolicyFile(const std::string& filepath, const PolicyParserFactory::Ptr& parserFactory);
+    PolicyFile(const boost::filesystem::path& filepath, const PolicyParserFactory::Ptr& parserFactory);
     //@}
 
     //@{
@@ -118,11 +113,9 @@ public:
      * @param fmts           a SupportedFormats object to use.  An instance
      *                          encapsulates a configured set of known formats.
      */
-    PolicyFile(const std::string& filepath,
-               const boost::filesystem::path& reposDir,
+    PolicyFile(const std::string& filepath, const boost::filesystem::path& reposDir,
                const SupportedFormats::Ptr& fmts = defaultFormats);
-    PolicyFile(const boost::filesystem::path& filepath,
-               const boost::filesystem::path& reposDir,
+    PolicyFile(const boost::filesystem::path& filepath, const boost::filesystem::path& reposDir,
                const SupportedFormats::Ptr& fmts = defaultFormats);
     //@}
 
@@ -142,11 +135,9 @@ public:
      *                          in parsing the file, assuming a particular
      *                          format.
      */
-    PolicyFile(const std::string& filepath,
-               const boost::filesystem::path& reposDir,
+    PolicyFile(const std::string& filepath, const boost::filesystem::path& reposDir,
                const PolicyParserFactory::Ptr& parserFactory);
-    PolicyFile(const boost::filesystem::path& filepath,
-               const boost::filesystem::path& reposDir,
+    PolicyFile(const boost::filesystem::path& filepath, const boost::filesystem::path& reposDir,
                const PolicyParserFactory::Ptr& parserFactory);
     //@}
 
@@ -157,18 +148,17 @@ public:
      */
     PolicyFile(const SupportedFormats::Ptr& fmts = defaultFormats);
 
-
-//     /*
-//      * determine the format that the data is stored in and return its format
-//      * type identifier.  Note that UNKNOWN will be returned
-//      * if the format is supported--that is, the data can be read into a
-//      * Policy object--but otherwise does not have a defined type identifier
-//      * defined.  This may cause the first few records of the source to
-//      * be read.
-//      * @exception IOError   if an error occurs while reading the first few
-//      *                      characters of the source stream.
-//      */
-//     virtual FormatType getFormatType();
+    //     /*
+    //      * determine the format that the data is stored in and return its format
+    //      * type identifier.  Note that UNKNOWN will be returned
+    //      * if the format is supported--that is, the data can be read into a
+    //      * Policy object--but otherwise does not have a defined type identifier
+    //      * defined.  This may cause the first few records of the source to
+    //      * be read.
+    //      * @exception IOError   if an error occurs while reading the first few
+    //      *                      characters of the source stream.
+    //      */
+    //     virtual FormatType getFormatType();
 
     /**
      * return the file path as a string
@@ -178,7 +168,7 @@ public:
     /**
      * return true if the file exists.
      */
-    bool exists() const {  return boost::filesystem::exists(_file);  }
+    bool exists() const { return boost::filesystem::exists(_file); }
 
     /**
      * return the name of the format that the data is stored in.  This may
@@ -190,9 +180,7 @@ public:
      *                      characters of the source stream.
      */
     virtual const std::string& getFormatName();
-    const std::string& getFormatName() const {
-        return const_cast<PolicyFile*>(this)->getFormatName();
-    }
+    const std::string& getFormatName() const { return const_cast<PolicyFile*>(this)->getFormatName(); }
 
     //@{
     /**
@@ -204,15 +192,15 @@ public:
      */
     virtual void load(Policy& policy) const;
     virtual void load(Policy& policy) {
-	((const PolicyFile*) this)->load(policy); // delegate to const version
+        ((const PolicyFile*)this)->load(policy);  // delegate to const version
     }
     //@}
 
-    static const std::string EXT_PAF;   //! the PAF file extension, ".paf"
-    static const std::string EXT_XML;   //! the XML file extension,  ".xml"
+    static const std::string EXT_PAF;  //! the PAF file extension, ".paf"
+    static const std::string EXT_XML;  //! the XML file extension,  ".xml"
 
-    static const boost::regex SPACE_RE;   //! reg-exp for an empty line
-    static const boost::regex COMMENT;    //! reg-exp for the start of a comment
+    static const boost::regex SPACE_RE;  //! reg-exp for an empty line
+    static const boost::regex COMMENT;   //! reg-exp for the start of a comment
 
     /**
      * reg-exp for a Policy content identifier, "<?cfg [format] [content] ?>"
@@ -237,9 +225,8 @@ private:
     // inherits SupportedFormats _formats from PolicySource
 };
 
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-}}}  // end namespace lsst::pex::policy
-
-#endif // LSST_PEX_POLICY_FILE_H
-
-
+#endif  // LSST_PEX_POLICY_FILE_H

@@ -51,7 +51,6 @@ namespace policy {
  */
 class PolicyString : public PolicySource, public lsst::daf::base::Persistable {
 public:
-
     /**
      * create a PolicyString that's wrapped around a given string.
      * @param data          the path to the file, either as a string or a
@@ -59,8 +58,7 @@ public:
      * @param fmts           a SupportedFormats object to use.  An instance
      *                          encapsulates a configured set of known formats.
      */
-    explicit PolicyString(const std::string& data,
-                          const SupportedFormats::Ptr& fmts = defaultFormats);
+    explicit PolicyString(const std::string& data, const SupportedFormats::Ptr& fmts = defaultFormats);
 
     /**
      * create a "null" Policy formed from an empty string.
@@ -85,9 +83,7 @@ public:
      *                      characters of the source stream.
      */
     virtual const std::string& getFormatName();
-    const std::string& getFormatName() const {
-        return const_cast<PolicyString*>(this)->getFormatName();
-    }
+    const std::string& getFormatName() const { return const_cast<PolicyString*>(this)->getFormatName(); }
     //@}
 
     //@{
@@ -99,13 +95,11 @@ public:
      *                       source stream.
      */
     virtual void load(Policy& policy);
-    void load(Policy& policy) const {
-        const_cast<PolicyString*>(this)->load(policy);
-    }
+    void load(Policy& policy) const { const_cast<PolicyString*>(this)->load(policy); }
     //@}
 
-    static const boost::regex SPACE_RE;   //! reg-exp for an empty line
-    static const boost::regex COMMENT;    //! reg-exp for the start of a comment
+    static const boost::regex SPACE_RE;  //! reg-exp for an empty line
+    static const boost::regex COMMENT;   //! reg-exp for the start of a comment
     /**
      * reg-exp for a Policy content identifier, "<?cfg [format] [content] ?>"
      */
@@ -129,8 +123,8 @@ private:
     // inherits SupportedFormats _formats from PolicySource
 };
 
-}}}  // end namespace lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst
 
-#endif // LSST_PEX_POLICY_STRING_H
-
-
+#endif  // LSST_PEX_POLICY_STRING_H

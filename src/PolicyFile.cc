@@ -43,12 +43,11 @@
 #include "boost/version.hpp"
 #include "boost/filesystem/config.hpp"
 #if BOOST_VERSION <= 104600 || BOOST_FILESYSTEM_VERSION < 3
-namespace boost { namespace filesystem {
-    path absolute(const path& p)
-    {
-        return complete(p);
-    }
-}}
+namespace boost {
+namespace filesystem {
+path absolute(const path& p) { return complete(p); }
+}  // namespace filesystem
+}  // namespace boost
 #endif
 namespace fs = boost::filesystem;
 
@@ -58,13 +57,13 @@ namespace policy {
 
 //@cond
 
-using std::string;
-using std::ifstream;
 using boost::regex;
 using boost::regex_match;
 using boost::regex_search;
-using std::unique_ptr;
 using lsst::pex::policy::paf::PAFParserFactory;
+using std::ifstream;
+using std::string;
+using std::unique_ptr;
 
 namespace pexExcept = lsst::pex::exceptions;
 
@@ -73,84 +72,56 @@ const string PolicyFile::EXT_XML(".xml");
 
 const regex PolicyFile::SPACE_RE("^\\s*$");
 const regex PolicyFile::COMMENT("^\\s*#");
-const regex
-          PolicyFile::CONTENTID("^\\s*#\\s*<\\?cfg\\s+\\w+(\\s+\\w+)*\\s*\\?>",
-                                regex::icase);
+const regex PolicyFile::CONTENTID("^\\s*#\\s*<\\?cfg\\s+\\w+(\\s+\\w+)*\\s*\\?>", regex::icase);
 
 /*
  * create a Policy file that points a file with given path.
  * @param filepath   the path to the file
  */
 PolicyFile::PolicyFile(const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(),
-      _file(PolicyParserFactory::UNRECOGNIZED), _format(), _pfact()
-{ }
+        : PolicySource(fmts), Persistable(), _file(PolicyParserFactory::UNRECOGNIZED), _format(), _pfact() {}
 
-PolicyFile::PolicyFile(const string& filepath,
-                       const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact()
-{ }
+PolicyFile::PolicyFile(const string& filepath, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact() {}
 
-PolicyFile::PolicyFile(const char *filepath,
-                       const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact()
-{ }
+PolicyFile::PolicyFile(const char* filepath, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact() {}
 
-PolicyFile::PolicyFile(const fs::path& filepath,
-                       const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact()
-{ }
+PolicyFile::PolicyFile(const fs::path& filepath, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact() {}
 
-PolicyFile::PolicyFile(const string& filepath,
-                       const PolicyParserFactory::Ptr& parserFactory)
-    : PolicySource(), Persistable(),
-      _file(filepath), _format(), _pfact(parserFactory)
-{
-    if (! _pfact.get()) _format = _pfact->getFormatName();
+PolicyFile::PolicyFile(const string& filepath, const PolicyParserFactory::Ptr& parserFactory)
+        : PolicySource(), Persistable(), _file(filepath), _format(), _pfact(parserFactory) {
+    if (!_pfact.get()) _format = _pfact->getFormatName();
 }
 
-PolicyFile::PolicyFile(const fs::path& filepath,
-                       const PolicyParserFactory::Ptr& parserFactory)
-    : PolicySource(), Persistable(),
-      _file(filepath), _format(), _pfact(parserFactory)
-{
-    if (! _pfact.get()) _format = _pfact->getFormatName();
+PolicyFile::PolicyFile(const fs::path& filepath, const PolicyParserFactory::Ptr& parserFactory)
+        : PolicySource(), Persistable(), _file(filepath), _format(), _pfact(parserFactory) {
+    if (!_pfact.get()) _format = _pfact->getFormatName();
 }
 
-PolicyFile::PolicyFile(const string& filepath, const fs::path& reposDir,
-                       const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact()
-{
-    if (! _file.has_root_path() && ! reposDir.empty())
-        _file = reposDir / _file;
+PolicyFile::PolicyFile(const string& filepath, const fs::path& reposDir, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact() {
+    if (!_file.has_root_path() && !reposDir.empty()) _file = reposDir / _file;
 }
 
-PolicyFile::PolicyFile(const fs::path& filepath, const fs::path& reposDir,
-                       const SupportedFormats::Ptr& fmts)
-    : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact()
-{
-    if (! _file.has_root_path() && ! reposDir.empty())
-        _file = reposDir / _file;
+PolicyFile::PolicyFile(const fs::path& filepath, const fs::path& reposDir, const SupportedFormats::Ptr& fmts)
+        : PolicySource(fmts), Persistable(), _file(filepath), _format(), _pfact() {
+    if (!_file.has_root_path() && !reposDir.empty()) _file = reposDir / _file;
 }
 
 PolicyFile::PolicyFile(const string& filepath, const fs::path& reposDir,
                        const PolicyParserFactory::Ptr& parserFactory)
-    : PolicySource(), Persistable(),
-      _file(filepath), _format(), _pfact(parserFactory)
-{
-    if (! _file.has_root_path() && ! reposDir.empty())
-        _file = reposDir / _file;
-    if (! _pfact.get()) _format = _pfact->getFormatName();
+        : PolicySource(), Persistable(), _file(filepath), _format(), _pfact(parserFactory) {
+    if (!_file.has_root_path() && !reposDir.empty()) _file = reposDir / _file;
+    if (!_pfact.get()) _format = _pfact->getFormatName();
 }
 
 PolicyFile::PolicyFile(const fs::path& filepath, const fs::path& reposDir,
                        const PolicyParserFactory::Ptr& parserFactory)
-    : PolicySource(), Persistable(),
-      _file(filepath), _format(), _pfact(parserFactory)
-{
-    if (! _file.has_root_path() && ! reposDir.empty())
-        _file = reposDir / _file;
-    if (! _pfact.get()) _format = _pfact->getFormatName();
+        : PolicySource(), Persistable(), _file(filepath), _format(), _pfact(parserFactory) {
+    if (!_file.has_root_path() && !reposDir.empty()) _file = reposDir / _file;
+    if (!_pfact.get()) _format = _pfact->getFormatName();
 }
 
 /*
@@ -165,12 +136,11 @@ const string& PolicyFile::getFormatName() {
 
     // check the extension first
     string ext = fs::extension(_file);
-    if (! ext.empty()) {
+    if (!ext.empty()) {
         if (ext == EXT_PAF) {
             if (_formats->supports(PAFParserFactory::FORMAT_NAME))
                 return cacheName(PAFParserFactory::FORMAT_NAME);
-        }
-        else if (ext == EXT_XML) {
+        } else if (ext == EXT_XML) {
             return cacheName("XML");
         }
     }
@@ -180,25 +150,20 @@ const string& PolicyFile::getFormatName() {
         ifstream is(_file.string().c_str());
         if (is.fail())
             throw LSST_EXCEPT(pexExcept::IoError,
-                              "failure opening Policy file: "
-                              + fs::absolute(_file).string());
+                              "failure opening Policy file: " + fs::absolute(_file).string());
 
         // skip over comments
         string line;
         getline(is, line);
-        while (is.good() &&
-               (regex_match(line, SPACE_RE) ||
-                (regex_search(line, COMMENT) && !regex_search(line, COMMENT))))
-        { }
+        while (is.good() && (regex_match(line, SPACE_RE) ||
+                             (regex_search(line, COMMENT) && !regex_search(line, COMMENT)))) {
+        }
 
         if (is.fail())
             throw LSST_EXCEPT(pexExcept::IoError,
-                              "failure reading Policy file: "
-                              + fs::absolute(_file).string());
+                              "failure reading Policy file: " + fs::absolute(_file).string());
         if (is.eof() &&
-            (regex_match(line, SPACE_RE) ||
-             (regex_search(line, COMMENT) && !regex_search(line, COMMENT))))
-        {
+            (regex_match(line, SPACE_RE) || (regex_search(line, COMMENT) && !regex_search(line, COMMENT)))) {
             // empty file; let's just assume PAF (but don't cache the name).
             return PAFParserFactory::FORMAT_NAME;
         }
@@ -217,12 +182,10 @@ const string& PolicyFile::getFormatName() {
  *                       source stream.
  */
 void PolicyFile::load(Policy& policy) const {
-
     PolicyParserFactory::Ptr pfactory = _pfact;
-    if (! pfactory.get()) {
+    if (!pfactory.get()) {
         const string& fmtname = getFormatName();
-        if (fmtname.empty())
-            throw LSST_EXCEPT(ParserError, "Unknown Policy format: " + _file.string());
+        if (fmtname.empty()) throw LSST_EXCEPT(ParserError, "Unknown Policy format: " + _file.string());
 
         pfactory = _formats->getFactory(fmtname);
     }
@@ -231,9 +194,7 @@ void PolicyFile::load(Policy& policy) const {
 
     ifstream fs(_file.string().c_str());
     if (fs.fail())
-        throw LSST_EXCEPT(pexExcept::IoError,
-                          "failure opening Policy file: "
-                          + fs::absolute(_file).string());
+        throw LSST_EXCEPT(pexExcept::IoError, "failure opening Policy file: " + fs::absolute(_file).string());
 
     parser->parse(fs);
     fs.close();
@@ -241,4 +202,6 @@ void PolicyFile::load(Policy& policy) const {
 
 //@endcond
 
-}}}   // end lsst::pex::policy
+}  // namespace policy
+}  // namespace pex
+}  // namespace lsst

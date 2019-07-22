@@ -26,10 +26,9 @@
 #include <set>
 #include <string>
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Dm8654Cpp
 
-#include "boost/test/unit_test.hpp"
+#include "boost/test/included/unit_test.hpp"
 
 #include "lsst/pex/policy/Policy.h"
 

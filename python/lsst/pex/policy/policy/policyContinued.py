@@ -6,8 +6,8 @@ from .policy import Policy
 from lsst.utils import continueClass
 
 
-@continueClass  # noqa F811 redefinition
-class Policy:
+@continueClass  # noqa: F811 (FIXME: remove for py 3.8+)
+class Policy:  # noqa: F811
     def get(self, name):
         type = self.getValueType(name)
         if (type == self.UNDEF):
